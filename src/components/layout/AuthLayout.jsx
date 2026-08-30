@@ -6,13 +6,7 @@ import StickerHeading from '../ui/StickerHeading';
 export default function AuthLayout({ title, subtitle, children, cardClassName = '' }) {
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-carissma-400 px-4 py-10"
-      style={{
-        backgroundImage: 'url(/backgrounds/wavy-grid.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-carissma-400 bg-cover bg-center bg-no-repeat bg-[url('/backgrounds/wavy-grid-portrait.jpg')] px-4 py-10 sm:bg-[url('/backgrounds/wavy-grid-landscape.jpg')]"
     >
       <div className={`relative w-full max-w-md rounded-[2rem] border-4 border-carissma-300 bg-carissma-50 p-8 shadow-xl ${cardClassName}`}>
         <div className="mb-6 flex flex-col items-center text-center">
