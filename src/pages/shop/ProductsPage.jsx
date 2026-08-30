@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import SiteLayout from '../../components/layout/SiteLayout';
 import { listProducts } from '../../api/content.api';
 import { SearchIcon, ChevronDownIcon } from '../../components/ui/icons';
+import StickerHeading from '../../components/ui/StickerHeading';
 
 const PAGE_SIZE = 60;
 const BATCH = 20;
@@ -52,15 +53,9 @@ export default function ProductsPage() {
     <SiteLayout>
       <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1
-            className="text-2xl font-extrabold uppercase text-carissma-300"
-            style={{
-              textShadow:
-                '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
-            }}
-          >
+          <StickerHeading as="h1" className="text-2xl">
             Products
-          </h1>
+          </StickerHeading>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative">

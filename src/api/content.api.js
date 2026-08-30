@@ -11,6 +11,7 @@ export const listPackages = () => client.get('/packages').then((r) => r.data.dat
 export const getCmsPage = (slug) => client.get(`/cms/pages/${slug}`).then((r) => r.data.data);
 export const listFaqs = () => client.get('/faqs').then((r) => r.data.data);
 export const listSocialLinks = () => client.get('/social-links').then((r) => r.data.data);
+export const getHomeVideo = () => client.get('/site-settings/home-video').then((r) => r.data.data);
 
 // Get in touch (public)
 export const submitContactForm = (payload) => client.post('/contact-us', payload).then((r) => r.data.data);

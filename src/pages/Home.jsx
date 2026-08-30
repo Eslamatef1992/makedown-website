@@ -1,29 +1,31 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../components/layout/SiteLayout';
-import { listProducts, listGameCategories, listFaqs } from '../api/content.api';
+import { listProducts, listGameCategories, listFaqs, getHomeVideo } from '../api/content.api';
 import { ChevronLeftIcon, ChevronRightIcon } from '../components/ui/icons';
+import StickerHeading from '../components/ui/StickerHeading';
 
 const BLURB =
   'A Multiplayer Quiz Game Featuring More Than 200 Diverse Categories, With Dedicated Sections For Students, Adults, And Children.';
 
-function StickerHeading({ children, className = '' }) {
-  return (
-    <h2
-      className={`font-extrabold uppercase text-carissma-300 ${className}`}
-      style={{
-        textShadow:
-          '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
-      }}
-    >
-      {children}
-    </h2>
-  );
+function getYoutubeId(url) {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/live\/|youtube\.com\/shorts\/|youtu\.be\/)([\w-]{11})/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return m[1];
+  }
+  return null;
 }
 
-function CategoryCarousel({ categories }) {
+function CategoryCarousel({ categories, loading, error }) {
   const [index, setIndex] = useState(0);
-  if (categories.length === 0) return null;
+  if (loading) return <p className="mt-10 text-sm font-semibold text-espresso-500">Loading categories…</p>;
+  if (error) return <p className="mt-10 text-sm font-semibold text-carnation-600">Couldn't load categories right now.</p>;
+  if (categories.length === 0) return <p className="mt-10 text-sm font-semibold text-espresso-500">No categories yet — add some from the admin panel.</p>;
+
   const at = (offset) => categories[(index + offset + categories.length) % categories.length];
   const prev = categories.length > 1 ? at(-1) : null;
   const current = at(0);
@@ -94,15 +96,15 @@ function FaqAccordion({ faqs }) {
       {faqs.map((f) => {
         const open = f.id === openId;
         return (
-          <div key={f.id} className="rounded-2xl bg-white/70 px-5 py-4">
+          <div key={f.id} className="rounded-2xl bg-carissma-100/60 px-6 py-5 text-start">
             <button
               onClick={() => setOpenId(open ? null : f.id)}
               className="flex w-full items-center justify-between text-start text-sm font-bold text-espresso-900"
             >
               {f.question_en}
-              <span className="ms-3 text-carissma-400">{open ? '×' : '+'}</span>
+              <span className="ms-3 text-lg font-bold text-carissma-400">{open ? '×' : '+'}</span>
             </button>
-            {open && f.answer_en && <p className="mt-2 text-sm text-espresso-700">{f.answer_en}</p>}
+            {open && f.answer_en && <p className="mt-3 text-sm font-medium text-espresso-800">{f.answer_en}</p>}
           </div>
         );
       })}
@@ -141,14 +143,41 @@ function ProductCard({ p }) {
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [productsState, setProductsState] = useState('loading');
   const [categories, setCategories] = useState([]);
+  const [categoriesState, setCategoriesState] = useState('loading');
   const [faqs, setFaqs] = useState([]);
+  const [faqsState, setFaqsState] = useState('loading');
+  const [videoUrl, setVideoUrl] = useState('');
 
   useEffect(() => {
-    listProducts({ page: 1, pageSize: 10 }).then((d) => setProducts(d.rows || [])).catch(() => setProducts([]));
-    listGameCategories().then((rows) => setCategories(rows || [])).catch(() => setCategories([]));
-    listFaqs().then((rows) => setFaqs(rows || [])).catch(() => setFaqs([]));
+    listProducts({ page: 1, pageSize: 10 })
+      .then((d) => {
+        setProducts(d.rows || []);
+        setProductsState('ready');
+      })
+      .catch(() => setProductsState('error'));
+
+    listGameCategories()
+      .then((rows) => {
+        setCategories(Array.isArray(rows) ? rows : []);
+        setCategoriesState('ready');
+      })
+      .catch(() => setCategoriesState('error'));
+
+    listFaqs()
+      .then((rows) => {
+        setFaqs(Array.isArray(rows) ? rows : []);
+        setFaqsState('ready');
+      })
+      .catch(() => setFaqsState('error'));
+
+    getHomeVideo()
+      .then((data) => setVideoUrl(data?.url || ''))
+      .catch(() => setVideoUrl(''));
   }, []);
+
+  const youtubeId = getYoutubeId(videoUrl);
 
   return (
     <SiteLayout>
@@ -179,15 +208,32 @@ export default function Home() {
           <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold text-espresso-700">{BLURB}</p>
 
           <div className="relative mx-auto mt-8 aspect-video max-w-3xl overflow-hidden rounded-3xl bg-gradient-to-br from-espresso-900 to-carissma-900">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-2xl text-carissma-500">▶</div>
-            </div>
+            {youtubeId && (
+              <img
+                src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
+                alt="Home page video thumbnail"
+                className="absolute inset-0 h-full w-full object-cover opacity-90"
+              />
+            )}
             <a
-              href="#"
-              className="absolute bottom-4 start-4 rounded-full bg-white px-4 py-2 text-xs font-bold text-espresso-900 shadow"
+              href={youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : undefined}
+              target={youtubeId ? '_blank' : undefined}
+              rel={youtubeId ? 'noopener noreferrer' : undefined}
+              className="absolute inset-0 flex items-center justify-center"
+              aria-label="Watch on YouTube"
             >
-              Watch On Youtube
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-2xl text-carissma-500">▶</div>
             </a>
+            {youtubeId && (
+              <a
+                href={`https://www.youtube.com/watch?v=${youtubeId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-4 start-4 rounded-full bg-white px-4 py-2 text-xs font-bold text-espresso-900 shadow"
+              >
+                Watch On Youtube
+              </a>
+            )}
           </div>
 
           <Link
@@ -202,34 +248,42 @@ export default function Home() {
         <section className="mt-16 text-center">
           <StickerHeading className="text-2xl sm:text-3xl">Popular Categories</StickerHeading>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold text-espresso-700">{BLURB}</p>
-          <CategoryCarousel categories={categories} />
+          <CategoryCarousel categories={categories} loading={categoriesState === 'loading'} error={categoriesState === 'error'} />
         </section>
 
         {/* Products */}
-        {products.length > 0 && (
-          <section className="mt-16">
-            <div className="flex items-center justify-between">
-              <StickerHeading className="text-xl sm:text-2xl">Popular Products</StickerHeading>
-              <Link to="/products" className="text-sm font-bold text-carissma-500 hover:underline">
-                View All
-              </Link>
-            </div>
+        <section className="mt-16">
+          <div className="flex items-center justify-between">
+            <StickerHeading className="text-xl sm:text-2xl">Popular Products</StickerHeading>
+            <Link to="/products" className="text-sm font-bold text-carissma-500 hover:underline">
+              View All
+            </Link>
+          </div>
+          {productsState === 'loading' && <p className="mt-6 text-sm font-semibold text-espresso-500">Loading products…</p>}
+          {productsState === 'error' && <p className="mt-6 text-sm font-semibold text-carnation-600">Couldn't load products right now.</p>}
+          {productsState === 'ready' && products.length === 0 && (
+            <p className="mt-6 text-sm font-semibold text-espresso-500">No products yet — add some from the admin panel.</p>
+          )}
+          {productsState === 'ready' && products.length > 0 && (
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {products.map((p) => (
                 <ProductCard key={p.id} p={p} />
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
         {/* FAQ */}
-        {faqs.length > 0 && (
-          <section className="mt-16 pb-16 text-center">
-            <StickerHeading className="text-2xl sm:text-3xl">Frequently Asked Questions</StickerHeading>
-            <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold text-espresso-700">{BLURB}</p>
-            <FaqAccordion faqs={faqs} />
-          </section>
-        )}
+        <section className="mt-16 pb-16 text-center">
+          <StickerHeading className="text-2xl sm:text-3xl">Frequently Asked Questions</StickerHeading>
+          <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold text-espresso-700">{BLURB}</p>
+          {faqsState === 'loading' && <p className="mt-8 text-sm font-semibold text-espresso-500">Loading FAQs…</p>}
+          {faqsState === 'error' && <p className="mt-8 text-sm font-semibold text-carnation-600">Couldn't load FAQs right now.</p>}
+          {faqsState === 'ready' && faqs.length === 0 && (
+            <p className="mt-8 text-sm font-semibold text-espresso-500">No FAQs yet — add some from the admin panel.</p>
+          )}
+          {faqsState === 'ready' && faqs.length > 0 && <FaqAccordion faqs={faqs} />}
+        </section>
       </div>
     </SiteLayout>
   );
