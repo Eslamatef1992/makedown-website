@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout';
 import TextField from '../../components/ui/TextField';
 import Button from '../../components/ui/Button';
+import { EyeIcon } from '../../components/ui/icons';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
@@ -10,6 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '', rememberMe: false });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -39,48 +41,51 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to Make Down">
-      <form onSubmit={onSubmit} className="space-y-4">
+    <AuthLayout title="Log In">
+      <form onSubmit={onSubmit} className="space-y-5">
         <TextField
-          label="Email"
+          label="Enter Email"
+          required
           type="email"
           name="email"
           placeholder="example@gmail.com"
           value={form.email}
           onChange={onChange}
-          required
+          autoComplete="email"
         />
         <TextField
-          label="Password"
-          type="password"
+          label="Enter Password"
+          required
+          type={showPassword ? 'text' : 'password'}
           name="password"
-          placeholder="••••••••"
+          placeholder="enter password"
           value={form.password}
           onChange={onChange}
-          required
+          autoComplete="current-password"
+          suffix={
+            <button type="button" onClick={() => setShowPassword((v) => !v)} className="text-carissma-300" tabIndex={-1}>
+              <EyeIcon off={showPassword} />
+            </button>
+          }
         />
 
-        <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2 text-espresso-700">
-            <input type="checkbox" name="rememberMe" checked={form.rememberMe} onChange={onChange} className="rounded" />
-            Remember me
-          </label>
-          <Link to="/forgot-password" className="font-medium text-carissma-600 hover:underline">
-            Forgot password?
+        <div className="flex items-center justify-end text-sm">
+          <Link to="/forgot-password" className="font-bold text-carissma-400 hover:underline">
+            Forget Password?
           </Link>
         </div>
 
         {error && <p className="rounded-xl bg-carnation-50 px-3 py-2 text-sm text-carnation-700">{error}</p>}
 
         <Button type="submit" loading={loading}>
-          Sign in
+          Login
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-espresso-600">
-        Don't have an account?{' '}
-        <Link to="/register" className="font-semibold text-carissma-600 hover:underline">
-          Create one
+      <p className="mt-6 text-center text-sm font-semibold text-espresso-900">
+        Don't Have An Account?{' '}
+        <Link to="/register" className="font-bold text-carissma-400 hover:underline">
+          Create An Account
         </Link>
       </p>
     </AuthLayout>

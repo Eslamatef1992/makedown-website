@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import ComingSoon from './pages/ComingSoon';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import AccountVerification from './pages/auth/AccountVerification';
+import ChangeEmail from './pages/auth/ChangeEmail';
 import VerifyOtp from './pages/auth/VerifyOtp';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
@@ -26,6 +28,8 @@ export default function App() {
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/account-verification" element={<AccountVerification />} />
+        <Route path="/change-email" element={<ChangeEmail />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
