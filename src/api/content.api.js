@@ -19,3 +19,12 @@ export const submitContactForm = (payload) => client.post('/contact-us', payload
 // Education (public)
 export const listGameCategories = () => client.get('/game-categories').then((r) => r.data.data);
 export const verifySchoolCode = (code) => client.get(`/schools/verify/${code}`).then((r) => r.data.data);
+
+// Contact info (public)
+export const getContactInfo = () => client.get('/site-settings/contact-info').then((r) => r.data.data);
+
+// Schools (public)
+export const listSchools = () => client.get('/schools').then((r) => r.data.data);
+
+// Checkout (public — works for guests and logged-in users)
+export const checkoutRequest = (payload) => client.post('/orders', payload).then((r) => r.data.data);

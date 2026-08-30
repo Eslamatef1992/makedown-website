@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import SiteLayout from '../components/layout/SiteLayout';
+import StickerHeading from '../components/ui/StickerHeading';
 import { getCmsPage } from '../api/content.api';
 
 // Renders any admin-managed CMS page by slug: about-us, privacy-policy,
@@ -34,15 +35,27 @@ export default function StaticPage({ slug: slugProp, title: titleProp }) {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-3xl px-8 py-16">
-        <h1 className="text-3xl font-bold text-espresso-900">{page?.title_en || titleProp || ''}</h1>
-        {loading && <p className="mt-8 text-espresso-500">Loading…</p>}
-        {error && <p className="mt-8 text-carnation-600">{error}</p>}
+      <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
+        <div className="text-center">
+          <StickerHeading as="h1" className="text-2xl sm:text-3xl">
+            {page?.title_en || titleProp || ''}
+          </StickerHeading>
+        </div>
+
+        {loading && <p className="mt-10 text-center text-espresso-500">Loading…</p>}
+        {error && <p className="mt-10 text-center text-carnation-600">{error}</p>}
+
         {!loading && !error && page && (
-          <div
-            className="prose prose-espresso mt-8 max-w-none text-espresso-700"
-            dangerouslySetInnerHTML={{ __html: page.content_html_en || '' }}
-          />
+          <div className="mt-10 rounded-3xl border border-carissma-100 bg-white/70 p-6 sm:p-10">
+            <div
+              className="prose prose-espresso max-w-none text-espresso-700
+                prose-headings:font-extrabold prose-headings:text-espresso-900
+                prose-p:leading-relaxed
+                prose-ul:list-disc prose-ul:pl-5 prose-li:marker:text-carissma-400
+                prose-a:text-carissma-600 prose-a:no-underline hover:prose-a:underline"
+              dangerouslySetInnerHTML={{ __html: page.content_html_en || '' }}
+            />
+          </div>
         )}
       </div>
     </SiteLayout>

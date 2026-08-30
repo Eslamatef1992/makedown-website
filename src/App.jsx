@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Home from './pages/Home';
@@ -18,10 +19,16 @@ import PackagesPage from './pages/PackagesPage';
 import StaticPage from './pages/StaticPage';
 import FaqPage from './pages/FaqPage';
 import ContactUsPage from './pages/ContactUsPage';
+import CartPage from './pages/shop/CartPage';
+import CheckoutPage from './pages/shop/CheckoutPage';
+import OrderResultPage from './pages/shop/OrderResultPage';
+import SchoolsPage from './pages/education/SchoolsPage';
+import SchoolDetailPage from './pages/education/SchoolDetailPage';
 
 export default function App() {
   return (
     <AuthProvider>
+      <CartProvider>
       <Routes>
         <Route path="/" element={<Home />} />
 
@@ -34,18 +41,21 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Shop / e-commerce — browsing is live, cart/checkout not yet */}
+        {/* Shop / e-commerce */}
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:slug" element={<ProductDetailPage />} />
-        <Route path="/cart" element={<ComingSoon title="Cart" />} />
-        <Route path="/checkout" element={<ComingSoon title="Checkout" />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-placed" element={<OrderResultPage status="success" />} />
+        <Route path="/order-failed" element={<OrderResultPage status="failed" />} />
 
         {/* Packages */}
         <Route path="/packages" element={<PackagesPage />} />
 
         {/* Game flow — live multiplayer engine not yet built */}
         <Route path="/play" element={<ComingSoon title="Play" />} />
-        <Route path="/education" element={<ComingSoon title="School games" />} />
+        <Route path="/education" element={<SchoolsPage />} />
+        <Route path="/education/:id" element={<SchoolDetailPage />} />
 
         {/* Profile (protected) */}
         <Route
@@ -68,6 +78,7 @@ export default function App() {
 
         <Route path="*" element={<ComingSoon title="Page not found" />} />
       </Routes>
+      </CartProvider>
     </AuthProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import { CartIcon, ChevronDownIcon } from '../ui/icons';
 
 const COUNTRIES = [
@@ -23,6 +24,7 @@ const NAV_LINKS = [
 
 export default function SiteHeader() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { itemCount } = useCart();
   const [countryOpen, setCountryOpen] = useState(false);
   const [country, setCountry] = useState(COUNTRIES[0]);
 
@@ -48,10 +50,15 @@ export default function SiteHeader() {
       <div className="flex items-center gap-2.5">
         <Link
           to="/cart"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-espresso-800 shadow-sm hover:text-carissma-500"
+          className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white text-espresso-800 shadow-sm hover:text-carissma-500"
           aria-label="Cart"
         >
           <CartIcon />
+          {itemCount > 0 && (
+            <span className="absolute -top-1.5 -end-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-carnation-500 px-1 text-[11px] font-bold text-white">
+              {itemCount > 99 ? '99+' : itemCount}
+            </span>
+          )}
         </Link>
 
         <div className="relative">
