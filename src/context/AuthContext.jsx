@@ -93,6 +93,8 @@ export function AuthProvider({ children }) {
     forgotPassword,
     resetPassword,
     logout,
+    refreshUser: loadUser,
+    setUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
