@@ -104,9 +104,8 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (outOfStock) return;
-    const variantLabel = selectedVariant
-      ? Object.values(parseAttrs(selectedVariant)).join(' / ')
-      : null;
+    const variantAttrs = selectedVariant ? parseAttrs(selectedVariant) : null;
+    const variantLabel = variantAttrs ? Object.values(variantAttrs).join(' / ') : null;
     addItem({
       productId: product.id,
       variantId: selectedVariant?.id ?? null,
@@ -115,6 +114,7 @@ export default function ProductDetailPage() {
       price: displayPrice,
       currency: product.currency,
       variantLabel,
+      variantAttrs,
       quantity,
       maxQuantity: stockAvailable ?? 999,
     });

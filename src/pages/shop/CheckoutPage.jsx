@@ -53,6 +53,8 @@ export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const discountCode = location.state?.discountCode || '';
+  const [discountInput, setDiscountInput] = useState(discountCode);
+  const [discountApplied, setDiscountApplied] = useState(Boolean(discountCode));
 
   const [asGuest, setAsGuest] = useState(false);
   const [showModal, setShowModal] = useState(!isAuthenticated);
@@ -110,7 +112,7 @@ export default function CheckoutPage() {
         items: items.map((it) => ({ productId: it.productId, variantId: it.variantId, quantity: it.quantity })),
         shippingAddress: address,
         paymentMethod,
-        discountCode: discountCode || undefined,
+        discountCode: discountInput.trim() || undefined,
       };
       if (!isAuthenticated) {
         payload.guestName = `${guest.firstName} ${guest.lastName}`.trim();
@@ -270,24 +272,105 @@ export default function CheckoutPage() {
               </section>
             </div>
 
-            <div className="h-fit rounded-2xl border border-carissma-100 bg-white/70 p-6">
-              <div className="space-y-2 text-sm">
-                {items.map((it) => (
-                  <div key={`${it.productId}-${it.variantId ?? 'base'}`} className="flex justify-between text-espresso-700">
-                    <span className="truncate pe-2">
-                      {it.name} × {it.quantity}
-                    </span>
-                    <span className="shrink-0 font-semibold">
-                      {(Number(it.price) * it.quantity).toFixed(3)} {it.currency}
-                    </span>
-                  </div>
-                ))}
+            <div className="h-fit rounded-3xl border-2 border-carissma-300 bg-linen-50 p-6">
+              <StickerHeading as="h2" className="text-lg">
+                My Order
+              </StickerHeading>
+
+              <div className="mt-4 space-y-3">
+                {items.map((it) => {
+                  const attrs = it.variantAttrs || {};
+                  const colorKey = Object.keys(attrs).find((k) => k.toLowerCase() === 'color');
+                  const otherAttrs = Object.entries(attrs).filter(([k]) => k !== colorKey);
+                  return (
+                    <div
+                      key={`${it.productId}-${it.variantId ?? 'base'}`}
+                      className="flex items-center gap-3 rounded-2xl bg-white p-3"
+                    >
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-linen-100">
+                        {it.image ? (
+                          <img src={it.image} alt={it.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[10px] text-espresso-300">No image</div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold text-carissma-500">{it.name}</p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-espresso-700">
+                          {colorKey && (
+                            <span className="flex items-center gap-1.5">
+                              Color:
+                              <span
+                                className="inline-block h-3 w-3 rounded-full border border-espresso-200"
+                                style={{ backgroundColor: attrs[colorKey] }}
+                              />
+                            </span>
+                          )}
+                          {otherAttrs.map(([k, v]) => (
+                            <span key={k}>
+                              {k[0].toUpperCase()}: <span className="font-bold">{v}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-end">
+                        <p className="text-sm font-bold text-espresso-900">
+                          Qty: <span className="text-carissma-500">{it.quantity}</span>
+                        </p>
+                        <p className="mt-1 text-sm font-bold text-espresso-900">
+                          {(Number(it.price) * it.quantity).toFixed(0)} {it.currency}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="mt-4 flex justify-between border-t border-carissma-100 pt-4 text-base font-bold text-espresso-900">
-                <span>Subtotal</span>
-                <span>{subtotal.toFixed(3)} {currency}</span>
+
+              <div className="mt-4 flex gap-2 rounded-2xl bg-white p-2">
+                <input
+                  value={discountInput}
+                  onChange={(e) => {
+                    setDiscountInput(e.target.value);
+                    setDiscountApplied(false);
+                  }}
+                  placeholder="Discount Code"
+                  className="w-full rounded-xl border border-carissma-100 bg-linen-50 px-4 py-2 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setDiscountApplied(Boolean(discountInput.trim()))}
+                  className="shrink-0 rounded-xl bg-carissma-400 px-5 text-sm font-bold text-white hover:bg-carissma-500"
+                >
+                  Apply
+                </button>
               </div>
-              <p className="mt-1 text-xs text-espresso-500">Delivery and any discount are confirmed after you place your order.</p>
+              {discountApplied && (
+                <p className="mt-1.5 text-xs font-semibold text-carissma-600">
+                  Code saved — it will be reviewed with your order.
+                </p>
+              )}
+
+              <div className="mt-4 space-y-2 border-t border-carissma-200 pt-4 text-sm">
+                <div className="flex justify-between font-bold text-espresso-900">
+                  <span>Subtotal</span>
+                  <span>{subtotal.toFixed(0)} {currency}</span>
+                </div>
+                <div className="flex justify-between font-bold text-carnation-500">
+                  <span>Discount</span>
+                  <span>0%</span>
+                </div>
+                <div className="flex justify-between font-bold text-espresso-900">
+                  <span>Delivery Fees</span>
+                  <span>0.00 {currency}</span>
+                </div>
+              </div>
+
+              <div className="mt-3 flex justify-between border-t border-carissma-200 pt-3 text-base font-extrabold text-espresso-900">
+                <span>Total</span>
+                <span>{subtotal.toFixed(0)} {currency}</span>
+              </div>
+
+              <p className="mt-2 text-xs text-espresso-500">Delivery fees and any discount are confirmed after you place your order.</p>
 
               {error && <p className="mt-4 text-sm font-semibold text-carnation-600">{error}</p>}
 
