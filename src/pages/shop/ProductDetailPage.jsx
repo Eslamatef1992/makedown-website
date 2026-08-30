@@ -64,18 +64,18 @@ export default function ProductDetailPage() {
         <div className="mt-6 grid grid-cols-1 gap-10 md:grid-cols-2">
           <div className="aspect-square overflow-hidden rounded-3xl bg-linen-100">
             {gallery[0] ? (
-              <img src={gallery[0]} alt={product.name} className="h-full w-full object-cover" />
+              <img src={gallery[0]} alt={product.name_en} className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-espresso-300">No image</div>
             )}
           </div>
 
           <div>
-            <h1 className="text-3xl font-bold text-espresso-900">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-espresso-900">{product.name_en}</h1>
             <p className="mt-3 text-2xl font-semibold text-carissma-600">
               {Number(displayPrice).toFixed(3)} {product.currency}
             </p>
-            {product.description && <p className="mt-4 whitespace-pre-line text-espresso-600">{product.description}</p>}
+            {product.description_en && <p className="mt-4 whitespace-pre-line text-espresso-600">{product.description_en}</p>}
 
             {product.variants?.length > 0 && (
               <div className="mt-6">

@@ -35,13 +35,13 @@ export default function StaticPage({ slug: slugProp, title: titleProp }) {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-8 py-16">
-        <h1 className="text-3xl font-bold text-espresso-900">{page?.title || titleProp || ''}</h1>
+        <h1 className="text-3xl font-bold text-espresso-900">{page?.title_en || titleProp || ''}</h1>
         {loading && <p className="mt-8 text-espresso-500">Loading…</p>}
         {error && <p className="mt-8 text-carnation-600">{error}</p>}
         {!loading && !error && page && (
           <div
             className="prose prose-espresso mt-8 max-w-none text-espresso-700"
-            dangerouslySetInnerHTML={{ __html: page.content_html || '' }}
+            dangerouslySetInnerHTML={{ __html: page.content_html_en || '' }}
           />
         )}
       </div>

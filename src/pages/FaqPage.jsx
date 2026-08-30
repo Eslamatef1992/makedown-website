@@ -36,10 +36,10 @@ export default function FaqPage() {
                     onClick={() => setOpenId(isOpen ? null : faq.id)}
                     className="flex w-full items-center justify-between text-left font-semibold text-espresso-900"
                   >
-                    {faq.question}
+                    {faq.question_en}
                     <span className="ml-4 text-carissma-600">{isOpen ? '−' : '+'}</span>
                   </button>
-                  {isOpen && <p className="mt-3 text-sm text-espresso-600">{faq.answer}</p>}
+                  {isOpen && <p className="mt-3 text-sm text-espresso-600">{faq.answer_en}</p>}
                 </div>
               );
             })}

@@ -57,7 +57,7 @@ export default function ProductsPage() {
                     {p.thumbnail_url ? (
                       <img
                         src={p.thumbnail_url}
-                        alt={p.name}
+                        alt={p.name_en}
                         className="h-full w-full object-cover transition group-hover:scale-105"
                       />
                     ) : (
@@ -65,7 +65,7 @@ export default function ProductsPage() {
                     )}
                   </div>
                   <div className="p-4">
-                    <h2 className="font-semibold text-espresso-900">{p.name}</h2>
+                    <h2 className="font-semibold text-espresso-900">{p.name_en}</h2>
                     <p className="mt-1 text-sm font-medium text-carissma-600">
                       {Number(p.base_price).toFixed(3)} {p.currency}
                     </p>

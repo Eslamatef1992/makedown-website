@@ -30,8 +30,8 @@ export default function PackagesPage() {
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {packages.map((pkg) => (
               <div key={pkg.id} className="flex flex-col rounded-3xl border border-linen-200 bg-white p-6">
-                <h2 className="text-lg font-semibold text-espresso-900">{pkg.name}</h2>
-                {pkg.description && <p className="mt-2 flex-1 text-sm text-espresso-500">{pkg.description}</p>}
+                <h2 className="text-lg font-semibold text-espresso-900">{pkg.name_en}</h2>
+                {pkg.description_en && <p className="mt-2 flex-1 text-sm text-espresso-500">{pkg.description_en}</p>}
                 <p className="mt-4 text-2xl font-bold text-carissma-600">
                   {Number(pkg.price).toFixed(3)} {pkg.currency}
                 </p>
