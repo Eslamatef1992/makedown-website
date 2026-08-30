@@ -10,6 +10,13 @@ import VerifyOtp from './pages/auth/VerifyOtp';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 
+import ProductsPage from './pages/shop/ProductsPage';
+import ProductDetailPage from './pages/shop/ProductDetailPage';
+import PackagesPage from './pages/PackagesPage';
+import StaticPage from './pages/StaticPage';
+import FaqPage from './pages/FaqPage';
+import ContactUsPage from './pages/ContactUsPage';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -23,16 +30,16 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Shop / e-commerce — routed, not built yet */}
-        <Route path="/products" element={<ComingSoon title="Shop" />} />
-        <Route path="/products/:slug" element={<ComingSoon title="Product details" />} />
+        {/* Shop / e-commerce — browsing is live, cart/checkout not yet */}
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/products/:slug" element={<ProductDetailPage />} />
         <Route path="/cart" element={<ComingSoon title="Cart" />} />
         <Route path="/checkout" element={<ComingSoon title="Checkout" />} />
 
         {/* Packages */}
-        <Route path="/packages" element={<ComingSoon title="Packages" />} />
+        <Route path="/packages" element={<PackagesPage />} />
 
-        {/* Game flow */}
+        {/* Game flow — live multiplayer engine not yet built */}
         <Route path="/play" element={<ComingSoon title="Play" />} />
         <Route path="/education" element={<ComingSoon title="School games" />} />
 
@@ -46,12 +53,14 @@ export default function App() {
           }
         />
 
-        {/* Static pages */}
-        <Route path="/privacy-policy" element={<ComingSoon title="Privacy policy" />} />
-        <Route path="/terms-and-conditions" element={<ComingSoon title="Terms & conditions" />} />
-        <Route path="/return-policy" element={<ComingSoon title="Return policy" />} />
-        <Route path="/contact-us" element={<ComingSoon title="Contact us" />} />
-        <Route path="/faq" element={<ComingSoon title="FAQ" />} />
+        {/* CMS-backed static pages */}
+        <Route path="/about-us" element={<StaticPage slug="about-us" title="About us" />} />
+        <Route path="/privacy-policy" element={<StaticPage slug="privacy-policy" title="Privacy policy" />} />
+        <Route path="/terms-and-conditions" element={<StaticPage slug="terms-and-conditions" title="Terms & conditions" />} />
+        <Route path="/return-policy" element={<StaticPage slug="return-policy" title="Return policy" />} />
+        <Route path="/how-it-works" element={<StaticPage slug="how-it-works" title="How it works" />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/contact-us" element={<ContactUsPage />} />
 
         <Route path="*" element={<ComingSoon title="Page not found" />} />
       </Routes>
