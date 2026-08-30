@@ -10,8 +10,8 @@ export default function AuthLayout({ title, subtitle, children }) {
 
       <div className="relative w-full max-w-md rounded-3xl bg-white/90 p-8 shadow-xl backdrop-blur">
         <div className="mb-6 flex flex-col items-center text-center">
-          <Link to="/" className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-carissma-600 text-2xl font-bold text-white">
-            MD
+          <Link to="/" className="mb-4 flex h-16 w-16 items-center justify-center">
+            <img src="/logo-mark.png" alt="Make Down" className="h-full w-full object-contain" />
           </Link>
           <h1 className="text-2xl font-semibold text-espresso-900">{title}</h1>
           {subtitle && <p className="mt-1 text-sm text-espresso-500">{subtitle}</p>}

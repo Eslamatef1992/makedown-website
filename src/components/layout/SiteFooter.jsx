@@ -13,7 +13,7 @@ export default function SiteFooter() {
     <footer className="mt-24 border-t border-linen-200 px-8 py-10">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center sm:flex-row sm:justify-between sm:text-left">
         <div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-carissma-600 font-bold text-white">MD</div>
+          <img src="/logo-mark.png" alt="Make Down" className="h-10 w-10 object-contain" />
           <p className="mt-3 text-sm text-espresso-500">Learn, play, and win with Make Down.</p>
         </div>
 
