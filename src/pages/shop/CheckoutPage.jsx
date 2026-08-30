@@ -7,12 +7,15 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { checkoutRequest } from '../../api/content.api';
 import { CloseIcon } from '../../components/ui/icons';
+import knetIcon from '../../assets/payment/knet.svg';
+import cardsIcon from '../../assets/payment/cards.svg';
+import cashIcon from '../../assets/payment/cash.svg';
 
 const GOVERNORATES = ['Al Asimah', 'Hawalli', 'Farwaniya', 'Mubarak Al-Kabeer', 'Ahmadi', 'Jahra'];
 const PAYMENT_METHODS = [
-  { value: 'knet', label: 'KNET' },
-  { value: 'credit_card', label: 'Credit Card' },
-  { value: 'cash', label: 'Cash On Delivery' },
+  { value: 'knet', label: 'KNET', icon: knetIcon },
+  { value: 'credit_card', label: 'Credit Card', icon: cardsIcon },
+  { value: 'cash', label: 'Cash On Delivery', icon: cashIcon },
 ];
 
 function ContinueAsModal({ onClose, onGuest }) {
@@ -251,21 +254,24 @@ export default function CheckoutPage() {
                   {PAYMENT_METHODS.map((m) => (
                     <label
                       key={m.value}
-                      className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-bold transition ${
+                      className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-sm font-bold transition ${
                         paymentMethod === m.value
                           ? 'border-carissma-400 bg-carissma-50 text-carissma-600'
                           : 'border-carissma-100 text-espresso-700'
                       }`}
                     >
+                      <span className="flex items-center gap-2">
+                        {m.label}
+                        <img src={m.icon} alt="" className="h-6 w-auto shrink-0" />
+                      </span>
                       <input
                         type="radio"
                         name="paymentMethod"
                         value={m.value}
                         checked={paymentMethod === m.value}
                         onChange={() => setPaymentMethod(m.value)}
-                        className="h-4 w-4 accent-carissma-500"
+                        className="h-4 w-4 shrink-0 accent-carissma-500"
                       />
-                      {m.label}
                     </label>
                   ))}
                 </div>
