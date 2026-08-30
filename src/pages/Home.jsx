@@ -8,14 +8,27 @@ import StickerHeading from '../components/ui/StickerHeading';
 const BLURB =
   'A Multiplayer Quiz Game Featuring More Than 200 Diverse Categories, With Dedicated Sections For Students, Adults, And Children.';
 
-function getYoutubeId(url) {
-  if (!url) return null;
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/live\/|youtube\.com\/shorts\/|youtu\.be\/)([\w-]{11})/,
-  ];
-  for (const re of patterns) {
-    const m = url.match(re);
-    if (m) return m[1];
+function getYoutubeId(rawUrl) {
+  if (!rawUrl) return null;
+  const trimmed = rawUrl.trim();
+  let url;
+  try {
+    url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+  } catch {
+    return null;
+  }
+  const host = url.hostname.replace(/^www\.|^m\./, '');
+  if (host === 'youtu.be') {
+    const id = url.pathname.split('/').filter(Boolean)[0];
+    return id && id.length === 11 ? id : null;
+  }
+  if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+    if (url.pathname === '/watch') {
+      const v = url.searchParams.get('v');
+      return v && v.length === 11 ? v : null;
+    }
+    const match = url.pathname.match(/\/(?:embed|shorts|live)\/([\w-]{11})/);
+    if (match) return match[1];
   }
   return null;
 }
@@ -213,20 +226,23 @@ export default function Home() {
                 src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
                 alt="Home page video thumbnail"
                 className="absolute inset-0 h-full w-full object-cover opacity-90"
+                onError={(e) => {
+                  e.currentTarget.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+                }}
               />
             )}
             <a
-              href={youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : undefined}
-              target={youtubeId ? '_blank' : undefined}
-              rel={youtubeId ? 'noopener noreferrer' : undefined}
+              href={videoUrl || undefined}
+              target={videoUrl ? '_blank' : undefined}
+              rel={videoUrl ? 'noopener noreferrer' : undefined}
               className="absolute inset-0 flex items-center justify-center"
               aria-label="Watch on YouTube"
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-2xl text-carissma-500">▶</div>
             </a>
-            {youtubeId && (
+            {videoUrl && (
               <a
-                href={`https://www.youtube.com/watch?v=${youtubeId}`}
+                href={videoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute bottom-4 start-4 rounded-full bg-white px-4 py-2 text-xs font-bold text-espresso-900 shadow"
