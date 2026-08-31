@@ -7,12 +7,13 @@ import { listPackages } from '../../api/content.api';
 import { purchasePackage } from '../../api/me.api';
 import knetIcon from '../../assets/payment/knet.svg';
 import cardsIcon from '../../assets/payment/cards.svg';
-import cashIcon from '../../assets/payment/cash.svg';
 
+// Packages are a digital good (games are activated instantly on purchase),
+// so cash-on-delivery doesn't apply here the way it does for physical
+// products in the shop checkout — only online payment methods are offered.
 const PAYMENT_METHODS = [
   { value: 'knet', label: 'KNET', icon: knetIcon },
   { value: 'credit_card', label: 'Credit Card', icon: cardsIcon },
-  { value: 'cash', label: 'Cash', icon: cashIcon },
 ];
 
 export default function PackagePurchasePage() {
@@ -114,11 +115,6 @@ export default function PackagePurchasePage() {
                   </label>
                 ))}
               </div>
-              {paymentMethod === 'cash' && (
-                <p className="mt-3 text-xs font-semibold text-espresso-500">
-                  Your games are activated right away — settle the payment in cash to keep your package active.
-                </p>
-              )}
             </section>
           </div>
 
