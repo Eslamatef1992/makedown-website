@@ -45,59 +45,59 @@ function CategoryCarousel({ categories, loading, error }) {
   const next = categories.length > 1 ? at(1) : null;
 
   return (
-    <div className="mt-12 flex items-center justify-center gap-4 sm:gap-10">
+    <div className="mt-12 flex items-center justify-center gap-4 sm:gap-8 lg:gap-12">
       <button
         onClick={() => setIndex((i) => i - 1)}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50 sm:h-14 sm:w-14"
         aria-label="Previous category"
       >
         <ChevronLeftIcon />
       </button>
 
       {prev && (
-        <div className="hidden w-48 shrink-0 rounded-[1.75rem] bg-sky-100 p-5 text-center shadow-sm sm:block lg:w-56">
+        <div className="hidden w-56 shrink-0 rounded-[1.75rem] bg-sky-100 p-5 text-center shadow-sm sm:block sm:w-64 lg:w-72 lg:p-6">
           {prev.icon_url ? (
-            <img src={prev.icon_url} alt={prev.name_en} className="mx-auto h-24 w-24 object-contain lg:h-28 lg:w-28" />
+            <img src={prev.icon_url} alt={prev.name_en} className="mx-auto h-28 w-28 object-contain sm:h-32 sm:w-32 lg:h-36 lg:w-36" />
           ) : (
-            <div className="mx-auto h-24 w-24 rounded-2xl bg-sky-200 lg:h-28 lg:w-28" />
+            <div className="mx-auto h-28 w-28 rounded-2xl bg-sky-200 sm:h-32 sm:w-32 lg:h-36 lg:w-36" />
           )}
-          <p className="mt-4 rounded-full bg-white/70 py-2.5 text-sm font-bold text-espresso-400">Start Play</p>
+          <p className="mt-4 rounded-full bg-white/70 py-2.5 text-sm font-bold text-espresso-400 sm:py-3 sm:text-base">Start Play</p>
         </div>
       )}
 
-      <div className="w-80 shrink-0 rounded-[2rem] border-4 border-carissma-300 bg-sky-100 p-6 text-center shadow-xl sm:w-96 sm:p-8 lg:w-[26rem]">
-        <p className="text-lg font-extrabold text-carissma-400 sm:text-xl">{current.name_en}</p>
+      <div className="w-96 shrink-0 rounded-[2rem] border-4 border-carissma-300 bg-sky-100 p-7 text-center shadow-xl sm:w-[28rem] sm:p-9 lg:w-[34rem] lg:p-10">
+        <p className="text-xl font-extrabold text-carissma-400 sm:text-2xl">{current.name_en}</p>
         {current.icon_url ? (
           <img
             src={current.icon_url}
             alt={current.name_en}
-            className="mx-auto mt-4 h-44 w-44 rounded-2xl border-2 border-carissma-300 object-cover sm:h-56 sm:w-56 lg:h-64 lg:w-64"
+            className="mx-auto mt-4 h-56 w-56 rounded-2xl border-2 border-carissma-300 object-cover sm:h-72 sm:w-72 lg:h-80 lg:w-80"
           />
         ) : (
-          <div className="mx-auto mt-4 h-44 w-44 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:h-56 sm:w-56 lg:h-64 lg:w-64" />
+          <div className="mx-auto mt-4 h-56 w-56 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:h-72 sm:w-72 lg:h-80 lg:w-80" />
         )}
         <Link
           to="/play"
-          className="mt-5 block rounded-full bg-carissma-400 py-3.5 text-base font-bold text-white hover:bg-carissma-500"
+          className="mt-6 block rounded-full bg-carissma-400 py-4 text-lg font-bold text-white hover:bg-carissma-500"
         >
           Start Play
         </Link>
       </div>
 
       {next && (
-        <div className="hidden w-48 shrink-0 rounded-[1.75rem] bg-sky-100 p-5 text-center shadow-sm sm:block lg:w-56">
+        <div className="hidden w-56 shrink-0 rounded-[1.75rem] bg-sky-100 p-5 text-center shadow-sm sm:block sm:w-64 lg:w-72 lg:p-6">
           {next.icon_url ? (
-            <img src={next.icon_url} alt={next.name_en} className="mx-auto h-24 w-24 object-contain lg:h-28 lg:w-28" />
+            <img src={next.icon_url} alt={next.name_en} className="mx-auto h-28 w-28 object-contain sm:h-32 sm:w-32 lg:h-36 lg:w-36" />
           ) : (
-            <div className="mx-auto h-24 w-24 rounded-2xl bg-sky-200 lg:h-28 lg:w-28" />
+            <div className="mx-auto h-28 w-28 rounded-2xl bg-sky-200 sm:h-32 sm:w-32 lg:h-36 lg:w-36" />
           )}
-          <p className="mt-4 rounded-full bg-white/70 py-2.5 text-sm font-bold text-espresso-400">Start Play</p>
+          <p className="mt-4 rounded-full bg-white/70 py-2.5 text-sm font-bold text-espresso-400 sm:py-3 sm:text-base">Start Play</p>
         </div>
       )}
 
       <button
         onClick={() => setIndex((i) => i + 1)}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50 sm:h-14 sm:w-14"
         aria-label="Next category"
       >
         <ChevronRightIcon />
