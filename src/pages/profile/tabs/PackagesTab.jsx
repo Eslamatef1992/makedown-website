@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listPackages } from '../../../api/content.api';
+import PackageCard from '../../../components/ui/PackageCard';
+
+function Subtitle({ children }) {
+  return (
+    <div className="flex items-center justify-center gap-3">
+      <span className="h-px w-10 bg-gradient-to-r from-transparent to-carissma-300" />
+      <p className="text-sm font-extrabold text-espresso-900">{children}</p>
+      <span className="h-px w-10 bg-gradient-to-l from-transparent to-carissma-300" />
+    </div>
+  );
+}
 
 export default function PackagesTab({ myPackages = [] }) {
   const navigate = useNavigate();
@@ -20,6 +31,8 @@ export default function PackagesTab({ myPackages = [] }) {
 
   return (
     <div>
+      {state === 'ready' && catalog.length > 0 && <Subtitle>Choose The Package That Suits You</Subtitle>}
+
       {state === 'loading' && <p className="text-center text-sm font-semibold text-espresso-500">Loading packages…</p>}
       {state === 'error' && <p className="text-center text-sm font-semibold text-carnation-600">Couldn't load packages right now.</p>}
       {state === 'ready' && catalog.length === 0 && (
@@ -27,27 +40,16 @@ export default function PackagesTab({ myPackages = [] }) {
       )}
 
       {state === 'ready' && catalog.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {catalog.map((pkg) => {
-            const owned = activePackageIds.has(pkg.id);
-            return (
-              <div key={pkg.id} className="flex flex-col rounded-3xl border-4 border-carissma-200 bg-white p-6 text-start">
-                <h3 className="text-lg font-extrabold text-espresso-900">{pkg.name_en}</h3>
-                {pkg.description_en && <p className="mt-2 flex-1 text-sm font-medium text-espresso-700">{pkg.description_en}</p>}
-                <p className="mt-4 text-2xl font-extrabold text-carissma-500">
-                  {Number(pkg.price).toFixed(3)} {pkg.currency}
-                </p>
-                <p className="mt-1 text-sm font-semibold text-espresso-600">{pkg.credits} Games</p>
-                {pkg.validity_days && <p className="mt-1 text-xs font-semibold text-espresso-500">Valid for {pkg.validity_days} days</p>}
-                <button
-                  onClick={() => navigate(`/profile/packages/${pkg.id}/purchase`)}
-                  className="mt-6 w-full rounded-full bg-carissma-400 py-3 font-bold text-white hover:bg-carissma-500"
-                >
-                  {owned ? 'Buy Again' : 'Buy Now'}
-                </button>
-              </div>
-            );
-          })}
+        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {catalog.map((pkg, i) => (
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              index={i}
+              ctaLabel={activePackageIds.has(pkg.id) ? 'Buy Again' : 'Buy Now'}
+              onBuy={() => navigate(`/profile/packages/${pkg.id}/purchase`)}
+            />
+          ))}
         </div>
       )}
 
