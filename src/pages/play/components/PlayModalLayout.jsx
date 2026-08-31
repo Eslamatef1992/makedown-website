@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 export default function PlayModalLayout({ children, backTo, onBack, backLabel = 'Back', backStyle = 'link' }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-carissma-400 bg-cover bg-center bg-no-repeat bg-[url('/backgrounds/wavy-grid-portrait.jpg')] px-4 py-10 sm:bg-[url('/backgrounds/wavy-grid-landscape.jpg')]">
-      <div className="flex flex-col items-center gap-8">{children}</div>
+      <div className="flex w-full max-w-4xl flex-col items-center gap-8">{children}</div>
 
       {backTo || onBack ? (
         backStyle === 'button' ? (
@@ -40,9 +40,19 @@ export default function PlayModalLayout({ children, backTo, onBack, backLabel = 
   );
 }
 
-export function PlayCard({ children, className = '' }) {
+// `maxWidth`/`border`/`radius` are dedicated props (not just part of
+// `className`) so a caller's override can't lose a same-specificity CSS
+// conflict against this component's own defaults — only one utility per
+// property for this element ever ends up in the class string.
+export function PlayCard({
+  children,
+  className = '',
+  maxWidth = 'max-w-sm',
+  border = 'border-2 border-carissma-200',
+  radius = 'rounded-3xl',
+}) {
   return (
-    <div className={`w-full max-w-sm rounded-3xl border-2 border-carissma-200 bg-carissma-50/95 p-8 text-center shadow-lg ${className}`}>
+    <div className={`w-full ${maxWidth} ${radius} ${border} bg-carissma-50/95 p-8 text-center shadow-lg ${className}`}>
       {children}
     </div>
   );

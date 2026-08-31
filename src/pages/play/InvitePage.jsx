@@ -99,7 +99,7 @@ export default function InvitePage() {
           </div>
         </div>
       ) : (
-        <PlayCard className="max-w-md text-start">
+        <PlayCard maxWidth="max-w-2xl" border="border-4 border-carissma-300" radius="rounded-[2.5rem]" className="text-start">
           <StickerHeading as="h2" className="text-center text-2xl">
             Game Link
           </StickerHeading>

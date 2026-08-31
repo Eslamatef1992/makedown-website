@@ -62,10 +62,15 @@ export default function LobbyPage() {
   if (!session) {
     return (
       <PlayModalLayout backTo="/play" backLabel="Back" backStyle="link">
-        <PlayCard>
-          <StickerHeading as="h2" className="text-2xl">
+        <PlayCard maxWidth="max-w-2xl" border="border-4 border-carissma-300" radius="rounded-[2.5rem]" className="py-16">
+          <StickerHeading as="h2" className="text-3xl">
             Waiting……
           </StickerHeading>
+          <div className="mt-10 flex items-center justify-center gap-2">
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-carissma-200" />
+            <span className="h-3.5 w-3.5 animate-pulse rounded-full bg-carissma-500" style={{ animationDelay: '150ms' }} />
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-carissma-200" style={{ animationDelay: '300ms' }} />
+          </div>
         </PlayCard>
       </PlayModalLayout>
     );
@@ -73,7 +78,7 @@ export default function LobbyPage() {
 
   return (
     <PlayModalLayout onBack={onLeave} backLabel="Back" backStyle="link">
-      <PlayCard className="max-w-md">
+      <PlayCard maxWidth="max-w-2xl" border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
         <StickerHeading as="h2" className="text-2xl">
           {session.status === 'waiting' ? 'Waiting……' : session.title || 'Game Lobby'}
         </StickerHeading>
