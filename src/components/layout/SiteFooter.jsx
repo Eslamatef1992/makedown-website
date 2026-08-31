@@ -75,11 +75,11 @@ export default function SiteFooter() {
           </ul>
         </div>
 
-        <div>
+        <div className="sm:flex sm:flex-col sm:items-end sm:text-end">
           <StickerHeading as="h3" className="text-lg">
             Download App
           </StickerHeading>
-          <div className="mt-3 flex flex-col gap-2.5">
+          <div className="mt-3 flex flex-col gap-2.5 sm:items-end">
             <a href="#" aria-label="Download on the App Store">
               <img src="/icons/apple-play.svg" alt="Apple Play" className="h-[52px] w-[148px]" />
             </a>
@@ -91,7 +91,7 @@ export default function SiteFooter() {
             href="https://teknulugy.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 block w-[148px] text-center text-xs font-semibold text-espresso-800 hover:text-carissma-500"
+            className="mt-3 block w-[148px] text-end text-xs font-semibold text-espresso-800 hover:text-carissma-500"
           >
             Developed By <span className="font-extrabold">Teknulugy</span>
           </a>
