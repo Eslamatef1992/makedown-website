@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import StickerHeading from '../../components/ui/StickerHeading';
 import {
-  StarIcon, RefreshIcon, PauseIcon, PlayIcon, PhoneIcon, HandTapIcon, ShuffleIcon,
+  RefreshIcon, PauseIcon, PhoneIcon, HandTapIcon, ShuffleIcon,
   UserIcon, LeaveIcon, PlusIcon, MinusIcon, SpeakerIcon, ChatBubbleIcon,
 } from '../../components/ui/icons';
 import {
@@ -20,42 +20,41 @@ const LIFELINES = [
 
 function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifelines, canAct, onLifeline, onAdjustScore }) {
   return (
-    <div className={`w-full max-w-[220px] rounded-3xl p-4 ${isCurrentTurn ? 'bg-carissma-100' : 'bg-carissma-50'}`}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-2 rounded-full bg-carissma-500 px-3 py-1 text-xs font-bold text-white">
-          {participant.full_name}
-          {isMe && ' (you)'}
-        </span>
-      </div>
-      <div className="mt-2 flex items-center justify-center gap-2">
+    <div className={`flex w-full max-w-[220px] flex-col items-center rounded-3xl p-5 ${isCurrentTurn ? 'bg-carissma-100' : 'bg-carissma-50'}`}>
+      <span className="flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-2 text-sm font-bold text-white">
         {isHost && (
-          <button onClick={() => onAdjustScore(participant.id, -50)} className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-carissma-500 hover:bg-carissma-100">
-            <MinusIcon className="h-3.5 w-3.5" />
+          <button onClick={() => onAdjustScore(participant.id, -50)} className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 hover:bg-white/40">
+            <MinusIcon className="h-2.5 w-2.5" />
           </button>
         )}
-        <span className="text-lg font-extrabold text-espresso-900">{participant.score}</span>
+        {participant.full_name}
+        {isMe && ' (you)'}: {participant.score}
         {isHost && (
-          <button onClick={() => onAdjustScore(participant.id, 50)} className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-carissma-500 hover:bg-carissma-100">
-            <PlusIcon className="h-3.5 w-3.5" />
+          <button onClick={() => onAdjustScore(participant.id, 50)} className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 hover:bg-white/40">
+            <PlusIcon className="h-2.5 w-2.5" />
           </button>
         )}
-      </div>
+      </span>
 
-      <p className="mt-3 text-center text-xs font-bold text-carissma-500">Help Options</p>
-      <div className="mt-2 flex items-center justify-center gap-3">
+      <span className="mt-4 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-carissma-500 shadow-sm">Help Options</span>
+
+      <div className="mt-3 flex flex-col items-center gap-3">
         {LIFELINES.map(({ key, icon: Icon }) => {
           const used = usedLifelines.includes(key);
           const active = isMe && canAct && !used;
+          const isPhone = key === 'phone_a_friend';
           return (
             <button
               key={key}
               disabled={!active}
               onClick={() => onLifeline(key)}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition ${
-                active ? 'border-carissma-500 text-carissma-600 hover:bg-carissma-100' : 'border-carissma-100 text-carissma-200'
-              }`}
+              className={`flex h-12 w-12 items-center justify-center rounded-full transition ${
+                isPhone
+                  ? 'bg-carissma-500 text-white ring-4 ring-carissma-200 hover:bg-carissma-600'
+                  : 'bg-white text-carissma-400 hover:bg-carissma-100'
+              } ${active ? '' : 'opacity-40'}`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-5 w-5" />
             </button>
           );
         })}
@@ -94,39 +93,48 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
   }
 
   return (
-    <div className="rounded-3xl bg-carissma-50 p-6 sm:p-8">
-      <p className="text-center text-lg font-extrabold text-espresso-900">{question.question_text_en}</p>
+    <div className="relative overflow-hidden rounded-[2rem] bg-carissma-50/60 p-6 sm:p-8">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(115deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 36px, transparent 36px, transparent 80px)',
+        }}
+      />
+      <div className="relative">
+        <p className="text-center text-lg font-extrabold text-espresso-900">{question.question_text_en}</p>
 
-      {question.question_type === 'image' && question.media_url && (
-        <img src={question.media_url} alt="" className="mx-auto mt-4 max-h-56 w-full rounded-2xl object-cover" />
-      )}
+        {question.question_type === 'image' && question.media_url && (
+          <img src={question.media_url} alt="" className="mx-auto mt-4 max-h-56 w-full rounded-2xl object-cover" />
+        )}
 
-      {question.question_type === 'audio' && question.media_url && (
-        <div className="mx-auto mt-4 flex max-w-md items-center gap-3 rounded-full bg-white px-4 py-3">
-          <SpeakerIcon className="h-5 w-5 flex-none text-espresso-700" />
-          <audio controls src={question.media_url} className="h-9 w-full" />
+        {question.question_type === 'audio' && question.media_url && (
+          <div className="mx-auto mt-4 flex max-w-md items-center gap-3 rounded-full bg-white px-4 py-3">
+            <SpeakerIcon className="h-5 w-5 flex-none text-espresso-700" />
+            <audio controls src={question.media_url} className="h-9 w-full" />
+          </div>
+        )}
+
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((opt, i) => {
+            if (hiddenOptions.includes(i)) return <div key={i} className="hidden sm:block" />;
+            const isSelected = selected === i;
+            return (
+              <button
+                key={i}
+                onClick={() => onSelect(i)}
+                className={`flex items-center gap-3 rounded-full border-2 px-4 py-3 text-start transition ${
+                  isSelected ? 'border-carissma-500 bg-white' : 'border-transparent bg-white/80 hover:border-carissma-200'
+                }`}
+              >
+                <span className={`flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 ${isSelected ? 'border-carissma-500' : 'border-carissma-200'}`}>
+                  {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-carissma-500" />}
+                </span>
+                <span className="text-sm font-bold text-carissma-700">{letters[i]}. {opt}</span>
+              </button>
+            );
+          })}
         </div>
-      )}
-
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {options.map((opt, i) => {
-          if (hiddenOptions.includes(i)) return <div key={i} className="hidden sm:block" />;
-          const isSelected = selected === i;
-          return (
-            <button
-              key={i}
-              onClick={() => onSelect(i)}
-              className={`flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-start transition ${
-                isSelected ? 'border-carissma-500 bg-white' : 'border-carissma-100 bg-white/60 hover:border-carissma-300'
-              }`}
-            >
-              <span className={`flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 ${isSelected ? 'border-carissma-500' : 'border-carissma-200'}`}>
-                {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-carissma-500" />}
-              </span>
-              <span className="text-sm font-bold text-carissma-700">{letters[i]}. {opt}</span>
-            </button>
-          );
-        })}
       </div>
     </div>
   );
@@ -135,28 +143,36 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
 function GamesBoard({ board, onPick, canPick }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      {board.map((column) => (
-        <div key={column.id} className="rounded-3xl bg-carissma-50 p-4 text-center">
-          <span className="mb-2 inline-block rounded-full bg-carissma-100 px-3 py-1 text-xs font-bold text-carissma-600">
-            {column.title_en}
-          </span>
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white mx-auto text-2xl">🎨</div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {[...column.questions].sort((a, b) => a.points - b.points).map((q) => (
-              <button
-                key={q.id}
-                disabled={q.used || !canPick}
-                onClick={() => onPick(q.id)}
-                className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
-                  q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-500 text-white hover:bg-carissma-600 disabled:opacity-50'
-                }`}
-              >
-                {q.points}
-              </button>
-            ))}
+      {board.map((column) => {
+        const sorted = [...column.questions].sort((a, b) => a.points - b.points);
+        const mid = Math.ceil(sorted.length / 2);
+        const left = sorted.slice(0, mid);
+        const right = sorted.slice(mid);
+        const pointButton = (q) => (
+          <button
+            key={q.id}
+            disabled={q.used || !canPick}
+            onClick={() => onPick(q.id)}
+            className={`rounded-full px-4 py-1.5 text-xs font-extrabold transition ${
+              q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-500 text-white hover:bg-carissma-600 disabled:opacity-50'
+            }`}
+          >
+            {q.points}
+          </button>
+        );
+        return (
+          <div key={column.id} className="rounded-3xl bg-carissma-50 p-4 text-center">
+            <span dir="rtl" className="mb-3 inline-block rounded-full bg-carissma-100 px-3 py-1 text-xs font-bold text-carissma-600">
+              {column.title_ar || column.title_en}
+            </span>
+            <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-col gap-2">{left.map(pointButton)}</div>
+              <div className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-sky-100 text-2xl">🎨</div>
+              <div className="flex flex-col gap-2">{right.map(pointButton)}</div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -254,6 +270,10 @@ export default function LiveGamePage() {
     () => session?.participants?.find((p) => p.user_id === user?.id),
     [session, user]
   );
+  const currentCategory = useMemo(() => {
+    if (!session?.currentQuestion || !session?.board) return null;
+    return session.board.find((c) => (c.questions || []).some((q) => q.id === session.currentQuestion.id)) || null;
+  }, [session]);
   const isHost = session && user && session.host_user_id === user.id;
   const isMyTurn = session && myParticipant && session.currentTurnParticipantId === myParticipant.id;
   const currentTurnParticipant = session?.participants?.find((p) => p.id === session.currentTurnParticipantId);
@@ -335,7 +355,7 @@ export default function LiveGamePage() {
       <div className="mx-auto max-w-[1400px] rounded-[2.5rem] border-2 border-carissma-200 bg-white p-4 shadow-lg sm:p-6">
         {/* Header */}
         <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-200 via-carissma-400 to-carissma-200 px-5 py-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg font-black text-carissma-500">MD</span>
+          <span className="w-24" />
           <StickerHeading as="h1" className="text-lg text-white sm:text-xl">
             {session.title || 'Live Game'}
           </StickerHeading>
@@ -344,11 +364,13 @@ export default function LiveGamePage() {
           </button>
         </div>
 
-        {/* Turn indicator */}
-        <div className="mt-4 flex items-center justify-center">
+        {/* Turn indicator + logo mark */}
+        <div className="mt-4 flex items-center justify-between">
           <span className="rounded-full bg-carissma-500 px-5 py-2 text-sm font-bold text-white">
             {currentTurnParticipant ? `It's ${currentTurnParticipant.full_name}'s turn to play.` : 'Waiting for the next turn…'}
           </span>
+          <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
+          <span className="w-24" />
         </div>
 
         {flash && (
@@ -383,15 +405,25 @@ export default function LiveGamePage() {
           <div>
             {session.currentQuestion ? (
               <>
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="flex items-center gap-1 rounded-full bg-carissma-100 px-3 py-1 text-xs font-bold text-carissma-600">
-                    <StarIcon className="h-4 w-4" /> {session.currentQuestion.points} Point
-                  </span>
-                  {timeLeft !== null && (
-                    <span className="flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
-                      <RefreshIcon className="h-4 w-4" /> Remaining Time: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
-                    </span>
-                  )}
+                <div className="mb-4">
+                  <div className="text-center">
+                    {currentCategory && (
+                      <p dir="rtl" className="text-sm font-bold text-carissma-500">
+                        {currentCategory.title_ar || currentCategory.title_en}
+                      </p>
+                    )}
+                    {timeLeft !== null && (
+                      <div className="mt-2">
+                        <p className="text-sm font-bold text-espresso-800">Remaining Time:</p>
+                        <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
+                          <RefreshIcon className="h-4 w-4" /> {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
+                    <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
+                  </p>
                 </div>
                 <QuestionCard
                   question={session.currentQuestion}

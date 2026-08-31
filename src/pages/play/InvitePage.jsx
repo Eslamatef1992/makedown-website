@@ -78,26 +78,26 @@ export default function InvitePage() {
   return (
     <PlayModalLayout onBack={() => (view === 'link' ? setView('start') : navigate(-1))} backLabel="Back" backStyle="link">
       {view === 'start' ? (
-        <PlayCard>
-          <StickerHeading as="h2" className="text-2xl">
+        <div className="w-full max-w-2xl rounded-[2.5rem] border-4 border-carissma-300 bg-carissma-50/95 p-10 text-center shadow-lg">
+          <StickerHeading as="h2" className="text-3xl">
             Start Play With
           </StickerHeading>
-          <div className="mt-6 flex gap-3">
+          <div className="mt-12 flex gap-4">
             <button
               onClick={onRandomUser}
               disabled={matching}
-              className="flex-1 rounded-full bg-carissma-100 py-3 text-sm font-bold text-carissma-600 hover:bg-carissma-200 disabled:opacity-60"
+              className="flex-1 rounded-full bg-carissma-100 py-5 text-base font-extrabold text-carissma-600 hover:bg-carissma-200 disabled:opacity-60"
             >
               {matching ? 'Matching…' : 'Random User'}
             </button>
             <button
               onClick={() => setView('link')}
-              className="flex-1 rounded-full bg-carissma-500 py-3 text-sm font-bold text-white hover:bg-carissma-600"
+              className="flex-1 rounded-full bg-carissma-500 py-5 text-base font-extrabold text-white hover:bg-carissma-600"
             >
               Send Invitation
             </button>
           </div>
-        </PlayCard>
+        </div>
       ) : (
         <PlayCard className="max-w-md text-start">
           <StickerHeading as="h2" className="text-center text-2xl">
