@@ -1,17 +1,31 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { checkoutRequest } from '../../api/content.api';
+import { checkoutRequest, validateCoupon, getDeliveryFee } from '../../api/content.api';
 import { CloseIcon } from '../../components/ui/icons';
 import knetIcon from '../../assets/payment/knet.svg';
 import cardsIcon from '../../assets/payment/cards.svg';
 import cashIcon from '../../assets/payment/cash.svg';
 
-const GOVERNORATES = ['Al Asimah', 'Hawalli', 'Farwaniya', 'Mubarak Al-Kabeer', 'Ahmadi', 'Jahra'];
+const KUWAIT_AREAS = {
+  'Al Asimah': [
+    'Kuwait City', 'Sharq', 'Mirqab', 'Qibla', 'Dasman', 'Bneid Al Gar', 'Shuwaikh', 'Shamiya',
+    'Faiha', 'Qadsiya', 'Nuzha', 'Khaldiya', 'Adailiya', 'Yarmouk', 'Surra', 'Rawda', 'Qurtuba', 'Daiya',
+  ],
+  Hawalli: ['Hawalli', 'Salmiya', 'Jabriya', 'Bayan', 'Mishref', 'Rumaithiya', 'Salwa', 'Shaab', 'Shuhada', 'Zahra'],
+  Farwaniya: [
+    'Farwaniya', 'Khaitan', 'Jleeb Al Shuyoukh', 'Abraq Khaitan', 'Ardiya', 'Rai', 'Rabiya', 'Andalous', 'Omariya', 'Sabah Al Nasser',
+  ],
+  'Mubarak Al-Kabeer': ['Mubarak Al Kabeer', 'Qurain', 'Qusor', 'Adan', 'Sabah Al Salem', 'Messila', 'Fnaitees'],
+  Ahmadi: ['Ahmadi', 'Fahaheel', 'Mangaf', 'Abu Halifa', 'Fintas', 'Mahboula', 'Riqqa', 'Sabahiya', 'Egaila', 'Jaber Al Ali'],
+  Jahra: ['Jahra', 'Sulaibiya', 'Naeem', 'Qasr', 'Waha', 'Taima', 'Oyoun', 'Amghara', 'Nasseem'],
+};
+const GOVERNORATES = Object.keys(KUWAIT_AREAS);
+
 const PAYMENT_METHODS = [
   { value: 'knet', label: 'KNET', icon: knetIcon },
   { value: 'credit_card', label: 'Credit Card', icon: cardsIcon },
@@ -55,9 +69,12 @@ export default function CheckoutPage() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const discountCode = location.state?.discountCode || '';
-  const [discountInput, setDiscountInput] = useState(discountCode);
-  const [discountApplied, setDiscountApplied] = useState(Boolean(discountCode));
+  const incomingCode = location.state?.discountCode || '';
+  const [discountInput, setDiscountInput] = useState(incomingCode);
+  const [discount, setDiscount] = useState(null); // { code, discountTotal } | null
+  const [applyingDiscount, setApplyingDiscount] = useState(false);
+  const [discountError, setDiscountError] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState(0);
 
   const [asGuest, setAsGuest] = useState(false);
   const [showModal, setShowModal] = useState(!isAuthenticated);
@@ -78,7 +95,27 @@ export default function CheckoutPage() {
   const currency = items[0]?.currency || 'KWD';
   const canShowForm = isAuthenticated || asGuest;
 
-  const setAddressField = (field) => (e) => setAddress((a) => ({ ...a, [field]: e.target.value }));
+  useEffect(() => {
+    getDeliveryFee()
+      .then((data) => setDeliveryFee(Number(data?.fee) || 0))
+      .catch(() => setDeliveryFee(0));
+  }, []);
+
+  // Apply the code carried over from the cart page once we know the real
+  // subtotal here too.
+  useEffect(() => {
+    if (incomingCode) {
+      validateCoupon(incomingCode, subtotal)
+        .then(setDiscount)
+        .catch(() => setDiscount(null));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const setAddressField = (field) => (e) => {
+    const value = e.target.value;
+    setAddress((a) => (field === 'governorate' ? { ...a, governorate: value, area: '' } : { ...a, [field]: value }));
+  };
   const setGuestField = (field) => (e) => setGuest((g) => ({ ...g, [field]: e.target.value }));
 
   const isFormValid = useMemo(() => {
@@ -88,6 +125,24 @@ export default function CheckoutPage() {
     }
     return true;
   }, [address, guest, isAuthenticated]);
+
+  const onApplyDiscount = async () => {
+    if (!discountInput.trim() || applyingDiscount) return;
+    setApplyingDiscount(true);
+    setDiscountError('');
+    try {
+      const result = await validateCoupon(discountInput.trim(), subtotal);
+      setDiscount(result);
+    } catch (err) {
+      setDiscount(null);
+      setDiscountError(err.response?.data?.message || 'That code is not valid.');
+    } finally {
+      setApplyingDiscount(false);
+    }
+  };
+
+  const discountTotal = discount?.discountTotal || 0;
+  const grandTotal = Math.max(0, subtotal - discountTotal + deliveryFee);
 
   if (items.length === 0) {
     return (
@@ -115,7 +170,7 @@ export default function CheckoutPage() {
         items: items.map((it) => ({ productId: it.productId, variantId: it.variantId, quantity: it.quantity })),
         shippingAddress: address,
         paymentMethod,
-        discountCode: discountInput.trim() || undefined,
+        discountCode: discount?.code || undefined,
       };
       if (!isAuthenticated) {
         payload.guestName = `${guest.firstName} ${guest.lastName}`.trim();
@@ -123,8 +178,15 @@ export default function CheckoutPage() {
         payload.guestPhone = guest.phone || undefined;
       }
       const order = await checkoutRequest(payload);
+      if (order.redirectUrl) {
+        // knet / credit_card — hand off to MyFatoorah's hosted payment page.
+        // The cart is only cleared once payment actually clears (the
+        // MyFatoorah callback redirects back to /order-placed).
+        window.location.href = order.redirectUrl;
+        return;
+      }
       clearCart();
-      navigate('/order-placed', { state: { order } });
+      navigate('/order-placed', { state: { order, cartItemsSnapshot: items } });
     } catch (err) {
       const message = err?.response?.data?.message || 'We could not place your order. Please check your details and try again.';
       setError(message);
@@ -199,52 +261,95 @@ export default function CheckoutPage() {
                 </section>
               )}
 
-              <section className="rounded-2xl border border-carissma-100 bg-white/70 p-6">
-                <h2 className="text-sm font-bold text-espresso-900">Delivery Address</h2>
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <select
-                    value={address.governorate}
-                    onChange={setAddressField('governorate')}
-                    className="rounded-xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 focus:outline-none focus:ring-2 focus:ring-carissma-400"
-                  >
-                    {GOVERNORATES.map((g) => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
-                  </select>
-                  <input
-                    required
-                    value={address.area}
-                    onChange={setAddressField('area')}
-                    placeholder="Area"
-                    className="rounded-xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
-                  />
-                  <input
-                    required
-                    value={address.block}
-                    onChange={setAddressField('block')}
-                    placeholder="Block"
-                    className="rounded-xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
-                  />
-                  <input
-                    required
-                    value={address.street}
-                    onChange={setAddressField('street')}
-                    placeholder="Street"
-                    className="rounded-xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
-                  />
-                  <input
-                    required
-                    value={address.buildingNumber}
-                    onChange={setAddressField('buildingNumber')}
-                    placeholder="Building Number"
-                    className="rounded-xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
-                  />
-                  <input
-                    value={address.moreDetails}
-                    onChange={setAddressField('moreDetails')}
-                    placeholder="More Details (optional)"
-                    className="rounded-xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
-                  />
+              <section className="rounded-3xl border-2 border-carissma-300 bg-white p-6">
+                <StickerHeading as="h2" className="text-lg">
+                  Delivery Address
+                </StickerHeading>
+
+                <div className="mt-4 space-y-4">
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-bold text-espresso-900">
+                      Governorate <span className="text-carnation-500">*</span>
+                    </span>
+                    <select
+                      required
+                      value={address.governorate}
+                      onChange={setAddressField('governorate')}
+                      className="w-full rounded-xl border border-carissma-200 bg-linen-50 px-4 py-2.5 text-sm text-espresso-900 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                    >
+                      {GOVERNORATES.map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-bold text-espresso-900">
+                      Area <span className="text-carnation-500">*</span>
+                    </span>
+                    <select
+                      required
+                      value={address.area}
+                      onChange={setAddressField('area')}
+                      className="w-full rounded-xl border border-carissma-200 bg-linen-50 px-4 py-2.5 text-sm text-espresso-900 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                    >
+                      <option value="">Select Area</option>
+                      {(KUWAIT_AREAS[address.governorate] || []).map((a) => (
+                        <option key={a} value={a}>{a}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-bold text-espresso-900">
+                        Block <span className="text-carnation-500">*</span>
+                      </span>
+                      <input
+                        required
+                        value={address.block}
+                        onChange={setAddressField('block')}
+                        placeholder="Enter Block"
+                        className="w-full rounded-xl border border-carissma-200 bg-linen-50 px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-bold text-espresso-900">
+                        Street <span className="text-carnation-500">*</span>
+                      </span>
+                      <input
+                        required
+                        value={address.street}
+                        onChange={setAddressField('street')}
+                        placeholder="Enter Street"
+                        className="w-full rounded-xl border border-carissma-200 bg-linen-50 px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                      />
+                    </label>
+                  </div>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-bold text-espresso-900">
+                      Build Number <span className="text-carnation-500">*</span>
+                    </span>
+                    <input
+                      required
+                      value={address.buildingNumber}
+                      onChange={setAddressField('buildingNumber')}
+                      placeholder="Build Number"
+                      className="w-full rounded-xl border border-carissma-200 bg-linen-50 px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-bold text-espresso-900">More Details</span>
+                    <textarea
+                      value={address.moreDetails}
+                      onChange={setAddressField('moreDetails')}
+                      placeholder="More Details"
+                      rows={3}
+                      className="w-full rounded-xl border border-carissma-200 bg-linen-50 px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                    />
+                  </label>
                 </div>
               </section>
 
@@ -337,22 +442,25 @@ export default function CheckoutPage() {
                   value={discountInput}
                   onChange={(e) => {
                     setDiscountInput(e.target.value);
-                    setDiscountApplied(false);
+                    setDiscount(null);
+                    setDiscountError('');
                   }}
                   placeholder="Discount Code"
                   className="w-full rounded-xl border border-carissma-100 bg-linen-50 px-4 py-2 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
                 />
                 <button
                   type="button"
-                  onClick={() => setDiscountApplied(Boolean(discountInput.trim()))}
-                  className="shrink-0 rounded-xl bg-carissma-400 px-5 text-sm font-bold text-white hover:bg-carissma-500"
+                  onClick={onApplyDiscount}
+                  disabled={applyingDiscount}
+                  className="shrink-0 rounded-xl bg-carissma-400 px-5 text-sm font-bold text-white hover:bg-carissma-500 disabled:opacity-60"
                 >
-                  Apply
+                  {applyingDiscount ? '…' : 'Apply'}
                 </button>
               </div>
-              {discountApplied && (
+              {discountError && <p className="mt-1.5 text-xs font-semibold text-carnation-600">{discountError}</p>}
+              {discount && (
                 <p className="mt-1.5 text-xs font-semibold text-carissma-600">
-                  Code saved — it will be reviewed with your order.
+                  Coupon "{discount.code}" applied — {discountTotal.toFixed(3)} {currency} off.
                 </p>
               )}
 
@@ -363,20 +471,18 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between font-bold text-carnation-500">
                   <span>Discount</span>
-                  <span>0%</span>
+                  <span>-{discountTotal.toFixed(3)} {currency}</span>
                 </div>
                 <div className="flex justify-between font-bold text-espresso-900">
                   <span>Delivery Fees</span>
-                  <span>0.00 {currency}</span>
+                  <span>{deliveryFee.toFixed(3)} {currency}</span>
                 </div>
               </div>
 
               <div className="mt-3 flex justify-between border-t border-carissma-200 pt-3 text-base font-extrabold text-espresso-900">
                 <span>Total</span>
-                <span>{subtotal.toFixed(0)} {currency}</span>
+                <span>{grandTotal.toFixed(3)} {currency}</span>
               </div>
-
-              <p className="mt-2 text-xs text-espresso-500">Delivery fees and any discount are confirmed after you place your order.</p>
 
               {error && <p className="mt-4 text-sm font-semibold text-carnation-600">{error}</p>}
 

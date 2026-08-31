@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
-import { getProductBySlug } from '../../api/content.api';
+import { getProductBySlug, listProducts } from '../../api/content.api';
 import { useCart } from '../../context/CartContext';
 import { MinusIcon, PlusIcon } from '../../components/ui/icons';
 
@@ -16,6 +16,51 @@ function titleCase(str) {
   return str.replace(/(^|[\s_-])(\w)/g, (m, sep, ch) => (sep ? ' ' : '') + ch.toUpperCase());
 }
 
+function ProductCard({ product }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
+      <Link to={`/products/${product.slug}`} className="block aspect-square w-full overflow-hidden bg-carissma-100">
+        {product.thumbnail_url ? (
+          <img src={product.thumbnail_url} alt={product.name_en} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-carissma-300">No image</div>
+        )}
+      </Link>
+      <div className="p-3">
+        <Link to={`/products/${product.slug}`} className="block text-sm font-bold text-carissma-500 hover:underline">
+          {product.name_en}
+        </Link>
+        {product.description_en && <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{product.description_en}</p>}
+        <p className="mt-1 text-sm font-bold text-espresso-900">
+          {Number(product.base_price).toFixed(0)} {product.currency}
+        </p>
+        <Link
+          to={`/products/${product.slug}`}
+          className="mt-2 block rounded-full bg-carissma-400 py-1.5 text-center text-xs font-bold text-white hover:bg-carissma-500"
+        >
+          Add To Cart
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ProductRow({ title, products }) {
+  if (!products.length) return null;
+  return (
+    <div className="mt-16">
+      <StickerHeading as="h2" className="text-xl">
+        {title}
+      </StickerHeading>
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {products.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -23,9 +68,12 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [selection, setSelection] = useState({});
   const [quantity, setQuantity] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [added, setAdded] = useState(false);
+  const [related, setRelated] = useState([]);
+  const [recommended, setRecommended] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,12 +81,39 @@ export default function ProductDetailPage() {
     setNotFound(false);
     setAdded(false);
     setQuantity(1);
+    setActiveImage(0);
+    setRelated([]);
+    setRecommended([]);
     getProductBySlug(slug)
       .then((data) => {
         if (cancelled) return;
         setProduct(data);
         const firstVariant = data.variants?.[0];
         setSelection(firstVariant ? parseAttrs(firstVariant) : {});
+
+        // Related Products — other active products in the same category.
+        // You Will Love This — a broader pick, excluding the current product
+        // and anything already shown as related, so the two rows don't
+        // just repeat each other.
+        const relatedPromise = data.category_id
+          ? listProducts({ categoryId: data.category_id, pageSize: 11 })
+          : Promise.resolve({ rows: [] });
+        relatedPromise
+          .then((res) => {
+            if (cancelled) return;
+            const rows = (res.rows || []).filter((p) => p.id !== data.id).slice(0, 10);
+            setRelated(rows);
+            return rows;
+          })
+          .then((relatedRows) => {
+            if (cancelled) return;
+            const excludeIds = new Set([data.id, ...(relatedRows || []).map((p) => p.id)]);
+            listProducts({ pageSize: 20 }).then((res) => {
+              if (cancelled) return;
+              setRecommended((res.rows || []).filter((p) => !excludeIds.has(p.id)).slice(0, 10));
+            });
+          })
+          .catch(() => {});
       })
       .catch((err) => {
         if (!cancelled && err?.response?.status === 404) setNotFound(true);
@@ -98,6 +173,7 @@ export default function ProductDetailPage() {
 
   const hasVariants = product.variants?.length > 0;
   const displayPrice = selectedVariant ? selectedVariant.price : product.base_price;
+  const compareAtPrice = selectedVariant?.compare_at_price;
   const gallery = product.images?.length ? product.images.map((i) => i.image_url) : [product.thumbnail_url].filter(Boolean);
   const outOfStock = hasVariants ? !selectedVariant || selectedVariant.stock_quantity <= 0 : product.stock_quantity <= 0;
   const stockAvailable = hasVariants ? selectedVariant?.stock_quantity : product.stock_quantity;
@@ -124,14 +200,36 @@ export default function ProductDetailPage() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-6xl px-8 py-16">
-        <Link to="/products" className="text-sm font-bold text-carissma-500 hover:underline">← Back to shop</Link>
+        <nav className="text-sm font-semibold text-espresso-500">
+          <Link to="/products" className="hover:text-carissma-500">Products</Link>
+          <span className="mx-1.5">›</span>
+          <span className="text-carissma-500">Product Detail</span>
+        </nav>
 
         <div className="mt-6 grid grid-cols-1 gap-10 md:grid-cols-2">
-          <div className="aspect-square overflow-hidden rounded-3xl bg-linen-100">
-            {gallery[0] ? (
-              <img src={gallery[0]} alt={product.name_en} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-espresso-300">No image</div>
+          <div>
+            <div className="aspect-square overflow-hidden rounded-3xl bg-linen-100">
+              {gallery[activeImage] ? (
+                <img src={gallery[activeImage]} alt={product.name_en} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-espresso-300">No image</div>
+              )}
+            </div>
+            {gallery.length > 1 && (
+              <div className="mt-3 flex gap-2 overflow-x-auto">
+                {gallery.map((src, i) => (
+                  <button
+                    key={src + i}
+                    type="button"
+                    onClick={() => setActiveImage(i)}
+                    className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 ${
+                      activeImage === i ? 'border-carissma-400' : 'border-transparent'
+                    }`}
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
@@ -139,35 +237,60 @@ export default function ProductDetailPage() {
             <StickerHeading as="h1" className="text-2xl">
               {product.name_en}
             </StickerHeading>
-            <p className="mt-3 text-2xl font-extrabold text-espresso-900">
-              {Number(displayPrice).toFixed(3)} {product.currency}
-            </p>
+            <div className="mt-3 flex items-baseline gap-2">
+              <p className="text-2xl font-extrabold text-espresso-900">
+                {Number(displayPrice).toFixed(0)} {product.currency}
+              </p>
+              {compareAtPrice && Number(compareAtPrice) > Number(displayPrice) && (
+                <p className="text-sm font-semibold text-espresso-400 line-through">
+                  {Number(compareAtPrice).toFixed(0)} {product.currency}
+                </p>
+              )}
+            </div>
             {product.description_en && <p className="mt-4 whitespace-pre-line text-espresso-600">{product.description_en}</p>}
 
-            {optionGroups.map(([key, values]) => (
-              <div key={key} className="mt-6">
-                <p className="mb-2 text-sm font-bold text-espresso-800">{titleCase(key)}</p>
-                <div className="flex flex-wrap gap-2">
-                  {values.map((val) => {
-                    const isActive = selection[key] === val;
-                    return (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() => setSelection((s) => ({ ...s, [key]: val }))}
-                        className={`rounded-xl border-2 px-4 py-2 text-sm font-bold transition ${
-                          isActive
-                            ? 'border-carissma-400 bg-carissma-50 text-carissma-600'
-                            : 'border-carissma-100 text-espresso-700 hover:border-carissma-300'
-                        }`}
-                      >
-                        {val}
-                      </button>
-                    );
-                  })}
+            {optionGroups.map(([key, values]) => {
+              const isColor = key.toLowerCase() === 'color';
+              return (
+                <div key={key} className="mt-6">
+                  <p className="mb-2 text-sm font-bold text-espresso-800">{titleCase(key)}:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {values.map((val) => {
+                      const isActive = selection[key] === val;
+                      if (isColor) {
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setSelection((s) => ({ ...s, [key]: val }))}
+                            aria-label={val}
+                            className={`h-9 w-9 shrink-0 rounded-full border-2 transition ${
+                              isActive ? 'border-carissma-400' : 'border-transparent'
+                            }`}
+                          >
+                            <span className="block h-full w-full rounded-full border border-espresso-200" style={{ backgroundColor: val }} />
+                          </button>
+                        );
+                      }
+                      return (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setSelection((s) => ({ ...s, [key]: val }))}
+                          className={`rounded-xl border-2 px-4 py-2 text-sm font-bold transition ${
+                            isActive
+                              ? 'border-carissma-400 bg-carissma-50 text-carissma-600'
+                              : 'border-carissma-100 text-espresso-700 hover:border-carissma-300'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {outOfStock && <p className="mt-4 text-sm font-bold text-carnation-600">Out of stock</p>}
 
@@ -211,6 +334,15 @@ export default function ProductDetailPage() {
               </div>
             )}
           </div>
+        </div>
+
+        <ProductRow title="Related Products" products={related} />
+        <ProductRow title="You Will Love This" products={recommended} />
+
+        <div className="mt-10 flex justify-center">
+          <Link to="/products" className="rounded-full border-2 border-carissma-300 px-8 py-2.5 text-sm font-bold text-carissma-400 hover:bg-carissma-50">
+            Continue Shopping
+          </Link>
         </div>
       </div>
     </SiteLayout>
