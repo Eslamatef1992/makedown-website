@@ -4,6 +4,7 @@ import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
+import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
 import { joinGameByCode } from '../../api/play.api';
 
 export default function JoinByCodePage() {
@@ -12,6 +13,7 @@ export default function JoinByCodePage() {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [noFreeGame, setNoFreeGame] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +24,19 @@ export default function JoinByCodePage() {
       const session = await joinGameByCode(code.trim());
       navigate(`/play/sessions/${session.id}/lobby`);
     } catch (err) {
-      setError(err.response?.data?.message || 'No game found with that code.');
+      if (err.response?.status === 402) {
+        setNoFreeGame(true);
+      } else {
+        setError(err.response?.data?.message || 'No game found with that code.');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  if (noFreeGame) {
+    return <FreeGameOverScreen onBack={() => setNoFreeGame(false)} />;
+  }
 
   return (
     <PlayModalLayout backTo={`/play/mode/${mode}`} backLabel="Back" backStyle="button">

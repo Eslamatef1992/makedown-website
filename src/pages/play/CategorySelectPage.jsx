@@ -4,6 +4,7 @@ import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
+import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
 import { useAuth } from '../../context/AuthContext';
 import { listPlayableQuizzes, createGame } from '../../api/play.api';
 
@@ -18,6 +19,7 @@ export default function CategorySelectPage() {
   const [gameName, setGameName] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [noFreeGame, setNoFreeGame] = useState(false);
 
   useEffect(() => {
     listPlayableQuizzes(undefined, mode)
@@ -56,11 +58,19 @@ export default function CategorySelectPage() {
       const session = await createGame({ mode, quizIds: selected, title: gameName || undefined });
       navigate(`/play/sessions/${session.id}/invite`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not create the game.');
+      if (err.response?.status === 402) {
+        setNoFreeGame(true);
+      } else {
+        setError(err.response?.data?.message || 'Could not create the game.');
+      }
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (noFreeGame) {
+    return <FreeGameOverScreen onBack={() => setNoFreeGame(false)} />;
+  }
 
   return (
     <SiteLayout>
