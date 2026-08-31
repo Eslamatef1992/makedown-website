@@ -125,8 +125,8 @@ export default function CategorySelectPage() {
                             toggle(quiz.id);
                           }
                         }}
-                        className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 p-3 text-center transition ${
-                          isSelected ? 'border-carissma-500 bg-carissma-50' : 'border-linen-200 bg-white hover:border-carissma-200'
+                        className={`group relative flex aspect-square w-full cursor-pointer flex-col rounded-3xl border-2 bg-white p-1.5 text-center transition ${
+                          isSelected ? 'border-carissma-500' : 'border-carissma-100 hover:border-carissma-300'
                         }`}
                       >
                         {howToPlay && (
@@ -138,12 +138,12 @@ export default function CategorySelectPage() {
                                 e.stopPropagation();
                                 setOpenInfo((cur) => (cur === quiz.id ? null : quiz.id));
                               }}
-                              className="absolute start-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-carissma-500 text-[11px] font-extrabold text-white shadow-sm hover:bg-carissma-600"
+                              className="absolute start-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-carissma-500 text-xs font-extrabold text-white shadow-sm hover:bg-carissma-600 sm:h-8 sm:w-8 sm:text-sm"
                             >
                               i
                             </button>
                             <div
-                              className={`absolute start-2 top-9 z-20 w-40 rounded-2xl border border-carissma-100 bg-white p-3 text-start text-[11px] font-semibold leading-snug text-carissma-600 shadow-lg transition ${
+                              className={`absolute start-2.5 top-11 z-20 w-40 max-w-[calc(100vw-2.5rem)] rounded-2xl border border-carissma-100 bg-white p-3 text-start text-[11px] font-semibold leading-snug text-carissma-600 shadow-lg transition sm:w-56 sm:p-3.5 sm:text-xs ${
                                 infoOpen ? 'opacity-100' : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100'
                               }`}
                             >
@@ -152,14 +152,14 @@ export default function CategorySelectPage() {
                           </>
                         )}
 
-                        <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-linen-50">
+                        <span className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-linen-50">
                           {quiz.cover_image_url ? (
                             <img src={quiz.cover_image_url} alt="" className="h-full w-full object-cover" />
                           ) : (
-                            <span className="text-2xl">🎨</span>
+                            <span className="flex h-full w-full items-center justify-center text-4xl">🎨</span>
                           )}
                         </span>
-                        <span className="text-xs font-bold text-carissma-600">{title}</span>
+                        <span className="shrink-0 truncate px-1 pt-1.5 text-xs font-bold text-carissma-600 sm:text-sm">{title}</span>
                       </div>
                     );
                   })}
