@@ -227,10 +227,10 @@ export default function Home() {
           </h1>
           <p className="mt-1 text-sm font-bold text-saffron-500">{t('home.hero.subtitle')}</p>
 
-          <div className="relative z-10 mx-auto mt-6 max-w-sm rounded-3xl border-4 border-carissma-300 bg-carissma-50 px-6 py-7 shadow-sm">
+          <div className="relative z-10 mx-auto mt-6 max-w-sm rounded-3xl border-4 border-carissma-400 bg-carissma-50 px-6 py-7 shadow-sm">
             <GlobeControllerIcon className="mx-auto h-11 w-11 text-espresso-900" />
             <p className="mt-3 font-extrabold text-carissma-400">{t('home.hero.onlinePlay')}</p>
-            <p className="mt-1 text-xs font-semibold text-carissma-400/80">{t('home.hero.onlinePlaySubtitle')}</p>
+            <p className="mt-1 text-xs font-semibold text-carissma-400">{t('home.hero.onlinePlaySubtitle')}</p>
             <Link
               to="/play"
               className="mt-4 block rounded-full bg-carissma-400 py-2.5 text-sm font-bold text-white hover:bg-carissma-500"
