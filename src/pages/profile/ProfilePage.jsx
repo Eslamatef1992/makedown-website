@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import SiteLayout from '../../components/layout/SiteLayout';
-import StickerHeading from '../../components/ui/StickerHeading';
 import { useAuth } from '../../context/AuthContext';
-import { getUserProfile, listMyPackages } from '../../api/me.api';
+import { getUserProfile, listMyPackages, uploadMyAvatar } from '../../api/me.api';
 import { ChatBubbleIcon, PencilIcon, ShareIcon } from '../../components/ui/icons';
 
 import PackagesTab from './tabs/PackagesTab';
@@ -19,32 +18,70 @@ const TABS = [
   { key: 'history', label: 'Game History' },
 ];
 
-function Avatar({ user, size = 'h-24 w-24' }) {
+function Avatar({ user, size = 'h-24 w-24', editable = false, onUploaded }) {
+  const { refreshUser } = useAuth();
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef(null);
   const initials = (user?.firstName?.[0] || user?.fullName?.[0] || '?').toUpperCase();
+
+  const onPick = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      await uploadMyAvatar(file);
+      await refreshUser();
+      onUploaded?.();
+    } catch {
+      // Upload failed (bad format, network) — the photo just stays as-is.
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div className={`${size} shrink-0 overflow-hidden rounded-full border-4 border-white bg-carissma-100 shadow-md`}>
-      {user?.avatarUrl ? (
-        <img src={user.avatarUrl} alt={user.fullName || 'Profile photo'} className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-3xl font-extrabold text-carissma-400">
-          {initials}
-        </div>
+    <div className={`relative ${size} shrink-0`}>
+      <div className="h-full w-full overflow-hidden rounded-full border-4 border-white bg-carissma-100 shadow-md">
+        {user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt={user.fullName || 'Profile photo'} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-3xl font-extrabold text-carissma-400">
+            {initials}
+          </div>
+        )}
+      </div>
+      {editable && (
+        <label className="absolute bottom-0 end-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-carissma-500 text-white shadow-md hover:bg-carissma-600">
+          <PencilIcon className="h-4 w-4" />
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={onPick}
+            className="hidden"
+            disabled={uploading}
+          />
+        </label>
+      )}
+      {uploading && (
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-xs font-bold text-white">…</div>
       )}
     </div>
   );
 }
 
-function StatButton({ label, value, active, onClick }) {
+function StatBox({ label, value, active, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-xs font-bold transition ${
-        active ? 'bg-carissma-400 text-white' : 'bg-white/80 text-espresso-700 hover:bg-carissma-50'
+      className={`flex min-w-[6.5rem] flex-col items-center gap-1 rounded-2xl px-5 py-2.5 text-center shadow-sm transition ${
+        active ? 'bg-white' : 'bg-white/70 hover:bg-white'
       }`}
     >
-      {value !== undefined ? `${value} ` : ''}
-      {label}
+      <span className="text-sm font-bold text-espresso-900">{label}</span>
+      <span className="text-2xl font-extrabold text-carissma-600">{value ?? 0}</span>
     </button>
   );
 }
@@ -100,60 +137,66 @@ export default function ProfilePage() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
-        <div className="flex flex-col items-center rounded-3xl border-2 border-carissma-200 bg-white/70 p-6 text-center sm:p-8">
-          <Avatar user={user} />
-          <StickerHeading as="h1" className="mt-4 text-xl">
-            {user.fullName || user.firstName}
-          </StickerHeading>
-          {profile?.bio && <p className="mt-1 max-w-md text-sm font-medium text-espresso-600">{profile.bio}</p>}
+        <div className="flex flex-col gap-6 rounded-[2rem] bg-gradient-to-br from-carissma-50 via-carissma-50 to-carissma-200 p-6 shadow-sm sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+          <div className="flex items-center gap-4">
+            <Avatar user={user} editable onUploaded={loadSummary} />
+            <div className="min-w-0 text-start">
+              <p className="truncate text-lg font-extrabold text-espresso-900">{user.fullName || user.firstName}</p>
+              {profile?.bio && <p className="mt-0.5 max-w-xs truncate text-sm font-medium text-espresso-500">{profile.bio}</p>}
+            </div>
+          </div>
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            <StatButton label="Following" value={profile?.followingCount ?? 0} active={activeTab === 'following'} onClick={() => setTab('following')} />
-            <StatButton label="Followers" value={profile?.followersCount ?? 0} active={activeTab === 'followers'} onClick={() => setTab('followers')} />
+          <div className="flex flex-wrap items-center gap-3">
+            <StatBox label="Following" value={profile?.followingCount} active={activeTab === 'following'} onClick={() => setTab('following')} />
+            <StatBox label="Followers" value={profile?.followersCount} active={activeTab === 'followers'} onClick={() => setTab('followers')} />
+          </div>
+
+          <div className="flex flex-col gap-2 sm:w-72">
             <button
               type="button"
               onClick={() => navigate('/profile/chat')}
-              className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-espresso-700 hover:bg-carissma-50"
+              className="flex items-center justify-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-espresso-700 shadow-sm hover:bg-carissma-50"
             >
-              <ChatBubbleIcon className="h-4 w-4" /> Chats
+              <ChatBubbleIcon className="h-4 w-4 text-carissma-500" /> Chats
             </button>
-            <button
-              type="button"
-              onClick={() => navigate('/profile/edit')}
-              className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-espresso-700 hover:bg-carissma-50"
-            >
-              <PencilIcon className="h-4 w-4" /> Edit Profile
-            </button>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-espresso-700 hover:bg-carissma-50"
-            >
-              <ShareIcon className="h-4 w-4" /> {shareCopied ? 'Link Copied!' : 'Share Profile'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/profile/edit')}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-xs font-bold text-espresso-700 shadow-sm hover:bg-carissma-50"
+              >
+                Edit Profile
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-xs font-bold text-espresso-700 shadow-sm hover:bg-carissma-50"
+              >
+                {shareCopied ? 'Link Copied!' : 'Share Profile'}
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col gap-4 rounded-3xl bg-carissma-400 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 rounded-[2rem] bg-gradient-to-br from-carissma-50 to-carissma-200 p-6 shadow-sm sm:p-8">
           {currentPackage ? (
             <>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-carissma-100">Current Package</p>
-                <p className="mt-1 text-lg font-extrabold">{currentPackage.package_name_en}</p>
-                <p className="text-sm font-semibold text-carissma-50">
-                  {currentPackage.credits_remaining} Game{currentPackage.credits_remaining === 1 ? '' : 's'} Left
-                </p>
-              </div>
-              <div className="flex gap-3">
+              <p className="text-sm font-bold text-espresso-900">Current Package</p>
+              <p className="mt-1 text-2xl font-extrabold text-carissma-500">{currentPackage.package_name_en}</p>
+              <p className="mt-3 text-lg font-extrabold text-carissma-400">
+                Games Left {currentPackage.credits_remaining} Game{currentPackage.credits_remaining === 1 ? '' : 's'}
+              </p>
+              <p className="mt-2 text-sm font-bold text-espresso-900">Keep Playing And Enjoy The Rest Of Your Package.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
                 <button
                   onClick={() => setTab('packages')}
-                  className="rounded-full bg-white px-6 py-2.5 text-sm font-bold text-carissma-500 hover:bg-carissma-50"
+                  className="rounded-full bg-white/80 px-6 py-3 text-sm font-bold text-carissma-500 hover:bg-white"
                 >
-                  Upgrade
+                  Upgrade Package
                 </button>
                 <button
                   onClick={() => navigate('/play')}
-                  className="rounded-full border-2 border-white px-6 py-2.5 text-sm font-bold text-white hover:bg-white/10"
+                  className="rounded-full bg-carissma-400 px-6 py-3 text-sm font-bold text-white hover:bg-carissma-500"
                 >
                   Continue Playing
                 </button>
@@ -161,13 +204,11 @@ export default function ProfilePage() {
             </>
           ) : (
             <>
-              <div>
-                <p className="text-sm font-bold">You don't have an active package yet.</p>
-                <p className="text-xs font-semibold text-carissma-50">Grab a package to start playing games.</p>
-              </div>
+              <p className="text-sm font-bold text-espresso-900">You don't have an active package yet.</p>
+              <p className="mt-1 text-sm font-semibold text-espresso-600">Grab a package to start playing games.</p>
               <button
                 onClick={() => setTab('packages')}
-                className="w-fit rounded-full bg-white px-6 py-2.5 text-sm font-bold text-carissma-500 hover:bg-carissma-50"
+                className="mt-6 w-fit rounded-full bg-carissma-400 px-6 py-3 text-sm font-bold text-white hover:bg-carissma-500"
               >
                 Browse Packages
               </button>
@@ -175,13 +216,13 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-2 border-b border-carissma-200 pb-4">
+        <div className="mt-8 flex flex-wrap gap-1 rounded-full bg-carissma-400 p-1.5">
           {TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition ${
-                activeTab === t.key ? 'bg-carissma-400 text-white' : 'bg-white/70 text-espresso-700 hover:bg-carissma-50'
+              className={`rounded-full px-4 py-2.5 text-sm font-bold transition ${
+                activeTab === t.key ? 'bg-white text-carissma-600 shadow-sm' : 'text-white hover:bg-white/10'
               }`}
             >
               {t.label}
