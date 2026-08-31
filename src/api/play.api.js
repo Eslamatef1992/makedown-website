@@ -1,8 +1,12 @@
 import client from './client';
 
 // ---- Board / category picker ----
-export const listPlayableQuizzes = (categoryId) =>
-  client.get('/play/quizzes', { params: categoryId ? { category_id: categoryId } : {} }).then((r) => r.data.data);
+export const listPlayableQuizzes = (categoryId, mode) => {
+  const params = {};
+  if (categoryId) params.category_id = categoryId;
+  if (mode) params.mode = mode;
+  return client.get('/play/quizzes', { params }).then((r) => r.data.data);
+};
 
 // ---- Session lifecycle ----
 export const createGame = (payload) => client.post('/play/sessions', payload).then((r) => r.data.data);

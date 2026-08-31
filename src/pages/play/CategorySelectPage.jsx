@@ -20,11 +20,11 @@ export default function CategorySelectPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    listPlayableQuizzes()
+    listPlayableQuizzes(undefined, mode)
       .then(setQuizzes)
       .catch(() => setQuizzes([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [mode]);
 
   const grouped = useMemo(() => {
     const groups = new Map();
