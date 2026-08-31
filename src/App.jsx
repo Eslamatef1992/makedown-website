@@ -32,6 +32,17 @@ import PackagePurchasePage from './pages/profile/PackagePurchasePage';
 import PaymentResultPage from './pages/profile/PaymentResultPage';
 import UserProfilePage from './pages/profile/UserProfilePage';
 
+import SoloTeamPage from './pages/play/SoloTeamPage';
+import CreateJoinPage from './pages/play/CreateJoinPage';
+import JoinByCodePage from './pages/play/JoinByCodePage';
+import CategorySelectPage from './pages/play/CategorySelectPage';
+import InvitePage from './pages/play/InvitePage';
+import JoinLinkPage from './pages/play/JoinLinkPage';
+import LobbyPage from './pages/play/LobbyPage';
+import ScanConfirmPage from './pages/play/ScanConfirmPage';
+import LiveGamePage from './pages/play/LiveGamePage';
+import ResultsPage from './pages/play/ResultsPage';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -60,7 +71,16 @@ export default function App() {
         <Route path="/packages" element={<PackagesPage />} />
 
         {/* Game flow — live multiplayer engine not yet built */}
-        <Route path="/play" element={<ComingSoon title="Play" />} />
+        <Route path="/play" element={<ProtectedRoute><SoloTeamPage /></ProtectedRoute>} />
+        <Route path="/play/mode/:mode" element={<ProtectedRoute><CreateJoinPage /></ProtectedRoute>} />
+        <Route path="/play/mode/:mode/join" element={<ProtectedRoute><JoinByCodePage /></ProtectedRoute>} />
+        <Route path="/play/mode/:mode/create" element={<ProtectedRoute><CategorySelectPage /></ProtectedRoute>} />
+        <Route path="/play/join/:code" element={<ProtectedRoute><JoinLinkPage /></ProtectedRoute>} />
+        <Route path="/play/scan/:sessionId/:token" element={<ProtectedRoute><ScanConfirmPage /></ProtectedRoute>} />
+        <Route path="/play/sessions/:id/invite" element={<ProtectedRoute><InvitePage /></ProtectedRoute>} />
+        <Route path="/play/sessions/:id/lobby" element={<ProtectedRoute><LobbyPage /></ProtectedRoute>} />
+        <Route path="/play/sessions/:id/live" element={<ProtectedRoute><LiveGamePage /></ProtectedRoute>} />
+        <Route path="/play/sessions/:id/results" element={<ProtectedRoute><ResultsPage /></ProtectedRoute>} />
         <Route path="/education" element={<SchoolsPage />} />
         <Route path="/education/:id" element={<SchoolDetailPage />} />
 

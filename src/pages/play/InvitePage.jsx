@@ -1,0 +1,179 @@
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
+import StickerHeading from '../../components/ui/StickerHeading';
+import Button from '../../components/ui/Button';
+import { CopyIcon, ChevronDownIcon, UserIcon } from '../../components/ui/icons';
+import { getGame, matchRandomOpponent, searchInvitees, sendInvite } from '../../api/play.api';
+
+export default function InvitePage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [session, setSession] = useState(null);
+  const [view, setView] = useState('start'); // 'start' | 'link'
+  const [matching, setMatching] = useState(false);
+
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [invited, setInvited] = useState([]);
+  const [copied, setCopied] = useState(false);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    getGame(id).then(setSession).catch(() => {});
+  }, [id]);
+
+  const joinLink = session ? `${window.location.origin}/play/join/${session.join_code}` : '';
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(joinLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard may be unavailable (older browser/permissions) — the link is still visible to select manually.
+    }
+  };
+
+  const onSearch = (value) => {
+    setQuery(value);
+    setDropdownOpen(true);
+    clearTimeout(debounceRef.current);
+    if (!value.trim()) {
+      setResults([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setResults(await searchInvitees(id, value.trim()));
+      } catch {
+        setResults([]);
+      }
+    }, 300);
+  };
+
+  const invite = async (userId) => {
+    try {
+      await sendInvite(id, userId);
+      setInvited((s) => [...s, userId]);
+    } catch {
+      // Already invited or no longer available — ignore, the button already reflects the attempt.
+    }
+  };
+
+  const onRandomUser = async () => {
+    setMatching(true);
+    try {
+      const result = await matchRandomOpponent(id);
+      navigate(`/play/sessions/${result.matchedSessionId}/lobby`);
+    } finally {
+      setMatching(false);
+    }
+  };
+
+  const goToLobby = () => navigate(`/play/sessions/${id}/lobby`);
+
+  return (
+    <PlayModalLayout onBack={() => (view === 'link' ? setView('start') : navigate(-1))} backLabel="Back" backStyle="link">
+      {view === 'start' ? (
+        <PlayCard>
+          <StickerHeading as="h2" className="text-2xl">
+            Start Play With
+          </StickerHeading>
+          <div className="mt-6 flex gap-3">
+            <button
+              onClick={onRandomUser}
+              disabled={matching}
+              className="flex-1 rounded-full bg-carissma-100 py-3 text-sm font-bold text-carissma-600 hover:bg-carissma-200 disabled:opacity-60"
+            >
+              {matching ? 'Matching…' : 'Random User'}
+            </button>
+            <button
+              onClick={() => setView('link')}
+              className="flex-1 rounded-full bg-carissma-500 py-3 text-sm font-bold text-white hover:bg-carissma-600"
+            >
+              Send Invitation
+            </button>
+          </div>
+        </PlayCard>
+      ) : (
+        <PlayCard className="max-w-md text-start">
+          <StickerHeading as="h2" className="text-center text-2xl">
+            Game Link
+          </StickerHeading>
+
+          <div className="mt-6">
+            <span className="mb-1.5 block text-sm font-bold text-espresso-900">Share Game Link</span>
+            <div className="flex items-stretch gap-2">
+              <input
+                readOnly
+                value={joinLink}
+                className="w-full truncate rounded-2xl border border-carissma-200 bg-white px-4 py-2.5 text-sm text-carissma-500"
+              />
+              <button
+                onClick={copyLink}
+                className="flex flex-none items-center justify-center rounded-2xl bg-carissma-500 px-3 text-white hover:bg-carissma-600"
+                aria-label="Copy link"
+              >
+                <CopyIcon className="h-5 w-5" />
+              </button>
+            </div>
+            {copied && <span className="mt-1 block text-xs font-bold text-carissma-600">Copied!</span>}
+          </div>
+
+          <div className="my-5 flex items-center gap-3">
+            <span className="h-px flex-1 bg-carissma-100" />
+            <span className="text-xs font-bold text-carissma-400">OR</span>
+            <span className="h-px flex-1 bg-carissma-100" />
+          </div>
+
+          <div className="relative">
+            <span className="mb-1.5 block text-sm font-bold text-espresso-900">User Name</span>
+            <div className="relative">
+              <input
+                value={query}
+                onChange={(e) => onSearch(e.target.value)}
+                onFocus={() => setDropdownOpen(true)}
+                placeholder="Enter user name"
+                className="w-full rounded-2xl border border-carissma-200 bg-white px-4 py-2.5 pe-10 text-sm text-espresso-900 placeholder:text-carissma-300"
+              />
+              <ChevronDownIcon className={`pointer-events-none absolute inset-y-0 end-3 my-auto h-4 w-4 text-carissma-400 transition ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            {dropdownOpen && results.length > 0 && (
+              <div className="absolute z-10 mt-2 w-full space-y-2 rounded-2xl border border-carissma-100 bg-white p-3 shadow-lg">
+                {results.map((u) => (
+                  <div key={u.id} className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2">
+                      {u.avatar_url ? (
+                        <img src={u.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                      ) : (
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-carissma-100 text-carissma-500">
+                          <UserIcon className="h-4 w-4" />
+                        </span>
+                      )}
+                      <span className="text-sm font-bold text-espresso-900">{u.full_name}</span>
+                    </span>
+                    <button
+                      onClick={() => invite(u.id)}
+                      disabled={invited.includes(u.id)}
+                      className="rounded-full bg-carissma-100 px-3 py-1 text-xs font-bold text-carissma-600 hover:bg-carissma-200 disabled:opacity-60"
+                    >
+                      {invited.includes(u.id) ? 'Invited' : 'Add'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Button className="mt-6" onClick={goToLobby}>
+            Send Invitation
+          </Button>
+        </PlayCard>
+      )}
+    </PlayModalLayout>
+  );
+}
