@@ -89,7 +89,8 @@ export default function ContactUsPage() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10 sm:py-14">
-        <div className="text-center">
+        <div className="relative text-center">
+          <span className="pointer-events-none absolute end-[18%] top-0 text-xl text-saffron-400" aria-hidden="true">✦</span>
           <StickerHeading as="h1" className="text-3xl sm:text-4xl">
             Contact Us
           </StickerHeading>
@@ -176,16 +177,15 @@ export default function ContactUsPage() {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-espresso-900">Phone Number</span>
-                <div className="flex items-stretch gap-2">
-                  <span className="flex flex-none items-center gap-1.5 rounded-2xl border border-carissma-200 bg-carissma-50 px-3 text-sm font-bold text-espresso-800">
+                <div className="flex items-stretch overflow-hidden rounded-2xl border border-carissma-200 bg-white focus-within:ring-2 focus-within:ring-carissma-400">
+                  <span className="flex flex-none items-center gap-1.5 bg-carissma-100 px-3.5 text-sm font-bold text-espresso-800">
                     🇰🇼 +965
                   </span>
                   <input
                     value={form.phone}
                     onChange={update('phone')}
                     placeholder="enter phone number"
-                    className="w-full rounded-2xl border border-carissma-200 bg-white px-4 py-3 text-espresso-900
-                      placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                    className="w-full border-0 bg-white px-4 py-3 text-espresso-900 placeholder:text-carissma-300 focus:outline-none"
                   />
                 </div>
               </label>
@@ -206,7 +206,7 @@ export default function ContactUsPage() {
 
               {serverError && <p className="text-sm text-carnation-600">{serverError}</p>}
 
-              <Button type="submit" loading={loading} className="bg-carnation-500 hover:bg-carnation-600">
+              <Button type="submit" loading={loading}>
                 Submit
               </Button>
             </div>
