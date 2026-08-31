@@ -350,3 +350,42 @@ export function SoloPlayerIcon({ className = 'h-24 w-24' }) {
 export function TeamPlayersIcon({ className = 'h-24 w-24' }) {
   return <img src="/icons/team-players.png" alt="" className={`${className} object-contain`} aria-hidden="true" />;
 }
+
+// Decorative 4-point sparkle/star used around the "Ready To Play?" home
+// banner, matching the design's gold star with a dark outline.
+export function SparkleIcon({ className = 'h-6 w-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        d="M12 1.5c.47 0 .87.33.96.79l1.4 7.03 7.03 1.4c.46.1.79.5.79.97s-.33.87-.79.96l-7.03 1.4-1.4 7.03c-.09.46-.49.79-.96.79s-.87-.33-.96-.79l-1.4-7.03-7.03-1.4a.99.99 0 010-1.93l7.03-1.4 1.4-7.03c.09-.46.49-.79.96-.79z"
+        fill="#EFBE35"
+        stroke="#453024"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// "Online Play" glyph for the home hero card: a globe with a game
+// controller plugged into it, matching the mockup's line-art icon.
+export function GlobeControllerIcon({ className = 'h-10 w-10' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <circle cx="11" cy="11" r="8.4" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M2.8 11.3h11.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M4.2 6.6c1.7 1.35 3.9 2.15 6.6 2.15s4.9-.8 6.6-2.15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+      <ellipse cx="11" cy="11.3" rx="3.5" ry="8.4" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M17 9.8h1.6c.7 0 .7-1.5 1.6-1.5h1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <rect x="9" y="12.6" width="8.8" height="5.3" rx="2.5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M11.4 14.2v2M10.4 15.2h2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="15.6" cy="14.5" r="0.42" fill="currentColor" />
+      <circle cx="16.5" cy="15.35" r="0.42" fill="currentColor" />
+      <circle cx="15.6" cy="16.2" r="0.42" fill="currentColor" />
+      <circle cx="14.75" cy="15.35" r="0.42" fill="currentColor" />
+      <path d="M10.2 17.7c-.45 1.25-1.6 2.25-1.05 2.95.6.7 1.65-.25 2-1.55" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+      <path d="M16.8 17.7c.45 1.25 1.6 2.25 1.05 2.95-.6.7-1.65-.25-2-1.55" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+

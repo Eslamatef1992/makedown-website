@@ -101,13 +101,14 @@ export default function CategorySelectPage() {
         ) : (
           <div className="relative z-10 mt-8 space-y-10">
             {grouped.map((group) => (
-              <div key={group.nameEn}>
-                <div className="mb-5 flex justify-center">
-                  <StickerHeading as="h2" className="text-xl sm:text-2xl">
+              <div key={group.nameEn} className="relative mt-6 first:mt-0">
+                <div className="absolute start-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-carissma-50 px-6 py-1.5 sm:px-8 sm:py-2">
+                  <StickerHeading as="h2" className="whitespace-nowrap text-lg sm:text-xl">
                     {lang === 'ar' ? group.nameAr : group.nameEn}
                   </StickerHeading>
                 </div>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div className="rounded-[2rem] bg-carissma-50 p-4 pt-8 sm:p-6 sm:pt-9">
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {group.items.map((quiz) => {
                     const isSelected = selected.includes(quiz.id);
                     const title = pickLang(quiz, 'title', lang);
@@ -163,6 +164,7 @@ export default function CategorySelectPage() {
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               </div>
             ))}

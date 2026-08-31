@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '../components/layout/SiteLayout';
 import { listProducts, listGameCategories, listFaqs, getHomeVideo } from '../api/content.api';
-import { ChevronLeftIcon, ChevronRightIcon } from '../components/ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon, SparkleIcon, GlobeControllerIcon } from '../components/ui/icons';
 import StickerHeading from '../components/ui/StickerHeading';
 import { pickLang } from '../utils/bilingual';
 import { useCurrency } from '../context/CurrencyContext';
@@ -211,16 +211,26 @@ export default function Home() {
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         {/* Hero */}
-        <section className="relative mt-2 overflow-hidden rounded-3xl bg-carissma-50/70 px-6 py-10 text-center sm:px-12">
-          <span className="pointer-events-none absolute start-8 top-10 text-2xl text-carissma-300" aria-hidden="true">✦</span>
-          <span className="pointer-events-none absolute end-10 top-6 text-lg text-saffron-400" aria-hidden="true">✦</span>
-          <StickerHeading className="text-2xl sm:text-3xl">{t('home.hero.title')}</StickerHeading>
+        <section className="relative mt-2 overflow-hidden rounded-[2rem] bg-[#ECE0EA] px-6 py-12 text-center sm:px-12">
+          <SparkleIcon className="pointer-events-none absolute end-10 top-8 h-6 w-6 sm:end-16 sm:top-10 sm:h-8 sm:w-8" />
+          <SparkleIcon className="pointer-events-none absolute start-6 top-1/2 h-4 w-4 -translate-y-1/2 sm:start-12 sm:h-5 sm:w-5" />
+          <SparkleIcon className="pointer-events-none absolute bottom-4 start-1/2 h-4 w-4 -translate-x-1/2 sm:h-5 sm:w-5" />
+
+          <h1
+            className="text-2xl font-extrabold text-carnation-500 sm:text-3xl"
+            style={{
+              textShadow:
+                '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
+            }}
+          >
+            {t('home.hero.title')}
+          </h1>
           <p className="mt-1 text-sm font-bold text-saffron-500">{t('home.hero.subtitle')}</p>
 
-          <div className="mx-auto mt-6 max-w-sm rounded-3xl border-4 border-carissma-200 bg-white px-6 py-6">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-carissma-50 text-2xl">🌐</div>
+          <div className="relative z-10 mx-auto mt-6 max-w-sm rounded-3xl border-4 border-carissma-300 bg-carissma-50 px-6 py-7 shadow-sm">
+            <GlobeControllerIcon className="mx-auto h-11 w-11 text-espresso-900" />
             <p className="mt-3 font-extrabold text-carissma-400">{t('home.hero.onlinePlay')}</p>
-            <p className="mt-1 text-xs font-semibold text-espresso-600">{t('home.hero.onlinePlaySubtitle')}</p>
+            <p className="mt-1 text-xs font-semibold text-carissma-400/80">{t('home.hero.onlinePlaySubtitle')}</p>
             <Link
               to="/play"
               className="mt-4 block rounded-full bg-carissma-400 py-2.5 text-sm font-bold text-white hover:bg-carissma-500"
