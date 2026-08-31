@@ -332,3 +332,44 @@ export function MapPinIcon({ className = 'h-5 w-5' }) {
     </svg>
   );
 }
+
+// Duotone "player + game controller" illustrations for the Solo/Team pick
+// screen, matching the pink/magenta character style from the mockup.
+export function SoloPlayerIcon({ className = 'h-24 w-24' }) {
+  return (
+    <svg viewBox="0 0 96 96" className={className} aria-hidden="true">
+      <circle cx="48" cy="26" r="14" fill="#C2185B" />
+      <path
+        d="M20 78c0-16 12.5-28 28-28s28 12 28 28"
+        fill="#EC6FA0"
+        stroke="#C2185B"
+        strokeWidth="1.5"
+      />
+      <rect x="28" y="52" width="40" height="26" rx="10" fill="#C2185B" />
+      <circle cx="38" cy="65" r="3.4" fill="#FBC02D" />
+      <circle cx="58" cy="61" r="3.4" fill="#4CAF50" />
+      <circle cx="65" cy="65" r="3.4" fill="#F06292" />
+      <rect x="42" y="61" width="10" height="3.4" rx="1.7" fill="#FFF" />
+      <rect x="46" y="57" width="3.4" height="10" rx="1.7" fill="#FFF" />
+    </svg>
+  );
+}
+
+export function TeamPlayersIcon({ className = 'h-24 w-24' }) {
+  return (
+    <svg viewBox="0 0 120 96" className={className} aria-hidden="true">
+      <circle cx="24" cy="30" r="11" fill="#E64A19" />
+      <path d="M4 74c0-13 9-22 20-22s20 9 20 22" fill="#F4A6C6" stroke="#C2185B" strokeWidth="1.2" />
+      <circle cx="96" cy="30" r="11" fill="#37474F" />
+      <path d="M76 74c0-13 9-22 20-22s20 9 20 22" fill="#F4A6C6" stroke="#C2185B" strokeWidth="1.2" />
+      <circle cx="60" cy="24" r="13" fill="#C2185B" />
+      <path d="M36 78c0-15 11-26 24-26s24 11 24 26" fill="#EC6FA0" stroke="#C2185B" strokeWidth="1.5" />
+      <rect x="40" y="56" width="40" height="24" rx="10" fill="#C2185B" />
+      <circle cx="50" cy="68" r="3.2" fill="#FBC02D" />
+      <circle cx="68" cy="64" r="3.2" fill="#4CAF50" />
+      <circle cx="74" cy="68" r="3.2" fill="#F06292" />
+      <rect x="54" y="65" width="9" height="3.2" rx="1.6" fill="#FFF" />
+      <rect x="57.5" y="61.5" width="3.2" height="9" rx="1.6" fill="#FFF" />
+    </svg>
+  );
+}

@@ -1,19 +1,12 @@
 import { Link } from 'react-router-dom';
 
-// Full-bleed checkerboard background used for every pre-game screen (Solo/
-// Team, Create/Join, Game Link, Start Play With, Waiting) — no site header,
-// just this backdrop with one or two centered cards on top.
+// Full-bleed wavy pink/blue background (same asset as the login/signup
+// screens) used for every pre-game screen (Solo/Team, Create/Join, Game
+// Link, Start Play With, Waiting) — no site header, just this backdrop
+// with one or two centered cards on top.
 export default function PlayModalLayout({ children, backTo, onBack, backLabel = 'Back', backStyle = 'link' }) {
   return (
-    <div
-      className="flex min-h-screen flex-col items-center justify-center gap-8 px-4 py-10"
-      style={{
-        backgroundColor: '#fbdce8',
-        backgroundImage:
-          'repeating-conic-gradient(from 45deg, #f8b8cf 0% 25%, #bfe3f2 0% 50%)',
-        backgroundSize: '64px 64px',
-      }}
-    >
+    <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-carissma-400 bg-cover bg-center bg-no-repeat bg-[url('/backgrounds/wavy-grid-portrait.jpg')] px-4 py-10 sm:bg-[url('/backgrounds/wavy-grid-landscape.jpg')]">
       <div className="flex flex-col items-center gap-8">{children}</div>
 
       {backTo || onBack ? (
