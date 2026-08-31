@@ -92,7 +92,7 @@ export default function CartPage() {
               {items.map((item) => {
                 const { color, width, height } = itemAttrs(item);
                 return (
-                  <div key={`${item.productId}-${item.variantId ?? 'base'}`} className="flex items-center gap-4 py-4">
+                  <div key={`${item.productId}-${item.variantId ?? 'base'}`} className="flex flex-wrap items-center gap-3 py-4 sm:flex-nowrap sm:gap-4">
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-linen-100">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
@@ -115,38 +115,45 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 rounded-full border border-carissma-200 px-2.5 py-1">
+                    {/* On mobile this whole group wraps onto its own full-width row (quantity
+                       stepper, price, and — crucially — the delete button, which was previously
+                       getting squeezed off-screen next to the fixed-width image/stepper/price on
+                       narrow viewports). From sm: up, `sm:contents` removes this wrapper from the
+                       box model so its children rejoin the single-row desktop layout unchanged. */}
+                    <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:contents">
+                      <div className="flex items-center gap-2 rounded-full border border-carissma-200 px-2.5 py-1">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity - 1)}
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
+                          aria-label="Decrease quantity"
+                        >
+                          <MinusIcon className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="w-4 text-center text-sm font-bold text-espresso-900">{item.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
+                          aria-label="Increase quantity"
+                        >
+                          <PlusIcon className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      <p className="shrink-0 text-end text-sm font-bold text-carissma-600 sm:w-20">
+                        {Number(item.price).toFixed(0)} {item.currency}
+                      </p>
+
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity - 1)}
-                        className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
-                        aria-label="Decrease quantity"
+                        onClick={() => removeItem(item.productId, item.variantId)}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-carnation-500 hover:bg-carnation-50"
+                        aria-label="Remove item"
                       >
-                        <MinusIcon className="h-3.5 w-3.5" />
-                      </button>
-                      <span className="w-4 text-center text-sm font-bold text-espresso-900">{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
-                        className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
-                        aria-label="Increase quantity"
-                      >
-                        <PlusIcon className="h-3.5 w-3.5" />
+                        <TrashIcon className="h-4.5 w-4.5" />
                       </button>
                     </div>
-
-                    <p className="w-20 shrink-0 text-end text-sm font-bold text-carissma-600">
-                      {Number(item.price).toFixed(0)} {item.currency}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.productId, item.variantId)}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-carnation-500 hover:bg-carnation-50"
-                      aria-label="Remove item"
-                    >
-                      <TrashIcon className="h-4.5 w-4.5" />
-                    </button>
                   </div>
                 );
               })}
