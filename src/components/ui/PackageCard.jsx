@@ -37,12 +37,6 @@ export default function PackageCard({ pkg, index = 0, ctaLabel = 'Buy Now', onBu
             )}
           </span>
         </div>
-        {pkg.validity_days ? (
-          <div className="flex items-center gap-2 border-b border-linen-100 pb-3">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-carissma-400 text-[10px] text-white">✓</span>
-            <span className="text-sm font-bold text-espresso-900">Valid for {pkg.validity_days} days</span>
-          </div>
-        ) : null}
       </div>
 
       <button

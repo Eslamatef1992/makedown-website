@@ -63,7 +63,6 @@ export default function PackagesTab({ myPackages = [] }) {
                   <p className="font-bold text-espresso-900">{p.package_name_en}</p>
                   <p className="text-xs font-semibold text-espresso-500">
                     Purchased {new Date(p.purchased_at).toLocaleDateString()}
-                    {p.expires_at ? ` · Expires ${new Date(p.expires_at).toLocaleDateString()}` : ''}
                   </p>
                 </div>
                 <div className="text-end">
