@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
 import { useAuth } from '../../context/AuthContext';
+import { pickLang } from '../../utils/bilingual';
 import { listPlayableQuizzes, createGame } from '../../api/play.api';
 
 export default function CategorySelectPage() {
   const { mode } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { i18n } = useTranslation();
+  const lang = i18n.language;
 
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +24,9 @@ export default function CategorySelectPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [noFreeGame, setNoFreeGame] = useState(false);
+  // Which card's "how to play" tooltip is open — tap-to-open on touch
+  // devices, in addition to the plain CSS hover used on desktop.
+  const [openInfo, setOpenInfo] = useState(null);
 
   useEffect(() => {
     listPlayableQuizzes(undefined, mode)
@@ -28,14 +35,22 @@ export default function CategorySelectPage() {
       .finally(() => setLoading(false));
   }, [mode]);
 
+  // Grouped by category_id (not the English name) so an Arabic-only or
+  // renamed category still merges correctly into a single section.
   const grouped = useMemo(() => {
     const groups = new Map();
     for (const quiz of quizzes) {
-      const key = quiz.category_name_en || 'Other';
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key).push(quiz);
+      const key = quiz.category_id ?? 'other';
+      if (!groups.has(key)) {
+        groups.set(key, {
+          nameEn: quiz.category_name_en || 'Other',
+          nameAr: quiz.category_name_ar || quiz.category_name_en || 'أخرى',
+          items: [],
+        });
+      }
+      groups.get(key).items.push(quiz);
     }
-    return [...groups.entries()];
+    return [...groups.values()];
   }, [quizzes]);
 
   const toggle = (id) => {
@@ -84,28 +99,68 @@ export default function CategorySelectPage() {
         ) : grouped.length === 0 ? (
           <p className="mt-8 text-espresso-500">No categories are available to play yet — check back soon.</p>
         ) : (
-          <div className="mt-8 space-y-6">
-            {grouped.map(([category, items]) => (
-              <div key={category} className="rounded-[2rem] border-4 border-carissma-300 bg-white p-5 shadow-sm sm:p-6">
-                <div className="mb-4 flex justify-center">
-                  <span className="rounded-full bg-carissma-100 px-4 py-1 text-xs font-bold text-carissma-600">{category}</span>
+          <div className="relative z-10 mt-8 space-y-10">
+            {grouped.map((group) => (
+              <div key={group.nameEn}>
+                <div className="mb-5 flex justify-center">
+                  <StickerHeading as="h2" className="text-xl sm:text-2xl">
+                    {lang === 'ar' ? group.nameAr : group.nameEn}
+                  </StickerHeading>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {items.map((quiz) => {
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {group.items.map((quiz) => {
                     const isSelected = selected.includes(quiz.id);
+                    const title = pickLang(quiz, 'title', lang);
+                    const howToPlay = pickLang(quiz, 'description', lang);
+                    const infoOpen = openInfo === quiz.id;
                     return (
-                      <button
+                      <div
                         key={quiz.id}
-                        type="button"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => toggle(quiz.id)}
-                        className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-3 text-center transition ${
-                          isSelected ? 'border-carissma-500 bg-carissma-50' : 'border-linen-200 bg-linen-50 hover:border-carissma-200'
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggle(quiz.id);
+                          }
+                        }}
+                        className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 p-3 text-center transition ${
+                          isSelected ? 'border-carissma-500 bg-carissma-50' : 'border-linen-200 bg-white hover:border-carissma-200'
                         }`}
                       >
-                        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-white text-2xl">🎨</span>
-                        <span className="text-xs font-bold text-carissma-600">{quiz.title_en}</span>
-                        <span className="text-[11px] text-espresso-400">{quiz.question_count} questions</span>
-                      </button>
+                        {howToPlay && (
+                          <>
+                            <button
+                              type="button"
+                              aria-label="How to play"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenInfo((cur) => (cur === quiz.id ? null : quiz.id));
+                              }}
+                              className="absolute start-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-carissma-500 text-[11px] font-extrabold text-white shadow-sm hover:bg-carissma-600"
+                            >
+                              i
+                            </button>
+                            <div
+                              className={`absolute start-2 top-9 z-20 w-40 rounded-2xl border border-carissma-100 bg-white p-3 text-start text-[11px] font-semibold leading-snug text-carissma-600 shadow-lg transition ${
+                                infoOpen ? 'opacity-100' : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100'
+                              }`}
+                            >
+                              {howToPlay}
+                            </div>
+                          </>
+                        )}
+
+                        <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-linen-50">
+                          {quiz.cover_image_url ? (
+                            <img src={quiz.cover_image_url} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-2xl">🎨</span>
+                          )}
+                        </span>
+                        <span className="text-xs font-bold text-carissma-600">{title}</span>
+                      </div>
                     );
                   })}
                 </div>
@@ -114,7 +169,7 @@ export default function CategorySelectPage() {
           </div>
         )}
 
-        <div className="mt-8 rounded-[2rem] border-4 border-carissma-300 bg-white p-6 shadow-sm sm:p-8">
+        <div className="relative z-0 mt-8 rounded-[2rem] border-4 border-carissma-300 bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-lg font-extrabold text-espresso-900">Complete Game Information</h2>
           <div className="mt-4 space-y-4">
             <TextField label="Game Name (optional)" value={gameName} onChange={(e) => setGameName(e.target.value)} placeholder="Enter game name" />
