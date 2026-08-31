@@ -34,6 +34,9 @@ export const validateCoupon = (code, subtotal) =>
 // Delivery fee (public)
 export const getDeliveryFee = () => client.get('/site-settings/delivery-fee').then((r) => r.data.data);
 
+// Cash on delivery toggles (public)
+export const getCodSettings = () => client.get('/site-settings/cash-on-delivery').then((r) => r.data.data);
+
 // Checkout (public — works for guests and logged-in users)
 export const checkoutRequest = (payload) => client.post('/orders', payload).then((r) => r.data.data);
 export const trackOrder = (orderNumber) => client.get(`/orders/track/${orderNumber}`).then((r) => r.data.data);

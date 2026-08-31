@@ -97,5 +97,25 @@
         "acceptTerms": "يرجى الموافقة على الشروط والأحكام"
       }
     }
+  },
+  "packagePurchase": {
+    "checkout": "إتمام الشراء",
+    "notFound": "الباقة غير موجودة",
+    "backToPackages": "العودة إلى الباقات",
+    "paymentMethod": "طريقة الدفع",
+    "creditCard": "بطاقة ائتمان",
+    "cash": "نقدًا",
+    "cashNote": "يتم تفعيل الألعاب فورًا — يُرجى تسوية الدفع نقدًا للحفاظ على تفعيل باقتك.",
+    "myOrder": "طلبي",
+    "games_zero": "{{count}} لعبة",
+    "games_one": "لعبة واحدة",
+    "games_two": "لعبتان",
+    "games_few": "{{count}} ألعاب",
+    "games_many": "{{count}} لعبة",
+    "games_other": "{{count}} لعبة",
+    "subtotal": "المجموع الفرعي",
+    "discount": "الخصم",
+    "total": "الإجمالي",
+    "pay": "ادفع"
   }
 }

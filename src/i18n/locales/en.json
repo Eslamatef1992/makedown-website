@@ -97,5 +97,21 @@
         "acceptTerms": "Please accept the Terms And Conditions"
       }
     }
+  },
+  "packagePurchase": {
+    "checkout": "Checkout",
+    "notFound": "Package Not Found",
+    "backToPackages": "Back to Packages",
+    "paymentMethod": "Payment Method",
+    "creditCard": "Credit Card",
+    "cash": "Cash",
+    "cashNote": "Your games are activated right away — settle the payment in cash to keep your package active.",
+    "myOrder": "My Order",
+    "games_one": "{{count}} Game",
+    "games_other": "{{count}} Games",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "pay": "Pay"
   }
 }

@@ -1,29 +1,36 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
-import { listPackages } from '../../api/content.api';
+import { listPackages, getCodSettings } from '../../api/content.api';
 import { purchasePackage } from '../../api/me.api';
+import { pickLang } from '../../utils/bilingual';
 import knetIcon from '../../assets/payment/knet.svg';
 import cardsIcon from '../../assets/payment/cards.svg';
-
-// Packages are a digital good (games are activated instantly on purchase),
-// so cash-on-delivery doesn't apply here the way it does for physical
-// products in the shop checkout — only online payment methods are offered.
-const PAYMENT_METHODS = [
-  { value: 'knet', label: 'KNET', icon: knetIcon },
-  { value: 'credit_card', label: 'Credit Card', icon: cardsIcon },
-];
+import cashIcon from '../../assets/payment/cash.svg';
 
 export default function PackagePurchasePage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
   const [state, setState] = useState('loading');
+  const [codEnabled, setCodEnabled] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('knet');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Packages are a digital good (games activate instantly on purchase), so
+  // cash only shows up here when a super admin has explicitly turned it on
+  // for packages in the admin's Cash On Delivery settings — it's off by
+  // default, unlike the shop checkout's physical products.
+  const PAYMENT_METHODS = [
+    { value: 'knet', label: 'KNET', icon: knetIcon },
+    { value: 'credit_card', label: t('packagePurchase.creditCard'), icon: cardsIcon },
+    ...(codEnabled ? [{ value: 'cash', label: t('packagePurchase.cash'), icon: cashIcon }] : []),
+  ];
 
   useEffect(() => {
     listPackages()
@@ -34,6 +41,10 @@ export default function PackagePurchasePage() {
         setState('ready');
       })
       .catch(() => setState('error'));
+
+    getCodSettings()
+      .then((data) => setCodEnabled(Boolean(data?.packages)))
+      .catch(() => setCodEnabled(false));
   }, [id]);
 
   const handlePay = async (e) => {
@@ -48,10 +59,10 @@ export default function PackagePurchasePage() {
         return;
       }
       navigate(`/profile/payment-result?status=success&method=cash`, {
-        state: { order: result.order, userPackage: result.userPackage, packageName: pkg.name_en },
+        state: { order: result.order, userPackage: result.userPackage, packageName: pickLang(pkg, 'name', i18n.language) },
       });
     } catch (err) {
-      setError(err?.response?.data?.message || 'We could not start this payment. Please try again.');
+      setError(err?.response?.data?.message || t('common.somethingWentWrong'));
       setSubmitting(false);
     }
   };
@@ -60,7 +71,7 @@ export default function PackagePurchasePage() {
     return (
       <SiteLayout>
         <div className="mx-auto max-w-lg px-6 py-24 text-center sm:px-8">
-          <p className="text-sm font-semibold text-espresso-500">Loading…</p>
+          <p className="text-sm font-semibold text-espresso-500">{t('common.loading')}</p>
         </div>
       </SiteLayout>
     );
@@ -71,10 +82,10 @@ export default function PackagePurchasePage() {
       <SiteLayout>
         <div className="mx-auto max-w-lg px-6 py-24 text-center sm:px-8">
           <StickerHeading as="h1" className="text-xl">
-            Package Not Found
+            {t('packagePurchase.notFound')}
           </StickerHeading>
           <Link to="/profile?tab=packages" className="mt-6 inline-block font-bold text-carissma-600 hover:underline">
-            Back to Packages
+            {t('packagePurchase.backToPackages')}
           </Link>
         </div>
       </SiteLayout>
@@ -85,13 +96,13 @@ export default function PackagePurchasePage() {
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <StickerHeading as="h1" className="text-2xl">
-          Checkout
+          {t('packagePurchase.checkout')}
         </StickerHeading>
 
         <form onSubmit={handlePay} className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">
             <section className="rounded-2xl border border-carissma-100 bg-white/70 p-6">
-              <h2 className="text-sm font-bold text-espresso-900">Payment Method</h2>
+              <h2 className="text-sm font-bold text-espresso-900">{t('packagePurchase.paymentMethod')}</h2>
               <div className="mt-4 space-y-2">
                 {PAYMENT_METHODS.map((m) => (
                   <label
@@ -115,34 +126,37 @@ export default function PackagePurchasePage() {
                   </label>
                 ))}
               </div>
+              {paymentMethod === 'cash' && (
+                <p className="mt-3 text-xs font-semibold text-espresso-500">{t('packagePurchase.cashNote')}</p>
+              )}
             </section>
           </div>
 
           <div className="h-fit rounded-3xl border-2 border-carissma-300 bg-linen-50 p-6">
             <StickerHeading as="h2" className="text-lg">
-              My Order
+              {t('packagePurchase.myOrder')}
             </StickerHeading>
 
             <div className="mt-4 rounded-2xl bg-white p-4">
-              <p className="text-sm font-bold text-carissma-500">{pkg.name_en}</p>
-              <p className="mt-1 text-xs font-semibold text-espresso-600">{pkg.credits} Games</p>
+              <p className="text-sm font-bold text-carissma-500">{pickLang(pkg, 'name', i18n.language)}</p>
+              <p className="mt-1 text-xs font-semibold text-espresso-600">{t('packagePurchase.games', { count: pkg.credits })}</p>
             </div>
 
             <div className="mt-4 space-y-2 border-t border-carissma-200 pt-4 text-sm">
               <div className="flex justify-between font-bold text-espresso-900">
-                <span>Subtotal</span>
+                <span>{t('packagePurchase.subtotal')}</span>
                 <span>
                   {Number(pkg.price).toFixed(3)} {pkg.currency}
                 </span>
               </div>
               <div className="flex justify-between font-bold text-carnation-500">
-                <span>Discount</span>
+                <span>{t('packagePurchase.discount')}</span>
                 <span>0.000 {pkg.currency}</span>
               </div>
             </div>
 
             <div className="mt-3 flex justify-between border-t border-carissma-200 pt-3 text-base font-extrabold text-espresso-900">
-              <span>Total</span>
+              <span>{t('packagePurchase.total')}</span>
               <span>
                 {Number(pkg.price).toFixed(3)} {pkg.currency}
               </span>
@@ -151,7 +165,7 @@ export default function PackagePurchasePage() {
             {error && <p className="mt-4 text-sm font-semibold text-carnation-600">{error}</p>}
 
             <Button type="submit" loading={submitting} className="mt-6">
-              Pay
+              {t('packagePurchase.pay')}
             </Button>
           </div>
         </form>

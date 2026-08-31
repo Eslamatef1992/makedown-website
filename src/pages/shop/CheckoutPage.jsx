@@ -5,7 +5,7 @@ import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { checkoutRequest, validateCoupon, getDeliveryFee } from '../../api/content.api';
+import { checkoutRequest, validateCoupon, getDeliveryFee, getCodSettings } from '../../api/content.api';
 import { CloseIcon } from '../../components/ui/icons';
 import knetIcon from '../../assets/payment/knet.svg';
 import cardsIcon from '../../assets/payment/cards.svg';
@@ -26,11 +26,11 @@ const KUWAIT_AREAS = {
 };
 const GOVERNORATES = Object.keys(KUWAIT_AREAS);
 
-const PAYMENT_METHODS = [
+const BASE_PAYMENT_METHODS = [
   { value: 'knet', label: 'KNET', icon: knetIcon },
   { value: 'credit_card', label: 'Credit Card', icon: cardsIcon },
-  { value: 'cash', label: 'Cash On Delivery', icon: cashIcon },
 ];
+const CASH_PAYMENT_METHOD = { value: 'cash', label: 'Cash On Delivery', icon: cashIcon };
 
 function ContinueAsModal({ onClose, onGuest }) {
   const navigate = useNavigate();
@@ -91,15 +91,32 @@ export default function CheckoutPage() {
     moreDetails: '',
   });
   const [paymentMethod, setPaymentMethod] = useState('knet');
+  const [codEnabled, setCodEnabled] = useState(true);
 
   const currency = items[0]?.currency || 'KWD';
   const canShowForm = isAuthenticated || asGuest;
+  // Cash On Delivery for physical products defaults on (it's how the store
+  // always worked) but a super admin can turn it off in the admin's Cash On
+  // Delivery settings — separate from the packages toggle, since a package
+  // is a digital good with different economics.
+  const PAYMENT_METHODS = codEnabled ? [...BASE_PAYMENT_METHODS, CASH_PAYMENT_METHOD] : BASE_PAYMENT_METHODS;
 
   useEffect(() => {
     getDeliveryFee()
       .then((data) => setDeliveryFee(Number(data?.fee) || 0))
       .catch(() => setDeliveryFee(0));
+
+    getCodSettings()
+      .then((data) => setCodEnabled(data?.products !== false))
+      .catch(() => setCodEnabled(true));
   }, []);
+
+  // If cash gets disabled server-side while it's the selected method, fall
+  // back to KNET rather than silently submitting a payment method that's no
+  // longer offered.
+  useEffect(() => {
+    if (!codEnabled && paymentMethod === 'cash') setPaymentMethod('knet');
+  }, [codEnabled, paymentMethod]);
 
   // Apply the code carried over from the cart page once we know the real
   // subtotal here too.
