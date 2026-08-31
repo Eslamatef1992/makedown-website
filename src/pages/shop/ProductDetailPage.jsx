@@ -4,6 +4,7 @@ import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { getProductBySlug, listProducts } from '../../api/content.api';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { MinusIcon, PlusIcon } from '../../components/ui/icons';
 
 function parseAttrs(variant) {
@@ -17,6 +18,7 @@ function titleCase(str) {
 }
 
 function ProductCard({ product }) {
+  const { formatPrice } = useCurrency();
   return (
     <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
       <Link to={`/products/${product.slug}`} className="block aspect-square w-full overflow-hidden bg-carissma-100">
@@ -32,7 +34,7 @@ function ProductCard({ product }) {
         </Link>
         {product.description_en && <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{product.description_en}</p>}
         <p className="mt-1 text-sm font-bold text-espresso-900">
-          {Number(product.base_price).toFixed(0)} {product.currency}
+          {formatPrice(product.base_price)}
         </p>
         <Link
           to={`/products/${product.slug}`}
@@ -65,6 +67,7 @@ export default function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
   const [product, setProduct] = useState(null);
   const [selection, setSelection] = useState({});
   const [quantity, setQuantity] = useState(1);
@@ -239,11 +242,11 @@ export default function ProductDetailPage() {
             </StickerHeading>
             <div className="mt-3 flex items-baseline gap-2">
               <p className="text-2xl font-extrabold text-espresso-900">
-                {Number(displayPrice).toFixed(0)} {product.currency}
+                {formatPrice(displayPrice)}
               </p>
               {compareAtPrice && Number(compareAtPrice) > Number(displayPrice) && (
                 <p className="text-sm font-semibold text-espresso-400 line-through">
-                  {Number(compareAtPrice).toFixed(0)} {product.currency}
+                  {formatPrice(compareAtPrice)}
                 </p>
               )}
             </div>

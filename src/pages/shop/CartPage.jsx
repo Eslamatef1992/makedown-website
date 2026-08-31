@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { validateCoupon, getDeliveryFee } from '../../api/content.api';
 import { MinusIcon, PlusIcon, TrashIcon } from '../../components/ui/icons';
 import knetIcon from '../../assets/payment/knet.svg';
@@ -22,6 +23,7 @@ function itemAttrs(item) {
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCart();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [discountCode, setDiscountCode] = useState('');
   const [applying, setApplying] = useState(false);
@@ -35,7 +37,6 @@ export default function CartPage() {
       .catch(() => setDeliveryFee(0));
   }, []);
 
-  const currency = items[0]?.currency || 'KWD';
   const discountTotal = discount?.discountTotal || 0;
   const grandTotal = Math.max(0, subtotal - discountTotal + deliveryFee);
   const discountPercent = discount ? (subtotal ? Math.round((discountTotal / subtotal) * 100) : 0) : 0;
@@ -142,7 +143,7 @@ export default function CartPage() {
                       </div>
 
                       <p className="shrink-0 text-end text-sm font-bold text-carissma-600 sm:w-20">
-                        {Number(item.price).toFixed(0)} {item.currency}
+                        {formatPrice(item.price)}
                       </p>
 
                       <button
@@ -187,7 +188,7 @@ export default function CartPage() {
             <div className="mt-6 space-y-3 border-t border-carissma-200 pt-5 text-sm">
               <div className="flex justify-between font-bold text-espresso-900">
                 <span>Subtotal</span>
-                <span>{subtotal.toFixed(0)} {currency}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between font-bold text-carnation-500">
                 <span>Discount</span>
@@ -195,13 +196,13 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between font-bold text-espresso-900">
                 <span>Delivery Fees</span>
-                <span>{deliveryFee.toFixed(2)}</span>
+                <span>{formatPrice(deliveryFee)}</span>
               </div>
             </div>
 
             <div className="mt-4 flex justify-between border-t border-carissma-200 pt-4 text-base font-extrabold text-espresso-900">
               <span>Total</span>
-              <span>{grandTotal.toFixed(0)} {currency}</span>
+              <span>{formatPrice(grandTotal)}</span>
             </div>
 
             <button

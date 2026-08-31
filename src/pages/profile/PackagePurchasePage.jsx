@@ -7,12 +7,14 @@ import Button from '../../components/ui/Button';
 import { listPackages, getCodSettings } from '../../api/content.api';
 import { purchasePackage } from '../../api/me.api';
 import { pickLang } from '../../utils/bilingual';
+import { useCurrency } from '../../context/CurrencyContext';
 import knetIcon from '../../assets/payment/knet.svg';
 import cardsIcon from '../../assets/payment/cards.svg';
 import cashIcon from '../../assets/payment/cash.svg';
 
 export default function PackagePurchasePage() {
   const { t, i18n } = useTranslation();
+  const { formatPrice } = useCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
@@ -145,21 +147,17 @@ export default function PackagePurchasePage() {
             <div className="mt-4 space-y-2 border-t border-carissma-200 pt-4 text-sm">
               <div className="flex justify-between font-bold text-espresso-900">
                 <span>{t('packagePurchase.subtotal')}</span>
-                <span>
-                  {Number(pkg.price).toFixed(3)} {pkg.currency}
-                </span>
+                <span>{formatPrice(pkg.price)}</span>
               </div>
               <div className="flex justify-between font-bold text-carnation-500">
                 <span>{t('packagePurchase.discount')}</span>
-                <span>0.000 {pkg.currency}</span>
+                <span>{formatPrice(0)}</span>
               </div>
             </div>
 
             <div className="mt-3 flex justify-between border-t border-carissma-200 pt-3 text-base font-extrabold text-espresso-900">
               <span>{t('packagePurchase.total')}</span>
-              <span>
-                {Number(pkg.price).toFixed(3)} {pkg.currency}
-              </span>
+              <span>{formatPrice(pkg.price)}</span>
             </div>
 
             {error && <p className="mt-4 text-sm font-semibold text-carnation-600">{error}</p>}

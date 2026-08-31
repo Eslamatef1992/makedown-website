@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SiteLayout from '../../components/layout/SiteLayout';
 import { listProducts } from '../../api/content.api';
+import { useCurrency } from '../../context/CurrencyContext';
 import { SearchIcon, ChevronDownIcon } from '../../components/ui/icons';
 import StickerHeading from '../../components/ui/StickerHeading';
 
@@ -9,6 +10,7 @@ const PAGE_SIZE = 60;
 const BATCH = 20;
 
 export default function ProductsPage() {
+  const { formatPrice } = useCurrency();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -113,7 +115,7 @@ export default function ProductsPage() {
                       <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{p.description_en}</p>
                     )}
                     <p className="mt-1 text-sm font-bold text-espresso-900">
-                      {Number(p.base_price).toFixed(0)} {p.currency}
+                      {formatPrice(p.base_price)}
                     </p>
                     <Link
                       to={`/products/${p.slug}`}

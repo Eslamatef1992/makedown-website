@@ -6,6 +6,7 @@ import { listProducts, listGameCategories, listFaqs, getHomeVideo } from '../api
 import { ChevronLeftIcon, ChevronRightIcon } from '../components/ui/icons';
 import StickerHeading from '../components/ui/StickerHeading';
 import { pickLang } from '../utils/bilingual';
+import { useCurrency } from '../context/CurrencyContext';
 
 function getYoutubeId(rawUrl) {
   if (!rawUrl) return null;
@@ -46,13 +47,13 @@ function CategoryCarousel({ categories, loading, error }) {
   const lang = i18n.language;
 
   return (
-    <div className="mt-12 flex items-center justify-center gap-4 sm:gap-8 lg:gap-12">
+    <div className="mt-12 flex items-center justify-center gap-2 sm:gap-8 lg:gap-12">
       <button
         onClick={() => setIndex((i) => i - 1)}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50 sm:h-14 sm:w-14"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50 sm:h-14 sm:w-14"
         aria-label={t('home.categories.prevAria')}
       >
-        <ChevronLeftIcon className="h-5 w-5 rtl:rotate-180" />
+        <ChevronLeftIcon className="h-4 w-4 rtl:rotate-180 sm:h-5 sm:w-5" />
       </button>
 
       {prev && (
@@ -66,20 +67,20 @@ function CategoryCarousel({ categories, loading, error }) {
         </div>
       )}
 
-      <div className="w-96 shrink-0 rounded-[2rem] border-4 border-carissma-300 bg-sky-100 p-7 text-center shadow-xl sm:w-[28rem] sm:p-9 lg:w-[34rem] lg:p-10">
-        <p className="text-xl font-extrabold text-carissma-400 sm:text-2xl">{pickLang(current, 'name', lang)}</p>
+      <div className="w-60 shrink-0 rounded-[1.5rem] border-4 border-carissma-300 bg-sky-100 p-4 text-center shadow-xl sm:w-[28rem] sm:rounded-[2rem] sm:p-9 lg:w-[34rem] lg:p-10">
+        <p className="text-base font-extrabold text-carissma-400 sm:text-2xl">{pickLang(current, 'name', lang)}</p>
         {current.icon_url ? (
           <img
             src={current.icon_url}
             alt={pickLang(current, 'name', lang)}
-            className="mx-auto mt-4 h-56 w-56 rounded-2xl border-2 border-carissma-300 object-cover sm:h-72 sm:w-72 lg:h-80 lg:w-80"
+            className="mx-auto mt-3 h-32 w-32 rounded-2xl border-2 border-carissma-300 object-cover sm:mt-4 sm:h-72 sm:w-72 lg:h-80 lg:w-80"
           />
         ) : (
-          <div className="mx-auto mt-4 h-56 w-56 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:h-72 sm:w-72 lg:h-80 lg:w-80" />
+          <div className="mx-auto mt-3 h-32 w-32 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:mt-4 sm:h-72 sm:w-72 lg:h-80 lg:w-80" />
         )}
         <Link
           to="/play"
-          className="mt-6 block rounded-full bg-carissma-400 py-4 text-lg font-bold text-white hover:bg-carissma-500"
+          className="mt-3 block rounded-full bg-carissma-400 py-2.5 text-sm font-bold text-white hover:bg-carissma-500 sm:mt-6 sm:py-4 sm:text-lg"
         >
           {t('home.categories.startPlay')}
         </Link>
@@ -98,10 +99,10 @@ function CategoryCarousel({ categories, loading, error }) {
 
       <button
         onClick={() => setIndex((i) => i + 1)}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50 sm:h-14 sm:w-14"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50 sm:h-14 sm:w-14"
         aria-label={t('home.categories.nextAria')}
       >
-        <ChevronRightIcon className="h-5 w-5 rtl:rotate-180" />
+        <ChevronRightIcon className="h-4 w-4 rtl:rotate-180 sm:h-5 sm:w-5" />
       </button>
     </div>
   );
@@ -135,6 +136,7 @@ function FaqAccordion({ faqs }) {
 
 function ProductCard({ p }) {
   const { t, i18n } = useTranslation();
+  const { formatPrice } = useCurrency();
   const lang = i18n.language;
   const name = pickLang(p, 'name', lang);
   const description = pickLang(p, 'description', lang);
@@ -153,7 +155,7 @@ function ProductCard({ p }) {
         </Link>
         {description && <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{description}</p>}
         <p className="mt-1 text-sm font-bold text-espresso-900">
-          {Number(p.base_price).toFixed(0)} {p.currency}
+          {formatPrice(p.base_price)}
         </p>
         <Link
           to={`/products/${p.slug}`}

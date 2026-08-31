@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Home from './pages/Home';
@@ -46,6 +47,7 @@ import ResultsPage from './pages/play/ResultsPage';
 export default function App() {
   return (
     <AuthProvider>
+      <CurrencyProvider>
       <CartProvider>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -104,6 +106,7 @@ export default function App() {
         <Route path="*" element={<ComingSoon title="Page not found" />} />
       </Routes>
       </CartProvider>
+      </CurrencyProvider>
     </AuthProvider>
   );
 }

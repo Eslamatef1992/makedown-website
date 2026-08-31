@@ -3,24 +3,15 @@ import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { CartIcon, ChevronDownIcon, ChevronRightIcon, MenuIcon, CloseIcon } from '../ui/icons';
-
-const COUNTRIES = [
-  { code: 'KWT', flag: '🇰🇼', name: 'Kuwait' },
-  { code: 'SAU', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: 'ARE', flag: '🇦🇪', name: 'United Arab Emirates' },
-  { code: 'QAT', flag: '🇶🇦', name: 'Qatar' },
-  { code: 'BHR', flag: '🇧🇭', name: 'Bahrain' },
-  { code: 'OMN', flag: '🇴🇲', name: 'Oman' },
-  { code: 'USA', flag: '🇺🇸', name: 'America' },
-];
 
 export default function SiteHeader() {
   const { t, i18n } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
   const { itemCount } = useCart();
+  const { countries, country, setCountry } = useCurrency();
   const [countryOpen, setCountryOpen] = useState(false);
-  const [country, setCountry] = useState(COUNTRIES[0]);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const NAV_LINKS = [
@@ -91,7 +82,7 @@ export default function SiteHeader() {
           </button>
           {countryOpen && (
             <div className="absolute end-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl bg-white py-1 shadow-xl">
-              {COUNTRIES.map((c) => (
+              {countries.map((c) => (
                 <button
                   key={c.code}
                   type="button"

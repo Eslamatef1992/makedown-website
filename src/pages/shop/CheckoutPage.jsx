@@ -4,6 +4,7 @@ import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { useAuth } from '../../context/AuthContext';
 import { checkoutRequest, validateCoupon, getDeliveryFee, getCodSettings } from '../../api/content.api';
 import { CloseIcon } from '../../components/ui/icons';
@@ -93,7 +94,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('knet');
   const [codEnabled, setCodEnabled] = useState(true);
 
-  const currency = items[0]?.currency || 'KWD';
+  const { formatPrice } = useCurrency();
   const canShowForm = isAuthenticated || asGuest;
   // Cash On Delivery for physical products defaults on (it's how the store
   // always worked) but a super admin can turn it off in the admin's Cash On
@@ -446,7 +447,7 @@ export default function CheckoutPage() {
                           Qty: <span className="text-carissma-500">{it.quantity}</span>
                         </p>
                         <p className="mt-1 text-sm font-bold text-espresso-900">
-                          {(Number(it.price) * it.quantity).toFixed(0)} {it.currency}
+                          {formatPrice(Number(it.price) * it.quantity)}
                         </p>
                       </div>
                     </div>
@@ -477,28 +478,28 @@ export default function CheckoutPage() {
               {discountError && <p className="mt-1.5 text-xs font-semibold text-carnation-600">{discountError}</p>}
               {discount && (
                 <p className="mt-1.5 text-xs font-semibold text-carissma-600">
-                  Coupon "{discount.code}" applied — {discountTotal.toFixed(3)} {currency} off.
+                  Coupon "{discount.code}" applied — {formatPrice(discountTotal)} off.
                 </p>
               )}
 
               <div className="mt-4 space-y-2 border-t border-carissma-200 pt-4 text-sm">
                 <div className="flex justify-between font-bold text-espresso-900">
                   <span>Subtotal</span>
-                  <span>{subtotal.toFixed(0)} {currency}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-carnation-500">
                   <span>Discount</span>
-                  <span>-{discountTotal.toFixed(3)} {currency}</span>
+                  <span>-{formatPrice(discountTotal)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-espresso-900">
                   <span>Delivery Fees</span>
-                  <span>{deliveryFee.toFixed(3)} {currency}</span>
+                  <span>{formatPrice(deliveryFee)}</span>
                 </div>
               </div>
 
               <div className="mt-3 flex justify-between border-t border-carissma-200 pt-3 text-base font-extrabold text-espresso-900">
                 <span>Total</span>
-                <span>{grandTotal.toFixed(3)} {currency}</span>
+                <span>{formatPrice(grandTotal)}</span>
               </div>
 
               {error && <p className="mt-4 text-sm font-semibold text-carnation-600">{error}</p>}
