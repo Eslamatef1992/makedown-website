@@ -45,55 +45,59 @@ function CategoryCarousel({ categories, loading, error }) {
   const next = categories.length > 1 ? at(1) : null;
 
   return (
-    <div className="mt-10 flex items-center justify-center gap-3 sm:gap-6">
+    <div className="mt-12 flex items-center justify-center gap-4 sm:gap-8">
       <button
         onClick={() => setIndex((i) => i - 1)}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-sm hover:bg-carissma-50"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
         aria-label="Previous category"
       >
         <ChevronLeftIcon />
       </button>
 
       {prev && (
-        <div className="hidden w-32 shrink-0 rounded-2xl bg-sky-100 p-3 text-center sm:block">
+        <div className="hidden w-40 shrink-0 rounded-[1.75rem] bg-sky-100 p-4 text-center shadow-sm sm:block">
           {prev.icon_url ? (
-            <img src={prev.icon_url} alt={prev.name_en} className="mx-auto h-16 w-16 object-contain" />
+            <img src={prev.icon_url} alt={prev.name_en} className="mx-auto h-20 w-20 object-contain" />
           ) : (
-            <div className="mx-auto h-16 w-16 rounded-xl bg-sky-200" />
+            <div className="mx-auto h-20 w-20 rounded-2xl bg-sky-200" />
           )}
-          <p className="mt-3 rounded-full bg-white/70 py-1 text-xs font-bold text-espresso-400">Start Play</p>
+          <p className="mt-4 rounded-full bg-white/70 py-2 text-xs font-bold text-espresso-400">Start Play</p>
         </div>
       )}
 
-      <div className="w-56 shrink-0 rounded-3xl border-4 border-carissma-300 bg-sky-100 p-4 text-center shadow-lg">
-        <p className="text-sm font-extrabold text-carissma-400">{current.name_en}</p>
+      <div className="w-64 shrink-0 rounded-[2rem] border-4 border-carissma-300 bg-sky-100 p-5 text-center shadow-xl sm:w-80 sm:p-6">
+        <p className="text-base font-extrabold text-carissma-400 sm:text-lg">{current.name_en}</p>
         {current.icon_url ? (
-          <img src={current.icon_url} alt={current.name_en} className="mx-auto mt-2 h-28 w-28 object-contain" />
+          <img
+            src={current.icon_url}
+            alt={current.name_en}
+            className="mx-auto mt-3 h-36 w-36 rounded-2xl border-2 border-carissma-300 object-cover sm:h-44 sm:w-44"
+          />
         ) : (
-          <div className="mx-auto mt-2 h-28 w-28 rounded-2xl bg-sky-200" />
+          <div className="mx-auto mt-3 h-36 w-36 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:h-44 sm:w-44" />
         )}
         <Link
           to="/play"
-          className="mt-3 block rounded-full bg-carissma-400 py-2 text-sm font-bold text-white hover:bg-carissma-500"
+          className="mt-4 block rounded-full bg-carissma-400 py-3 text-sm font-bold text-white hover:bg-carissma-500"
         >
           Start Play
         </Link>
       </div>
 
       {next && (
-        <div className="hidden w-32 shrink-0 rounded-2xl bg-sky-100 p-3 text-center sm:block">
+        <div className="hidden w-40 shrink-0 rounded-[1.75rem] bg-sky-100 p-4 text-center shadow-sm sm:block">
           {next.icon_url ? (
-            <img src={next.icon_url} alt={next.name_en} className="mx-auto h-16 w-16 object-contain" />
+            <img src={next.icon_url} alt={next.name_en} className="mx-auto h-20 w-20 object-contain" />
           ) : (
-            <div className="mx-auto h-16 w-16 rounded-xl bg-sky-200" />
+            <div className="mx-auto h-20 w-20 rounded-2xl bg-sky-200" />
           )}
-          <p className="mt-3 rounded-full bg-white/70 py-1 text-xs font-bold text-espresso-400">Start Play</p>
+          <p className="mt-4 rounded-full bg-white/70 py-2 text-xs font-bold text-espresso-400">Start Play</p>
         </div>
       )}
 
       <button
         onClick={() => setIndex((i) => i + 1)}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-sm hover:bg-carissma-50"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
         aria-label="Next category"
       >
         <ChevronRightIcon />
@@ -220,7 +224,12 @@ export default function Home() {
           <StickerHeading className="text-2xl sm:text-3xl">Make Down</StickerHeading>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold text-espresso-700">{BLURB}</p>
 
-          <div className="relative mx-auto mt-8 aspect-video max-w-3xl overflow-hidden rounded-3xl bg-gradient-to-br from-espresso-900 to-carissma-900">
+          <div className="relative mx-auto mt-14 max-w-3xl">
+            <div
+              aria-hidden="true"
+              className="absolute -top-8 start-1/2 h-16 w-2/3 -translate-x-1/2 rounded-t-full border-2 border-b-0 border-carnation-300 bg-linen-100"
+            />
+            <div className="relative aspect-video overflow-hidden rounded-3xl bg-gradient-to-br from-espresso-900 to-carissma-900">
             {youtubeId && (
               <img
                 src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
@@ -250,6 +259,7 @@ export default function Home() {
                 Watch On Youtube
               </a>
             )}
+            </div>
           </div>
 
           <Link
