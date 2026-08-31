@@ -45,59 +45,59 @@ function CategoryCarousel({ categories, loading, error }) {
   const next = categories.length > 1 ? at(1) : null;
 
   return (
-    <div className="mt-12 flex items-center justify-center gap-4 sm:gap-8">
+    <div className="mt-12 flex items-center justify-center gap-4 sm:gap-10">
       <button
         onClick={() => setIndex((i) => i - 1)}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
         aria-label="Previous category"
       >
         <ChevronLeftIcon />
       </button>
 
       {prev && (
-        <div className="hidden w-40 shrink-0 rounded-[1.75rem] bg-sky-100 p-4 text-center shadow-sm sm:block">
+        <div className="hidden w-48 shrink-0 rounded-[1.75rem] bg-sky-100 p-5 text-center shadow-sm sm:block lg:w-56">
           {prev.icon_url ? (
-            <img src={prev.icon_url} alt={prev.name_en} className="mx-auto h-20 w-20 object-contain" />
+            <img src={prev.icon_url} alt={prev.name_en} className="mx-auto h-24 w-24 object-contain lg:h-28 lg:w-28" />
           ) : (
-            <div className="mx-auto h-20 w-20 rounded-2xl bg-sky-200" />
+            <div className="mx-auto h-24 w-24 rounded-2xl bg-sky-200 lg:h-28 lg:w-28" />
           )}
-          <p className="mt-4 rounded-full bg-white/70 py-2 text-xs font-bold text-espresso-400">Start Play</p>
+          <p className="mt-4 rounded-full bg-white/70 py-2.5 text-sm font-bold text-espresso-400">Start Play</p>
         </div>
       )}
 
-      <div className="w-64 shrink-0 rounded-[2rem] border-4 border-carissma-300 bg-sky-100 p-5 text-center shadow-xl sm:w-80 sm:p-6">
-        <p className="text-base font-extrabold text-carissma-400 sm:text-lg">{current.name_en}</p>
+      <div className="w-80 shrink-0 rounded-[2rem] border-4 border-carissma-300 bg-sky-100 p-6 text-center shadow-xl sm:w-96 sm:p-8 lg:w-[26rem]">
+        <p className="text-lg font-extrabold text-carissma-400 sm:text-xl">{current.name_en}</p>
         {current.icon_url ? (
           <img
             src={current.icon_url}
             alt={current.name_en}
-            className="mx-auto mt-3 h-36 w-36 rounded-2xl border-2 border-carissma-300 object-cover sm:h-44 sm:w-44"
+            className="mx-auto mt-4 h-44 w-44 rounded-2xl border-2 border-carissma-300 object-cover sm:h-56 sm:w-56 lg:h-64 lg:w-64"
           />
         ) : (
-          <div className="mx-auto mt-3 h-36 w-36 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:h-44 sm:w-44" />
+          <div className="mx-auto mt-4 h-44 w-44 rounded-2xl border-2 border-carissma-300 bg-sky-200 sm:h-56 sm:w-56 lg:h-64 lg:w-64" />
         )}
         <Link
           to="/play"
-          className="mt-4 block rounded-full bg-carissma-400 py-3 text-sm font-bold text-white hover:bg-carissma-500"
+          className="mt-5 block rounded-full bg-carissma-400 py-3.5 text-base font-bold text-white hover:bg-carissma-500"
         >
           Start Play
         </Link>
       </div>
 
       {next && (
-        <div className="hidden w-40 shrink-0 rounded-[1.75rem] bg-sky-100 p-4 text-center shadow-sm sm:block">
+        <div className="hidden w-48 shrink-0 rounded-[1.75rem] bg-sky-100 p-5 text-center shadow-sm sm:block lg:w-56">
           {next.icon_url ? (
-            <img src={next.icon_url} alt={next.name_en} className="mx-auto h-20 w-20 object-contain" />
+            <img src={next.icon_url} alt={next.name_en} className="mx-auto h-24 w-24 object-contain lg:h-28 lg:w-28" />
           ) : (
-            <div className="mx-auto h-20 w-20 rounded-2xl bg-sky-200" />
+            <div className="mx-auto h-24 w-24 rounded-2xl bg-sky-200 lg:h-28 lg:w-28" />
           )}
-          <p className="mt-4 rounded-full bg-white/70 py-2 text-xs font-bold text-espresso-400">Start Play</p>
+          <p className="mt-4 rounded-full bg-white/70 py-2.5 text-sm font-bold text-espresso-400">Start Play</p>
         </div>
       )}
 
       <button
         onClick={() => setIndex((i) => i + 1)}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-carissma-400 shadow-md hover:bg-carissma-50"
         aria-label="Next category"
       >
         <ChevronRightIcon />

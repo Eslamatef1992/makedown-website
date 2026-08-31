@@ -91,7 +91,7 @@ export default function SiteFooter() {
             href="https://teknulugy.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 block text-end text-xs font-semibold text-espresso-800 hover:text-carissma-500"
+            className="mt-3 block w-[148px] text-center text-xs font-semibold text-espresso-800 hover:text-carissma-500"
           >
             Developed By <span className="font-extrabold">Teknulugy</span>
           </a>
