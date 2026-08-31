@@ -99,7 +99,7 @@ export default function ProfilePage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="flex flex-col items-center rounded-3xl border-2 border-carissma-200 bg-white/70 p-6 text-center sm:p-8">
           <Avatar user={user} />
           <StickerHeading as="h1" className="mt-4 text-xl">

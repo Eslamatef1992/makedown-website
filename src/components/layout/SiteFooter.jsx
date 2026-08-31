@@ -35,8 +35,8 @@ export default function SiteFooter() {
         ];
 
   return (
-    <footer className="mt-16 px-6 py-10 sm:px-10">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 sm:grid-cols-3">
+    <footer className="mt-16 px-4 py-12 sm:px-6 sm:py-14 lg:px-10">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-10 sm:grid-cols-3">
         <div>
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
           <p className="mt-3 max-w-xs text-sm font-medium text-espresso-800">
@@ -98,7 +98,7 @@ export default function SiteFooter() {
         </div>
       </div>
 
-      <div className="mx-auto mt-10 flex max-w-6xl flex-col items-center justify-between gap-3 border-t border-carissma-300/50 pt-6 text-xs font-bold text-espresso-900 sm:flex-row">
+      <div className="mx-auto mt-10 flex max-w-[1400px] flex-col items-center justify-between gap-3 border-t border-carissma-300/50 pt-6 text-xs font-bold text-espresso-900 sm:flex-row">
         <p>Copyright {new Date().getFullYear()} Make Down</p>
         <div className="flex gap-4">
           <Link to="/privacy-policy" className="underline hover:text-carissma-500">Privacy Policy</Link>

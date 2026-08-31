@@ -88,7 +88,7 @@ export default function ContactUsPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10 sm:py-14">
         <div className="text-center">
           <StickerHeading as="h1" className="text-3xl sm:text-4xl">
             Contact Us

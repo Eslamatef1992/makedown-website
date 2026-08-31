@@ -153,7 +153,7 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <SiteLayout>
-        <div className="mx-auto max-w-6xl px-8 py-24 text-center text-espresso-500">Loading…</div>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-24 text-center text-espresso-500">Loading…</div>
       </SiteLayout>
     );
   }
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
   if (notFound || !product) {
     return (
       <SiteLayout>
-        <div className="mx-auto max-w-6xl px-8 py-24 text-center">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-24 text-center">
           <h1 className="text-2xl font-semibold text-espresso-900">Product not found</h1>
           <Link to="/products" className="mt-4 inline-block font-semibold text-carissma-600 hover:underline">
             Back to shop
@@ -199,7 +199,7 @@ export default function ProductDetailPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-8 py-16">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-16">
         <nav className="text-sm font-semibold text-espresso-500">
           <Link to="/products" className="hover:text-carissma-500">Products</Link>
           <span className="mx-1.5">›</span>

@@ -51,7 +51,7 @@ export default function ProductsPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <StickerHeading as="h1" className="text-2xl">
             Products

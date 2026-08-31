@@ -115,7 +115,7 @@ export default function ChatPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="flex items-center gap-3">
           <Link to="/profile" className="text-espresso-500 hover:text-carissma-500">
             <ChevronLeftIcon />

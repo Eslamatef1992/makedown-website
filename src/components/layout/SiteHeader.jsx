@@ -29,7 +29,7 @@ export default function SiteHeader() {
   const [country, setCountry] = useState(COUNTRIES[0]);
 
   return (
-    <header className="relative flex items-center justify-between px-6 py-5 sm:px-10">
+    <header className="relative flex items-center justify-between px-4 py-5 sm:px-6 lg:px-10">
       <Link to="/" className="flex h-12 w-12 items-center justify-center">
         <img src="/logo-mark.png" alt="Make Down" className="h-full w-full object-contain" />
       </Link>

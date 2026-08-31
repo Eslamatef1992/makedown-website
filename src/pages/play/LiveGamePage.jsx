@@ -332,7 +332,7 @@ export default function LiveGamePage() {
 
   return (
     <div className="min-h-screen bg-carissma-50/50 px-4 py-6">
-      <div className="mx-auto max-w-6xl rounded-[2.5rem] border-2 border-carissma-200 bg-white p-4 shadow-lg sm:p-6">
+      <div className="mx-auto max-w-[1400px] rounded-[2.5rem] border-2 border-carissma-200 bg-white p-4 shadow-lg sm:p-6">
         {/* Header */}
         <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-200 via-carissma-400 to-carissma-200 px-5 py-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg font-black text-carissma-500">MD</span>

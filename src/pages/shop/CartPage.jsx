@@ -76,7 +76,7 @@ export default function CartPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
           <div className="rounded-3xl border-2 border-carissma-300 bg-white p-6">
             <div className="flex items-center justify-between">

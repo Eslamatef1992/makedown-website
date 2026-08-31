@@ -194,7 +194,7 @@ export default function Home() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-6xl px-6 sm:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         {/* Hero */}
         <section className="relative mt-2 overflow-hidden rounded-3xl bg-carissma-50/70 px-6 py-10 text-center sm:px-12">
           <span className="pointer-events-none absolute start-8 top-10 text-2xl text-carissma-300" aria-hidden="true">✦</span>
