@@ -76,7 +76,7 @@ export default function CategorySelectPage() {
         ) : (
           <div className="mt-8 space-y-6">
             {grouped.map(([category, items]) => (
-              <div key={category} className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+              <div key={category} className="rounded-[2rem] border-4 border-carissma-300 bg-white p-5 shadow-sm sm:p-6">
                 <div className="mb-4 flex justify-center">
                   <span className="rounded-full bg-carissma-100 px-4 py-1 text-xs font-bold text-carissma-600">{category}</span>
                 </div>
@@ -104,7 +104,7 @@ export default function CategorySelectPage() {
           </div>
         )}
 
-        <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+        <div className="mt-8 rounded-[2rem] border-4 border-carissma-300 bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-lg font-extrabold text-espresso-900">Complete Game Information</h2>
           <div className="mt-4 space-y-4">
             <TextField label="Game Name (optional)" value={gameName} onChange={(e) => setGameName(e.target.value)} placeholder="Enter game name" />

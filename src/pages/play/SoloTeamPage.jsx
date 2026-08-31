@@ -28,7 +28,7 @@ export default function SoloTeamPage() {
     <PlayModalLayout backTo="/" backLabel="Back" backStyle="button">
       <div className="flex flex-col gap-6 sm:flex-row">
         {OPTIONS.map((opt) => (
-          <PlayCard key={opt.mode}>
+          <PlayCard key={opt.mode} border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
             <StickerHeading as="h2" className="text-2xl">
               {opt.title}
             </StickerHeading>

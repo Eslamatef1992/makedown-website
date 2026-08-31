@@ -30,7 +30,7 @@ export default function JoinByCodePage() {
 
   return (
     <PlayModalLayout backTo={`/play/mode/${mode}`} backLabel="Back" backStyle="button">
-      <PlayCard>
+      <PlayCard border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
         <StickerHeading as="h2" className="text-2xl">
           Join Game
         </StickerHeading>

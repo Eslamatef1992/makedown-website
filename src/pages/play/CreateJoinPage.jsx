@@ -10,7 +10,7 @@ export default function CreateJoinPage() {
   return (
     <PlayModalLayout backTo="/play" backLabel="Back" backStyle="button">
       <div className="flex flex-col gap-6 sm:flex-row">
-        <PlayCard>
+        <PlayCard border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
           <StickerHeading as="h2" className="text-2xl">
             Create Game
           </StickerHeading>
@@ -22,7 +22,7 @@ export default function CreateJoinPage() {
           </Button>
         </PlayCard>
 
-        <PlayCard>
+        <PlayCard border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
           <StickerHeading as="h2" className="text-2xl">
             Join Game
           </StickerHeading>
