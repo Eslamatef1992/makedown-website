@@ -1,24 +1,55 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
-import { listSchools, verifySchoolCode } from '../../api/content.api';
-import { CheckIcon, CloseIcon } from '../../components/ui/icons';
+import { listSchools, listSchoolGames } from '../../api/content.api';
+import { joinGameByCode } from '../../api/play.api';
+import { CloseIcon, CalendarIcon, UserIcon } from '../../components/ui/icons';
 
-function JoinCodeModal({ onClose }) {
+const AUDIENCE_LABELS = {
+  girls: 'Only Girl',
+  boys: 'Only Boy',
+  mixed: 'Boy & Girl',
+};
+
+function formatDate(value) {
+  if (!value) return null;
+  const datePart = String(value).slice(0, 10);
+  const d = new Date(`${datePart}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return datePart;
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatTime(value) {
+  if (!value) return null;
+  const timePart = String(value).slice(0, 5);
+  const [h, m] = timePart.split(':').map(Number);
+  if (Number.isNaN(h)) return timePart;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = ((h + 11) % 12) + 1;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+// Reused per game card. The join code is never sent to the browser as part
+// of the games list (see schools.controller.js#publicGames) — a student
+// types in the code their teacher gave them, same as any other Play game;
+// the code alone determines which session they land in.
+function GameCodeModal({ game, onClose }) {
+  const navigate = useNavigate();
   const [code, setCode] = useState('');
-  const [result, setResult] = useState(null); // { ok: boolean, school? , message? }
+  const [error, setError] = useState('');
   const [checking, setChecking] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!code.trim() || checking) return;
     setChecking(true);
+    setError('');
     try {
-      const school = await verifySchoolCode(code.trim());
-      setResult({ ok: true, school });
-    } catch {
-      setResult({ ok: false });
+      const session = await joinGameByCode(code.trim());
+      navigate(`/play/sessions/${session.id}/lobby`);
+    } catch (err) {
+      setError(err.response?.data?.message || "That code didn't work. Double check it and try again.");
     } finally {
       setChecking(false);
     }
@@ -35,12 +66,14 @@ function JoinCodeModal({ onClose }) {
           <CloseIcon className="h-4 w-4" />
         </button>
 
-        {!result && (
+        {!error && (
           <form onSubmit={handleSubmit}>
             <StickerHeading as="h2" className="text-xl">
-              Enter Game Code
+              Game Code
             </StickerHeading>
-            <p className="mt-2 text-sm text-espresso-600">Enter the code your teacher shared with you.</p>
+            <p className="mt-2 text-sm text-espresso-600">
+              Enter the code your teacher shared with you{game?.title ? ` for "${game.title}"` : ''}.
+            </p>
             <input
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -52,43 +85,22 @@ function JoinCodeModal({ onClose }) {
               disabled={checking}
               className="mt-6 w-full rounded-full bg-carissma-400 py-3.5 font-bold text-white transition hover:bg-carissma-500 disabled:opacity-60"
             >
-              {checking ? 'Checking…' : 'Submit'}
+              {checking ? 'Checking…' : 'Start Game'}
             </button>
           </form>
         )}
 
-        {result?.ok && (
-          <div>
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md">
-              <CheckIcon className="h-10 w-10" />
-            </div>
-            <StickerHeading as="h2" className="mt-4 text-xl">
-              Code Verified!
-            </StickerHeading>
-            <p className="mt-2 text-sm text-espresso-600">
-              You're all set for <span className="font-bold">{result.school?.nameEn}</span>. Your teacher will start the game
-              from here shortly.
-            </p>
-            <button
-              onClick={onClose}
-              className="mt-6 w-full rounded-full bg-carissma-400 py-3.5 font-bold text-white hover:bg-carissma-500"
-            >
-              Done
-            </button>
-          </div>
-        )}
-
-        {result && !result.ok && (
+        {error && (
           <div>
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-carnation-50">
               <CloseIcon className="h-8 w-8 text-carnation-500" />
             </div>
             <StickerHeading as="h2" className="mt-4 text-xl">
-              Invalid Code
+              Couldn't Join
             </StickerHeading>
-            <p className="mt-2 text-sm text-espresso-600">That code doesn't match any school. Double check it and try again.</p>
+            <p className="mt-2 text-sm text-espresso-600">{error}</p>
             <button
-              onClick={() => setResult(null)}
+              onClick={() => setError('')}
               className="mt-6 w-full rounded-full bg-carissma-400 py-3.5 font-bold text-white hover:bg-carissma-500"
             >
               Try Again
@@ -100,19 +112,80 @@ function JoinCodeModal({ onClose }) {
   );
 }
 
+function GameCard({ game, onJoin }) {
+  const audienceLabel = AUDIENCE_LABELS[game.audience];
+  const dateLabel = formatDate(game.scheduledDate);
+  const timeLabel = formatTime(game.scheduledTime);
+
+  return (
+    <div className="rounded-2xl border border-carissma-100 bg-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <h3 className="text-lg font-extrabold text-espresso-900">{game.title || 'Game'}</h3>
+        {audienceLabel && (
+          <span className="rounded-full bg-carissma-50 px-3 py-1 text-xs font-bold text-carissma-500">{audienceLabel}</span>
+        )}
+      </div>
+
+      {(dateLabel || timeLabel) && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium text-espresso-600">
+          <CalendarIcon className="h-4 w-4 text-carissma-400" />
+          <span>
+            {dateLabel}
+            {dateLabel && timeLabel ? ' · ' : ''}
+            {timeLabel}
+          </span>
+        </div>
+      )}
+      {timeLabel && <p className="mt-1 text-xs font-medium text-espresso-400">Join opens 10 minutes before start.</p>}
+
+      {game.teams?.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-bold text-espresso-800">
+          <UserIcon className="h-4 w-4 text-carissma-400" />
+          {game.teams.map((team, i) => (
+            <span key={team.name || i}>
+              {team.name || `Team ${i + 1}`}
+              {team.capacity ? ` (${team.capacity} Players)` : ''}
+              {i < game.teams.length - 1 ? ' Vs' : ''}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {game.categories?.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {game.categories.map((c, i) => (
+            <span key={i} className="rounded-full bg-linen-100 px-3 py-1 text-xs font-bold text-espresso-600">
+              {c.titleEn}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => onJoin(game)}
+        className="mt-5 w-full rounded-full bg-carissma-400 py-3 font-bold text-white transition hover:bg-carissma-500"
+      >
+        Join Game
+      </button>
+    </div>
+  );
+}
+
 export default function SchoolDetailPage() {
   const { id } = useParams();
   const [school, setSchool] = useState(null);
+  const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinGame, setJoinGame] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
-    listSchools()
-      .then((data) => {
+    Promise.all([listSchools(), listSchoolGames(id).catch(() => [])])
+      .then(([schools, schoolGames]) => {
         if (cancelled) return;
-        const match = (data || []).find((s) => String(s.id) === String(id));
+        const match = (schools || []).find((s) => String(s.id) === String(id));
         setSchool(match || null);
+        setGames(schoolGames || []);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -145,7 +218,7 @@ export default function SchoolDetailPage() {
 
   return (
     <SiteLayout>
-      {showJoinModal && <JoinCodeModal onClose={() => setShowJoinModal(false)} />}
+      {joinGame && <GameCodeModal game={joinGame} onClose={() => setJoinGame(null)} />}
 
       <div className="mx-auto max-w-4xl px-6 py-10 sm:px-8">
         <Link to="/education" className="text-sm font-bold text-carissma-500 hover:underline">← Back to schools</Link>
@@ -160,23 +233,25 @@ export default function SchoolDetailPage() {
           </div>
           <div>
             <StickerHeading as="h1" className="text-2xl">
-              {school.nameEn}
+              {school.nameEn} Games
             </StickerHeading>
           </div>
         </div>
 
-        <div className="mt-10 rounded-2xl border border-carissma-100 bg-white/70 p-8 text-center">
-          <p className="font-bold text-espresso-900">No live games right now</p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-espresso-600">
-            When a teacher at {school.nameEn} starts a game session, you'll be able to join it here with a code.
-          </p>
-          <button
-            onClick={() => setShowJoinModal(true)}
-            className="mt-6 rounded-full bg-carissma-400 px-8 py-3 font-bold text-white hover:bg-carissma-500"
-          >
-            Have A Game Code?
-          </button>
-        </div>
+        {games.length === 0 ? (
+          <div className="mt-10 rounded-2xl border border-carissma-100 bg-white/70 p-8 text-center">
+            <p className="font-bold text-espresso-900">No live games right now</p>
+            <p className="mx-auto mt-2 max-w-md text-sm text-espresso-600">
+              When a teacher at {school.nameEn} schedules a game session, it'll show up here.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            {games.map((game) => (
+              <GameCard key={game.id} game={game} onJoin={setJoinGame} />
+            ))}
+          </div>
+        )}
       </div>
     </SiteLayout>
   );

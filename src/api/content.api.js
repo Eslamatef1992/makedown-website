@@ -25,6 +25,7 @@ export const getContactInfo = () => client.get('/site-settings/contact-info').th
 
 // Schools (public)
 export const listSchools = () => client.get('/schools').then((r) => r.data.data);
+export const listSchoolGames = (schoolId) => client.get(`/schools/${schoolId}/games`).then((r) => r.data.data);
 
 // Checkout (public — works for guests and logged-in users)
 export const checkoutRequest = (payload) => client.post('/orders', payload).then((r) => r.data.data);
