@@ -3,7 +3,7 @@
 export default function StickerHeading({ as: Tag = 'h2', children, className = '' }) {
   return (
     <Tag
-      className={`font-extrabold uppercase text-carissma-300 ${className}`}
+      className={`font-extrabold uppercase text-carissma-400 ${className}`}
       style={{
         textShadow:
           '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
