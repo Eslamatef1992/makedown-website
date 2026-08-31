@@ -12,6 +12,22 @@ import {
 import { joinGameRoom, onGameEvent } from '../../lib/gameSocket';
 import { useAuth } from '../../context/AuthContext';
 
+// The play API's question/options payload ultimately comes from MySQL's
+// JSON-typed options_json_en/options_json_ar columns, which the backend
+// may hand back already deserialized into a real array — guard for a
+// plain JSON string too so this never crashes either way.
+const parseOptions = (value) => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 const LIFELINES = [
   { key: 'phone_a_friend', icon: PhoneIcon, label: 'Phone a friend' },
   { key: 'fifty_fifty', icon: HandTapIcon, label: '50 / 50' },
@@ -64,7 +80,7 @@ function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifeli
 }
 
 function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions }) {
-  const options = useMemo(() => JSON.parse(question.options_json_en || '[]'), [question]);
+  const options = useMemo(() => parseOptions(question.options_json_en), [question]);
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   if (question.question_type === 'qr') {
@@ -518,7 +534,7 @@ export default function LiveGamePage() {
             <h3 className="text-lg font-extrabold text-espresso-900">A friend needs your help!</h3>
             <p className="mt-2 text-sm font-bold text-espresso-900">{friendRequest.question.question_text_en}</p>
             <div className="mt-3 space-y-2">
-              {JSON.parse(friendRequest.question.options_json_en || '[]').map((opt, i) => (
+              {parseOptions(friendRequest.question.options_json_en).map((opt, i) => (
                 <button
                   key={i}
                   onClick={() => respondToFriend(i)}
