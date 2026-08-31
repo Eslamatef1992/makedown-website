@@ -18,7 +18,7 @@ export default function PackagesPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-5xl px-6 py-16 text-center sm:px-8">
+      <div className="mx-auto max-w-6xl px-6 py-16 text-center sm:px-8">
         <StickerHeading className="text-2xl sm:text-3xl">Packages</StickerHeading>
         <p className="mt-2 text-sm font-semibold text-espresso-700">Top up credits and unlock more games.</p>
 

@@ -89,7 +89,7 @@ export default function UserProfilePage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-3xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-5xl px-6 py-10 sm:px-8">
         <div className="flex flex-col items-center rounded-3xl border-2 border-carissma-200 bg-white/70 p-6 text-center sm:p-8">
           <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white bg-carissma-100 shadow-md">
             {profile.avatarUrl ? (

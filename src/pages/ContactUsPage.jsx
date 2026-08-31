@@ -3,21 +3,35 @@ import SiteLayout from '../components/layout/SiteLayout';
 import StickerHeading from '../components/ui/StickerHeading';
 import TextField from '../components/ui/TextField';
 import Button from '../components/ui/Button';
+import { MailIcon, PhoneIcon } from '../components/ui/icons';
 import { submitContactForm, getContactInfo, listSocialLinks } from '../api/content.api';
 
-function InfoCard({ label, value, href }) {
+const SOCIAL_ICONS = {
+  facebook: '/icons/social-facebook.svg',
+  instagram: '/icons/social-instagram.svg',
+  twitter: '/icons/social-twitter.svg',
+  x: '/icons/social-twitter.svg',
+};
+
+function InfoRow({ icon, label, value, href }) {
   if (!value) return null;
-  return (
-    <div className="rounded-2xl border border-carissma-100 bg-white/70 p-5 text-center">
-      <p className="text-xs font-bold uppercase tracking-wide text-carissma-400">{label}</p>
-      {href ? (
-        <a href={href} className="mt-1 block truncate text-sm font-bold text-espresso-900 hover:text-carissma-600">
-          {value}
-        </a>
-      ) : (
-        <p className="mt-1 truncate text-sm font-bold text-espresso-900">{value}</p>
-      )}
+  const Content = (
+    <div className="flex items-center gap-3">
+      <span className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-carissma-400 text-white">
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-xs font-bold text-carissma-400">{label}</span>
+        <span className="block truncate text-sm font-extrabold text-espresso-900 sm:text-base">{value}</span>
+      </span>
     </div>
+  );
+  return href ? (
+    <a href={href} className="block hover:opacity-90">
+      {Content}
+    </a>
+  ) : (
+    Content
   );
 }
 
@@ -63,71 +77,139 @@ export default function ContactUsPage() {
     }
   };
 
+  const socials =
+    socialLinks.length > 0
+      ? socialLinks
+      : [
+          { id: 'fb', platform: 'facebook', url: '#' },
+          { id: 'ig', platform: 'instagram', url: '#' },
+          { id: 'tw', platform: 'twitter', url: '#' },
+        ];
+
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
+      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8 sm:py-14">
         <div className="text-center">
-          <StickerHeading as="h1" className="text-2xl sm:text-3xl">
+          <StickerHeading as="h1" className="text-3xl sm:text-4xl">
             Contact Us
           </StickerHeading>
-          <p className="mt-2 text-espresso-600">Questions, feedback, or partnership ideas — we'd love to hear from you.</p>
         </div>
 
-        {(contactInfo?.companyEmail || contactInfo?.supportEmail || contactInfo?.phone) && (
-          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <InfoCard label="Company Email" value={contactInfo?.companyEmail} href={contactInfo?.companyEmail ? `mailto:${contactInfo.companyEmail}` : undefined} />
-            <InfoCard label="Support Email" value={contactInfo?.supportEmail} href={contactInfo?.supportEmail ? `mailto:${contactInfo.supportEmail}` : undefined} />
-            <InfoCard label="Phone" value={contactInfo?.phone} href={contactInfo?.phone ? `tel:${contactInfo.phone}` : undefined} />
+        {/* Contact info card */}
+        <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-carissma-100" />
+            <span className="text-xs font-bold uppercase tracking-wide text-carissma-400">— Contact Us —</span>
+            <span className="h-px flex-1 bg-carissma-100" />
           </div>
-        )}
 
-        {socialLinks.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            {socialLinks.map((s) => (
-              <a
-                key={s.id}
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full bg-white/70 px-4 py-2 text-xs font-bold text-espresso-700 hover:text-carissma-600"
-              >
-                {s.platform}
-              </a>
-            ))}
+          <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
+            <InfoRow
+              icon={<MailIcon className="h-5 w-5" />}
+              label="Company Email"
+              value={contactInfo?.companyEmail}
+              href={contactInfo?.companyEmail ? `mailto:${contactInfo.companyEmail}` : undefined}
+            />
+            <InfoRow
+              icon={<PhoneIcon className="h-5 w-5" />}
+              label="Phone Number"
+              value={contactInfo?.phone}
+              href={contactInfo?.phone ? `tel:${contactInfo.phone}` : undefined}
+            />
+            <InfoRow
+              icon={<MailIcon className="h-5 w-5" />}
+              label="Support Email"
+              value={contactInfo?.supportEmail}
+              href={contactInfo?.supportEmail ? `mailto:${contactInfo.supportEmail}` : undefined}
+            />
+            <div>
+              <span className="block text-xs font-bold text-carissma-400">Social Media Links</span>
+              <div className="mt-2 flex items-center gap-2.5">
+                {socials.map((l) => (
+                  <a
+                    key={l.id}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={l.platform}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-carissma-50 hover:bg-carissma-100"
+                  >
+                    <img src={SOCIAL_ICONS[l.platform] || SOCIAL_ICONS.facebook} alt={l.platform} className="h-9 w-9" />
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
+        {/* Get in touch form card */}
         {sent ? (
-          <div className="mt-10 rounded-3xl border border-carissma-200 bg-carissma-50 p-8 text-center">
-            <h2 className="text-xl font-bold text-carissma-700">Message sent!</h2>
+          <div className="mt-6 rounded-3xl bg-white p-8 text-center shadow-sm sm:p-12">
+            <h2 className="text-xl font-bold text-carissma-600">Message sent!</h2>
             <p className="mt-2 text-espresso-600">Thanks for reaching out — our team will get back to you soon.</p>
             <button onClick={() => setSent(false)} className="mt-4 font-bold text-carissma-600 hover:underline">
               Send another message
             </button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="mt-10 space-y-5 rounded-3xl border border-carissma-100 bg-white/70 p-6 sm:p-8">
-            <h2 className="text-lg font-extrabold text-espresso-900">Get In Touch</h2>
-            <TextField label="Name" value={form.name} onChange={update('name')} error={errors.name} placeholder="Your name" />
-            <TextField label="Email" type="email" value={form.email} onChange={update('email')} error={errors.email} placeholder="you@example.com" />
-            <TextField label="Phone (optional)" value={form.phone} onChange={update('phone')} placeholder="+965 ..." />
-            <label className="block">
-              <span className="mb-2 block text-sm font-bold text-espresso-900">Message</span>
-              <textarea
-                rows={5}
-                value={form.message}
-                onChange={update('message')}
-                placeholder="How can we help?"
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-espresso-900 placeholder:text-carissma-300
-                  focus:outline-none focus:ring-2 focus:ring-carissma-400
-                  ${errors.message ? 'border-carnation-500' : 'border-carissma-200'}`}
+          <form onSubmit={onSubmit} className="mt-6 rounded-3xl bg-white p-6 shadow-sm sm:p-10">
+            <StickerHeading as="h2" className="text-center text-2xl sm:text-3xl">
+              Get In Touch
+            </StickerHeading>
+
+            <div className="mx-auto mt-8 max-w-2xl space-y-5">
+              <TextField
+                label="Name"
+                value={form.name}
+                onChange={update('name')}
+                error={errors.name}
+                placeholder="enter first name"
               />
-              {errors.message && <span className="mt-1 block text-xs text-carnation-600">{errors.message}</span>}
-            </label>
+              <TextField
+                label="Email"
+                type="email"
+                value={form.email}
+                onChange={update('email')}
+                error={errors.email}
+                placeholder="example@gmail.com"
+              />
 
-            {serverError && <p className="text-sm text-carnation-600">{serverError}</p>}
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold text-espresso-900">Phone Number</span>
+                <div className="flex items-stretch gap-2">
+                  <span className="flex flex-none items-center gap-1.5 rounded-2xl border border-carissma-200 bg-carissma-50 px-3 text-sm font-bold text-espresso-800">
+                    🇰🇼 +965
+                  </span>
+                  <input
+                    value={form.phone}
+                    onChange={update('phone')}
+                    placeholder="enter phone number"
+                    className="w-full rounded-2xl border border-carissma-200 bg-white px-4 py-3 text-espresso-900
+                      placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+                  />
+                </div>
+              </label>
 
-            <Button type="submit" loading={loading}>Send Message</Button>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold text-espresso-900">Message</span>
+                <textarea
+                  rows={5}
+                  value={form.message}
+                  onChange={update('message')}
+                  placeholder="enter your message"
+                  className={`w-full rounded-2xl border bg-white px-4 py-3 text-espresso-900 placeholder:text-carissma-300
+                    focus:outline-none focus:ring-2 focus:ring-carissma-400
+                    ${errors.message ? 'border-carnation-500' : 'border-carissma-200'}`}
+                />
+                {errors.message && <span className="mt-1 block text-xs text-carnation-600">{errors.message}</span>}
+              </label>
+
+              {serverError && <p className="text-sm text-carnation-600">{serverError}</p>}
+
+              <Button type="submit" loading={loading} className="bg-carnation-500 hover:bg-carnation-600">
+                Submit
+              </Button>
+            </div>
           </form>
         )}
       </div>

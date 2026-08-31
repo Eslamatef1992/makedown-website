@@ -78,7 +78,7 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <SiteLayout>
-        <div className="mx-auto max-w-5xl px-8 py-24 text-center text-espresso-500">Loading…</div>
+        <div className="mx-auto max-w-6xl px-8 py-24 text-center text-espresso-500">Loading…</div>
       </SiteLayout>
     );
   }
@@ -86,7 +86,7 @@ export default function ProductDetailPage() {
   if (notFound || !product) {
     return (
       <SiteLayout>
-        <div className="mx-auto max-w-5xl px-8 py-24 text-center">
+        <div className="mx-auto max-w-6xl px-8 py-24 text-center">
           <h1 className="text-2xl font-semibold text-espresso-900">Product not found</h1>
           <Link to="/products" className="mt-4 inline-block font-semibold text-carissma-600 hover:underline">
             Back to shop
@@ -123,7 +123,7 @@ export default function ProductDetailPage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-5xl px-8 py-16">
+      <div className="mx-auto max-w-6xl px-8 py-16">
         <Link to="/products" className="text-sm font-bold text-carissma-500 hover:underline">← Back to shop</Link>
 
         <div className="mt-6 grid grid-cols-1 gap-10 md:grid-cols-2">

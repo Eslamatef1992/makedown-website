@@ -317,7 +317,7 @@ export default function EditProfilePage() {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-2xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-4xl px-6 py-10 sm:px-8">
         <div className="flex items-center justify-between">
           <StickerHeading as="h1" className="text-2xl">
             Edit Profile
