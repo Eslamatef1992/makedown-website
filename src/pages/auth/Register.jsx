@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AuthLayout from '../../components/layout/AuthLayout';
 import TextField from '../../components/ui/TextField';
 import Button from '../../components/ui/Button';
@@ -17,6 +18,7 @@ const EMPTY_FORM = {
 };
 
 export default function Register() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [form, setForm] = useState(EMPTY_FORM);
   const [showPassword, setShowPassword] = useState(false);
@@ -39,19 +41,19 @@ export default function Register() {
     setError('');
 
     if (!form.firstName || !form.lastName || !form.email || !form.birthDate || !form.phone || !form.password || !form.confirmPassword) {
-      setError('Please fill in all required fields');
+      setError(t('auth.register.errors.fillRequired'));
       return;
     }
     if (form.password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('auth.register.errors.passwordLength'));
       return;
     }
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.register.errors.passwordMismatch'));
       return;
     }
     if (!form.acceptTerms) {
-      setError('Please accept the Terms And Conditions');
+      setError(t('auth.register.errors.acceptTerms'));
       return;
     }
 
@@ -69,17 +71,17 @@ export default function Register() {
   };
 
   return (
-    <AuthLayout title="Create Account" cardClassName="max-w-lg">
+    <AuthLayout title={t('auth.register.title')} cardClassName="max-w-lg">
       <form onSubmit={onSubmit} className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <TextField label="Enter First Name" required name="firstName" placeholder="enter first name" value={form.firstName} onChange={onChange} />
-          <TextField label="Enter Last Name" required name="lastName" placeholder="enter last name" value={form.lastName} onChange={onChange} />
+          <TextField label={t('auth.register.firstName')} required name="firstName" placeholder="enter first name" value={form.firstName} onChange={onChange} />
+          <TextField label={t('auth.register.lastName')} required name="lastName" placeholder="enter last name" value={form.lastName} onChange={onChange} />
         </div>
 
-        <TextField label="Enter Email" required type="email" name="email" placeholder="example@gmail.com" value={form.email} onChange={onChange} />
+        <TextField label={t('auth.register.email')} required type="email" name="email" placeholder="example@gmail.com" value={form.email} onChange={onChange} />
 
         <TextField
-          label="Birth Date"
+          label={t('auth.register.birthDate')}
           required
           type="date"
           name="birthDate"
@@ -97,7 +99,7 @@ export default function Register() {
 
         <label className="block">
           <span className="mb-2 block text-sm font-bold text-espresso-900">
-            Phone Number<span className="ms-1 text-carnation-600">*</span>
+            {t('auth.register.phone')}<span className="ms-1 text-carnation-600">*</span>
           </span>
           <div className="flex items-stretch overflow-hidden rounded-2xl border border-carissma-200 bg-white">
             <span className="flex items-center gap-1.5 border-e border-carissma-200 bg-carissma-50 px-3 text-sm font-semibold text-espresso-900">
@@ -116,7 +118,7 @@ export default function Register() {
         </label>
 
         <TextField
-          label="Enter Password"
+          label={t('auth.register.password')}
           required
           type={showPassword ? 'text' : 'password'}
           name="password"
@@ -131,7 +133,7 @@ export default function Register() {
           }
         />
         <TextField
-          label="Confirm Password"
+          label={t('auth.register.confirmPassword')}
           required
           type={showConfirm ? 'text' : 'password'}
           name="confirmPassword"
@@ -153,18 +155,18 @@ export default function Register() {
             onChange={onChange}
             className="mt-0.5 h-4 w-4 rounded accent-carissma-400"
           />
-          <span className="underline decoration-espresso-900/50">Acceptance Of Terms And Conditions.</span>
+          <span className="underline decoration-espresso-900/50">{t('auth.register.acceptTerms')}</span>
         </label>
 
         {error && <p className="rounded-xl bg-carnation-50 px-3 py-2 text-sm text-carnation-700">{error}</p>}
 
-        <Button type="submit">Sign Up</Button>
+        <Button type="submit">{t('auth.register.submit')}</Button>
       </form>
 
       <p className="mt-6 text-center text-sm font-semibold text-espresso-900">
-        Already Have An Account?{' '}
+        {t('auth.register.haveAccount')}{' '}
         <Link to="/login" className="font-bold text-carissma-400 hover:underline">
-          Login
+          {t('auth.register.login')}
         </Link>
       </p>
     </AuthLayout>

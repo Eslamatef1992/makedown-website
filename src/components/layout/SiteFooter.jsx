@@ -1,15 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { listSocialLinks } from '../../api/content.api';
 import StickerHeading from '../ui/StickerHeading';
-
-const QUICK_LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/play', label: 'Play' },
-  { to: '/products', label: 'Products' },
-  { to: '/packages', label: 'Packages' },
-  { to: '/contact-us', label: 'Contact Us' },
-];
 
 const SOCIAL_ICONS = {
   facebook: '/icons/social-facebook.svg',
@@ -19,6 +12,14 @@ const SOCIAL_ICONS = {
 };
 
 export default function SiteFooter() {
+  const { t } = useTranslation();
+  const QUICK_LINKS = [
+    { to: '/', label: t('header.home') },
+    { to: '/play', label: t('header.play') },
+    { to: '/products', label: t('header.products') },
+    { to: '/packages', label: t('footer.packages') },
+    { to: '/contact-us', label: t('header.contactUs') },
+  ];
   const [links, setLinks] = useState([]);
 
   useEffect(() => {
@@ -39,10 +40,7 @@ export default function SiteFooter() {
       <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-10 sm:grid-cols-3">
         <div>
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
-          <p className="mt-3 max-w-xs text-sm font-medium text-espresso-800">
-            A Multiplayer Quiz Game Featuring More Than 200 Diverse Categories, With Dedicated Sections For Students,
-            Adults, And Children.
-          </p>
+          <p className="mt-3 max-w-xs text-sm font-medium text-espresso-800">{t('footer.tagline')}</p>
           <div className="mt-4 flex gap-2.5">
             {socials.map((l) => (
               <a
@@ -61,7 +59,7 @@ export default function SiteFooter() {
 
         <div>
           <StickerHeading as="h3" className="text-lg">
-            Quick Links
+            {t('footer.quickLinks')}
           </StickerHeading>
           <ul className="mt-3 space-y-2 text-sm font-bold text-espresso-900">
             {QUICK_LINKS.map((l) => (
@@ -77,7 +75,7 @@ export default function SiteFooter() {
 
         <div className="sm:flex sm:flex-col sm:items-end sm:text-end">
           <StickerHeading as="h3" className="text-lg">
-            Download App
+            {t('footer.downloadApp')}
           </StickerHeading>
           <div className="mt-3 flex flex-col gap-2.5 sm:items-end">
             <a href="#" aria-label="Download on the App Store">
@@ -93,17 +91,17 @@ export default function SiteFooter() {
             rel="noopener noreferrer"
             className="mt-3 block w-[148px] text-end text-xs font-semibold text-espresso-800 hover:text-carissma-500"
           >
-            Developed By <span className="font-extrabold">Teknulugy</span>
+            {t('footer.developedBy')} <span className="font-extrabold">Teknulugy</span>
           </a>
         </div>
       </div>
 
       <div className="mx-auto mt-10 flex max-w-[1400px] flex-col items-center justify-between gap-3 border-t border-carissma-300/50 pt-6 text-xs font-bold text-espresso-900 sm:flex-row">
-        <p>Copyright {new Date().getFullYear()} Make Down</p>
+        <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
         <div className="flex gap-4">
-          <Link to="/privacy-policy" className="underline hover:text-carissma-500">Privacy Policy</Link>
-          <Link to="/terms-and-conditions" className="underline hover:text-carissma-500">Terms And Conditions</Link>
-          <Link to="/return-policy" className="underline hover:text-carissma-500">Return Policy</Link>
+          <Link to="/privacy-policy" className="underline hover:text-carissma-500">{t('footer.privacyPolicy')}</Link>
+          <Link to="/terms-and-conditions" className="underline hover:text-carissma-500">{t('footer.termsAndConditions')}</Link>
+          <Link to="/return-policy" className="underline hover:text-carissma-500">{t('footer.returnPolicy')}</Link>
         </div>
       </div>
     </footer>

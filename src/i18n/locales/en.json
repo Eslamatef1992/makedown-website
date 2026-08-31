@@ -1,0 +1,101 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "language": "Language",
+    "noImage": "No image"
+  },
+  "header": {
+    "home": "Home",
+    "play": "Play",
+    "education": "Education",
+    "products": "Products",
+    "contactUs": "Contact Us",
+    "cart": "Cart",
+    "login": "Login",
+    "logout": "Log out"
+  },
+  "footer": {
+    "tagline": "A Multiplayer Quiz Game Featuring More Than 200 Diverse Categories, With Dedicated Sections For Students, Adults, And Children.",
+    "quickLinks": "Quick Links",
+    "packages": "Packages",
+    "downloadApp": "Download App",
+    "developedBy": "Developed By",
+    "copyright": "Copyright {{year}} Make Down",
+    "privacyPolicy": "Privacy Policy",
+    "termsAndConditions": "Terms And Conditions",
+    "returnPolicy": "Return Policy"
+  },
+  "home": {
+    "hero": {
+      "title": "Ready To Play?",
+      "subtitle": "Challenge Yourself, Your Team, And Others!",
+      "onlinePlay": "Online Play",
+      "onlinePlaySubtitle": "Play Solo Or Challenge Teams Online",
+      "startNow": "Start Now"
+    },
+    "intro": {
+      "blurb": "A Multiplayer Quiz Game Featuring More Than 200 Diverse Categories, With Dedicated Sections For Students, Adults, And Children.",
+      "watchOnYoutube": "Watch On Youtube",
+      "buyPackage": "+ Buy A Package And Play"
+    },
+    "categories": {
+      "title": "Popular Categories",
+      "startPlay": "Start Play",
+      "loading": "Loading categories…",
+      "error": "Couldn't load categories right now.",
+      "empty": "No categories yet — add some from the admin panel.",
+      "prevAria": "Previous category",
+      "nextAria": "Next category"
+    },
+    "products": {
+      "title": "Popular Products",
+      "viewAll": "View All",
+      "loading": "Loading products…",
+      "error": "Couldn't load products right now.",
+      "empty": "No products yet — add some from the admin panel.",
+      "addToCart": "Add To Cart"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "loading": "Loading FAQs…",
+      "error": "Couldn't load FAQs right now.",
+      "empty": "No FAQs yet — add some from the admin panel."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "email": "Enter Email",
+      "password": "Enter Password",
+      "forgetPassword": "Forget Password?",
+      "submit": "Login",
+      "noAccount": "Don't Have An Account?",
+      "createAccount": "Create An Account"
+    },
+    "register": {
+      "title": "Create Account",
+      "firstName": "Enter First Name",
+      "lastName": "Enter Last Name",
+      "email": "Enter Email",
+      "birthDate": "Birth Date",
+      "phone": "Phone Number",
+      "password": "Enter Password",
+      "confirmPassword": "Confirm Password",
+      "acceptTerms": "Acceptance Of Terms And Conditions.",
+      "submit": "Sign Up",
+      "haveAccount": "Already Have An Account?",
+      "login": "Login",
+      "errors": {
+        "fillRequired": "Please fill in all required fields",
+        "passwordLength": "Password must be at least 8 characters",
+        "passwordMismatch": "Passwords do not match",
+        "acceptTerms": "Please accept the Terms And Conditions"
+      }
+    }
+  }
+}

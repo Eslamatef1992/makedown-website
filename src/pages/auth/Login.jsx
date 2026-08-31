@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AuthLayout from '../../components/layout/AuthLayout';
 import TextField from '../../components/ui/TextField';
 import Button from '../../components/ui/Button';
@@ -7,6 +8,7 @@ import { EyeIcon } from '../../components/ui/icons';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +31,7 @@ export default function Login() {
       navigate(location.state?.from || '/');
     } catch (err) {
       const status = err.response?.status;
-      const message = err.response?.data?.message || 'Something went wrong. Please try again.';
+      const message = err.response?.data?.message || t('common.somethingWentWrong');
       if (status === 403) {
         navigate('/verify-otp', { state: { email: form.email } });
         return;
@@ -41,10 +43,10 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title="Log In">
+    <AuthLayout title={t('auth.login.title')}>
       <form onSubmit={onSubmit} className="space-y-5">
         <TextField
-          label="Enter Email"
+          label={t('auth.login.email')}
           required
           type="email"
           name="email"
@@ -54,7 +56,7 @@ export default function Login() {
           autoComplete="email"
         />
         <TextField
-          label="Enter Password"
+          label={t('auth.login.password')}
           required
           type={showPassword ? 'text' : 'password'}
           name="password"
@@ -71,21 +73,21 @@ export default function Login() {
 
         <div className="flex items-center justify-end text-sm">
           <Link to="/forgot-password" className="font-bold text-carissma-400 hover:underline">
-            Forget Password?
+            {t('auth.login.forgetPassword')}
           </Link>
         </div>
 
         {error && <p className="rounded-xl bg-carnation-50 px-3 py-2 text-sm text-carnation-700">{error}</p>}
 
         <Button type="submit" loading={loading}>
-          Login
+          {t('auth.login.submit')}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm font-semibold text-espresso-900">
-        Don't Have An Account?{' '}
+        {t('auth.login.noAccount')}{' '}
         <Link to="/register" className="font-bold text-carissma-400 hover:underline">
-          Create An Account
+          {t('auth.login.createAccount')}
         </Link>
       </p>
     </AuthLayout>
