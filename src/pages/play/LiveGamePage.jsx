@@ -34,16 +34,15 @@ const LIFELINES = [
   { key: 'skip', icon: LiveShuffleIcon, label: 'Skip' },
 ];
 
-function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifelines, canAct, onLifeline, onAdjustScore }) {
+function ScoreBlock({ participant, isMe, canAdjust, onAdjustScore }) {
   return (
-    <div className={`flex w-full max-w-[220px] flex-col items-center rounded-3xl p-4 transition ${isCurrentTurn ? 'bg-carissma-50' : ''}`}>
+    <div className="flex flex-col items-center">
       <p className="text-sm font-extrabold text-espresso-900">
         {participant.full_name}
         {isMe && ' (you)'}
       </p>
-
       <div className="mt-2 flex items-center gap-2">
-        {isHost && (
+        {canAdjust && (
           <button
             onClick={() => onAdjustScore(participant.id, 50)}
             className="flex h-6 w-6 items-center justify-center rounded-full bg-carissma-400 text-carissma-50 hover:bg-carissma-500"
@@ -54,7 +53,7 @@ function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifeli
         <span className="rounded-full bg-carissma-400 px-5 py-1.5 text-sm font-extrabold text-carissma-50">
           {participant.score}
         </span>
-        {isHost && (
+        {canAdjust && (
           <button
             onClick={() => onAdjustScore(participant.id, -50)}
             className="flex h-6 w-6 items-center justify-center rounded-full bg-carissma-400 text-carissma-50 hover:bg-carissma-500"
@@ -63,13 +62,16 @@ function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifeli
           </button>
         )}
       </div>
+    </div>
+  );
+}
 
+function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline }) {
+  return (
+    <div className="flex flex-col items-center">
       <p
-        className="mt-4 text-sm font-extrabold text-carissma-400"
-        style={{
-          textShadow:
-            '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff',
-        }}
+        className="text-sm font-extrabold text-carissma-400"
+        style={{ textShadow: '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff' }}
       >
         Help Options
       </p>
@@ -391,10 +393,10 @@ export default function LiveGamePage() {
 
   return (
     <div className="min-h-screen bg-carissma-50/50 px-4 py-6">
-      <div className="mx-auto max-w-[1400px] rounded-[2.5rem] border-2 border-carissma-200 bg-white p-4 shadow-lg sm:p-6">
+      <div className="mx-auto max-w-[1400px] rounded-[2.5rem] border-2 border-carissma-200 bg-carissma-50 p-4 shadow-lg sm:p-6">
         {/* Header */}
         <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-200 via-carissma-400 to-carissma-200 px-5 py-3">
-          <span className="w-24" />
+          <img src="/logo-mark.png" alt="Make Down" className="h-12 w-12 flex-none object-contain" />
           <h1 className="text-lg font-extrabold text-white sm:text-xl">
             {session.title || 'Live Game'}
           </h1>
@@ -404,7 +406,7 @@ export default function LiveGamePage() {
         </div>
 
         {/* Turn indicator + logo mark */}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between rounded-3xl bg-carissma-100 px-5 py-4">
           <span className="inline-flex items-center rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white">
             {currentTurnParticipant ? (
               <>It&rsquo;s&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>&rsquo;s turn to play.</>
@@ -426,111 +428,117 @@ export default function LiveGamePage() {
           </div>
         )}
 
-        {/* Main area: side panels + center content */}
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr_220px]">
-          <div className="flex justify-center lg:justify-start">
-            {session.participants?.[0] && (
-              <ParticipantPanel
+        {/* Games content */}
+        <div className="mt-6">
+          {session.currentQuestion ? (
+            <>
+              <div className="mb-4">
+                <div className="text-center">
+                  {currentCategory && (
+                    <p dir="rtl" className="text-sm font-bold text-carissma-500">
+                      {currentCategory.title_ar || currentCategory.title_en}
+                    </p>
+                  )}
+                  {timeLeft !== null && (
+                    <div className="mt-2">
+                      <p className="text-sm font-bold text-espresso-800">Remaining Time:</p>
+                      <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
+                        <RefreshIcon className="h-4 w-4" /> {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <p className="mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
+                  <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
+                </p>
+              </div>
+              <QuestionCard
+                question={session.currentQuestion}
+                awaitingScan={awaitingScan}
+                scanQrDataUrl={scanQrDataUrl}
+                scanUrl={scanUrl}
+                selected={selected}
+                onSelect={isMyTurn ? setSelected : () => {}}
+                hiddenOptions={hiddenOptions}
+              />
+              {isMyTurn && !awaitingScan && (
+                <button
+                  onClick={onSubmit}
+                  disabled={selected === null}
+                  className="mt-4 w-full rounded-full bg-carissma-500 py-3 text-sm font-bold text-white hover:bg-carissma-600 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <p
+                className="mb-4 text-center text-xl font-extrabold text-carissma-400"
+                style={{
+                  textShadow:
+                    '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff',
+                }}
+              >
+                Games
+              </p>
+              <GamesBoard board={session.board || []} onPick={onPick} canPick={isMyTurn && session.status === 'active'} />
+            </>
+          )}
+        </div>
+
+        {/* Help Options bar: both participants' score + lifelines, side by side */}
+        {session.participants?.length >= 2 && (
+          <div className="mt-6 flex flex-col items-center gap-6 rounded-3xl bg-carissma-100 px-3 py-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:px-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
+              <ScoreBlock
                 participant={session.participants[0]}
                 isMe={myParticipant?.id === session.participants[0].id}
-                isCurrentTurn={session.currentTurnParticipantId === session.participants[0].id}
-                isHost={isHost}
+                canAdjust={isHost}
+                onAdjustScore={onAdjustScore}
+              />
+              <HelpOptionsBlock
+                isMe={myParticipant?.id === session.participants[0].id}
                 usedLifelines={myParticipant?.id === session.participants[0].id ? usedLifelines : []}
                 canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                 onLifeline={onLifeline}
-                onAdjustScore={onAdjustScore}
               />
-            )}
-          </div>
+            </div>
 
-          <div>
-            {session.currentQuestion ? (
-              <>
-                <div className="mb-4">
-                  <div className="text-center">
-                    {currentCategory && (
-                      <p dir="rtl" className="text-sm font-bold text-carissma-500">
-                        {currentCategory.title_ar || currentCategory.title_en}
-                      </p>
-                    )}
-                    {timeLeft !== null && (
-                      <div className="mt-2">
-                        <p className="text-sm font-bold text-espresso-800">Remaining Time:</p>
-                        <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
-                          <RefreshIcon className="h-4 w-4" /> {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <p className="mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
-                    <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
-                  </p>
-                </div>
-                <QuestionCard
-                  question={session.currentQuestion}
-                  awaitingScan={awaitingScan}
-                  scanQrDataUrl={scanQrDataUrl}
-                  scanUrl={scanUrl}
-                  selected={selected}
-                  onSelect={isMyTurn ? setSelected : () => {}}
-                  hiddenOptions={hiddenOptions}
-                />
-                {isMyTurn && !awaitingScan && (
-                  <button
-                    onClick={onSubmit}
-                    disabled={selected === null}
-                    className="mt-4 w-full rounded-full bg-carissma-500 py-3 text-sm font-bold text-white hover:bg-carissma-600 disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                )}
-              </>
-            ) : (
-              <>
-                <p
-                  className="mb-4 text-center text-xl font-extrabold text-carissma-400"
-                  style={{
-                    textShadow:
-                      '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff',
-                  }}
-                >
-                  Games
-                </p>
-                <GamesBoard board={session.board || []} onPick={onPick} canPick={isMyTurn && session.status === 'active'} />
-              </>
-            )}
-          </div>
-
-          <div className="flex justify-center lg:justify-end">
-            {session.participants?.[1] && (
-              <ParticipantPanel
-                participant={session.participants[1]}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
+              <HelpOptionsBlock
                 isMe={myParticipant?.id === session.participants[1].id}
-                isCurrentTurn={session.currentTurnParticipantId === session.participants[1].id}
-                isHost={isHost}
                 usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
                 canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                 onLifeline={onLifeline}
+              />
+              <ScoreBlock
+                participant={session.participants[1]}
+                isMe={myParticipant?.id === session.participants[1].id}
+                canAdjust={isHost}
                 onAdjustScore={onAdjustScore}
               />
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {session.participants?.length > 2 && (
-          <div className="mt-4 flex flex-wrap justify-center gap-3">
+          <div className="mt-4 flex flex-wrap justify-center gap-4">
             {session.participants.slice(2).map((p) => (
-              <ParticipantPanel
-                key={p.id}
-                participant={p}
-                isMe={myParticipant?.id === p.id}
-                isCurrentTurn={session.currentTurnParticipantId === p.id}
-                isHost={isHost}
-                usedLifelines={myParticipant?.id === p.id ? usedLifelines : []}
-                canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
-                onLifeline={onLifeline}
-                onAdjustScore={onAdjustScore}
-              />
+              <div key={p.id} className="flex flex-wrap items-center justify-center gap-4 rounded-3xl bg-carissma-100 px-4 py-5 sm:flex-nowrap sm:gap-8 sm:px-6">
+                <ScoreBlock
+                  participant={p}
+                  isMe={myParticipant?.id === p.id}
+                  canAdjust={isHost}
+                  onAdjustScore={onAdjustScore}
+                />
+                <HelpOptionsBlock
+                  isMe={myParticipant?.id === p.id}
+                  usedLifelines={myParticipant?.id === p.id ? usedLifelines : []}
+                  canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                  onLifeline={onLifeline}
+                />
+              </div>
             ))}
           </div>
         )}
