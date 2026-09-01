@@ -98,6 +98,24 @@ function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline }) {
   );
 }
 
+function ScorePill({ participant }) {
+  return (
+    <div className="flex h-12 items-center gap-1.5 rounded-full bg-carissma-400 px-6">
+      <span className="text-base font-medium text-carissma-50">{participant.full_name}:</span>
+      <span className="text-2xl font-semibold text-carissma-50">{participant.score}</span>
+    </div>
+  );
+}
+
+function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline }) {
+  return (
+    <div className="flex w-44 flex-none flex-col items-center gap-4 rounded-[2rem] bg-carissma-100 px-6 py-8">
+      <ScorePill participant={participant} />
+      <HelpOptionsBlock isMe={isMe} usedLifelines={usedLifelines} canAct={canAct} onLifeline={onLifeline} />
+    </div>
+  );
+}
+
 function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions }) {
   const options = useMemo(() => parseOptions(question.options_json_en), [question]);
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -158,14 +176,12 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
               <button
                 key={i}
                 onClick={() => onSelect(i)}
-                className={`flex items-center gap-3 rounded-full border-2 px-4 py-3 text-start transition ${
-                  isSelected ? 'border-carissma-500 bg-white' : 'border-transparent bg-white/80 hover:border-carissma-200'
-                }`}
+                className="flex items-center gap-2.5 rounded-full bg-carissma-50 px-4 py-2 text-start transition hover:bg-white"
               >
-                <span className={`flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 ${isSelected ? 'border-carissma-500' : 'border-carissma-200'}`}>
-                  {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-carissma-500" />}
+                <span className={`flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 ${isSelected ? 'border-carissma-500' : 'border-carissma-300'}`}>
+                  {isSelected && <span className="h-3 w-3 rounded-full bg-carissma-500" />}
                 </span>
-                <span className="text-sm font-bold text-carissma-700">{letters[i]}. {opt}</span>
+                <span className="text-sm font-medium capitalize text-carissma-400">{letters[i]}. {opt}</span>
               </button>
             );
           })}
@@ -393,14 +409,14 @@ export default function LiveGamePage() {
 
   return (
     <div className="min-h-screen bg-carissma-50/50 px-4 py-6">
-      <div className="mx-auto max-w-[1400px] rounded-[2.5rem] border-2 border-carissma-200 bg-carissma-50 p-4 shadow-lg sm:p-6">
+      <div className="mx-auto max-w-[1400px] rounded-[1.5rem] border-[6px] border-carissma-400 bg-carissma-50 p-4 shadow-lg sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-200 via-carissma-400 to-carissma-200 px-5 py-3">
+        <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-50 via-carissma-400 to-carissma-300 px-5 py-3">
           <img src="/logo-mark.png" alt="Make Down" className="h-12 w-12 flex-none object-contain" />
           <h1 className="text-lg font-extrabold text-white sm:text-xl">
             {session.title || 'Live Game'}
           </h1>
-          <button onClick={onLeave} className="rounded-full bg-carissma-100 px-5 py-2 text-xs font-extrabold text-carissma-400 hover:bg-carissma-200">
+          <button onClick={onLeave} className="rounded-xl bg-carissma-100 px-5 py-2 text-xs font-extrabold text-carissma-400 hover:bg-carissma-200">
             Leave Game
           </button>
         </div>
@@ -428,49 +444,68 @@ export default function LiveGamePage() {
           </div>
         )}
 
-        {/* Games content */}
+        {/* Games content: a question in progress uses left/right participant
+            sidebars flanking the question card; the board-select screen uses
+            a single-column board with a full-width Help Options bar below. */}
         <div className="mt-6">
           {session.currentQuestion ? (
-            <>
-              <div className="mb-4">
-                <div className="text-center">
-                  {currentCategory && (
-                    <p dir="rtl" className="text-sm font-bold text-carissma-500">
-                      {currentCategory.title_ar || currentCategory.title_en}
-                    </p>
-                  )}
-                  {timeLeft !== null && (
-                    <div className="mt-2">
-                      <p className="text-sm font-bold text-espresso-800">Remaining Time:</p>
-                      <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
-                        <RefreshIcon className="h-4 w-4" /> {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <p className="mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
-                  <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
-                </p>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[176px_1fr_176px] lg:items-start">
+              <div className="flex justify-center lg:justify-start">
+                {session.participants?.[0] && (
+                  <QuestionSidebar
+                    participant={session.participants[0]}
+                    isMe={myParticipant?.id === session.participants[0].id}
+                    usedLifelines={myParticipant?.id === session.participants[0].id ? usedLifelines : []}
+                    canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                    onLifeline={onLifeline}
+                  />
+                )}
               </div>
-              <QuestionCard
-                question={session.currentQuestion}
-                awaitingScan={awaitingScan}
-                scanQrDataUrl={scanQrDataUrl}
-                scanUrl={scanUrl}
-                selected={selected}
-                onSelect={isMyTurn ? setSelected : () => {}}
-                hiddenOptions={hiddenOptions}
-              />
-              {isMyTurn && !awaitingScan && (
-                <button
-                  onClick={onSubmit}
-                  disabled={selected === null}
-                  className="mt-4 w-full rounded-full bg-carissma-500 py-3 text-sm font-bold text-white hover:bg-carissma-600 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              )}
-            </>
+
+              <div>
+                <div className="mb-4">
+                  <div className="text-center">
+                    {currentCategory && (
+                      <p dir="rtl" className="text-sm font-bold text-carissma-500">
+                        {currentCategory.title_ar || currentCategory.title_en}
+                      </p>
+                    )}
+                    {timeLeft !== null && (
+                      <div className="mt-2">
+                        <p className="text-sm font-bold text-espresso-800">Remaining Time:</p>
+                        <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
+                          <RefreshIcon className="h-4 w-4" /> {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
+                    <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
+                  </p>
+                </div>
+                <QuestionCard
+                  question={session.currentQuestion}
+                  awaitingScan={awaitingScan}
+                  scanQrDataUrl={scanQrDataUrl}
+                  scanUrl={scanUrl}
+                  selected={selected}
+                  onSelect={isMyTurn ? setSelected : () => {}}
+                  hiddenOptions={hiddenOptions}
+                />
+              </div>
+
+              <div className="flex justify-center lg:justify-end">
+                {session.participants?.[1] && (
+                  <QuestionSidebar
+                    participant={session.participants[1]}
+                    isMe={myParticipant?.id === session.participants[1].id}
+                    usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
+                    canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                    onLifeline={onLifeline}
+                  />
+                )}
+              </div>
+            </div>
           ) : (
             <>
               <p
@@ -487,10 +522,21 @@ export default function LiveGamePage() {
           )}
         </div>
 
-        {/* Help Options bar: both participants' score + lifelines, side by side.
-            Renders with just one participant too (e.g. before a second player
-            joins) — the second cluster only appears once participants[1] exists. */}
-        {session.participants?.length >= 1 && (
+        {session.currentQuestion && isMyTurn && !awaitingScan && (
+          <button
+            onClick={onSubmit}
+            disabled={selected === null}
+            className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
+          >
+            Next
+          </button>
+        )}
+
+        {/* Help Options bar: board-select screen only (the question screen uses
+            the left/right sidebars above instead). Renders with just one
+            participant too — the second cluster only appears once
+            participants[1] exists. */}
+        {!session.currentQuestion && session.participants?.length >= 1 && (
           <div className="mt-6 flex flex-col items-center gap-6 rounded-3xl bg-carissma-100 px-3 py-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:px-6">
             <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
               <ScoreBlock
@@ -526,7 +572,7 @@ export default function LiveGamePage() {
           </div>
         )}
 
-        {session.participants?.length > 2 && (
+        {!session.currentQuestion && session.participants?.length > 2 && (
           <div className="mt-4 flex flex-wrap justify-center gap-4">
             {session.participants.slice(2).map((p) => (
               <div key={p.id} className="flex flex-wrap items-center justify-center gap-4 rounded-3xl bg-carissma-100 px-4 py-5 sm:flex-nowrap sm:gap-8 sm:px-6">
