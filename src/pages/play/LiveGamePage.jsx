@@ -196,8 +196,8 @@ function GamesBoard({ board, onPick, canPick }) {
           </button>
         );
         return (
-          <div key={column.id} className="relative pt-4">
-            <div className="absolute start-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white px-5 py-1.5 shadow-sm">
+          <div key={column.id} className="relative pt-8">
+            <div className="absolute start-1/2 top-0 z-20 flex h-8 -translate-x-1/2 items-center rounded-t-2xl bg-white px-5">
               <span dir="rtl" className="whitespace-nowrap text-xs font-extrabold text-carissma-400">
                 {column.title_ar || column.title_en}
               </span>
@@ -487,8 +487,10 @@ export default function LiveGamePage() {
           )}
         </div>
 
-        {/* Help Options bar: both participants' score + lifelines, side by side */}
-        {session.participants?.length >= 2 && (
+        {/* Help Options bar: both participants' score + lifelines, side by side.
+            Renders with just one participant too (e.g. before a second player
+            joins) — the second cluster only appears once participants[1] exists. */}
+        {session.participants?.length >= 1 && (
           <div className="mt-6 flex flex-col items-center gap-6 rounded-3xl bg-carissma-100 px-3 py-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:px-6">
             <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
               <ScoreBlock
@@ -505,20 +507,22 @@ export default function LiveGamePage() {
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
-              <HelpOptionsBlock
-                isMe={myParticipant?.id === session.participants[1].id}
-                usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
-                canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
-                onLifeline={onLifeline}
-              />
-              <ScoreBlock
-                participant={session.participants[1]}
-                isMe={myParticipant?.id === session.participants[1].id}
-                canAdjust={isHost}
-                onAdjustScore={onAdjustScore}
-              />
-            </div>
+            {session.participants[1] && (
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
+                <HelpOptionsBlock
+                  isMe={myParticipant?.id === session.participants[1].id}
+                  usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
+                  canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                  onLifeline={onLifeline}
+                />
+                <ScoreBlock
+                  participant={session.participants[1]}
+                  isMe={myParticipant?.id === session.participants[1].id}
+                  canAdjust={isHost}
+                  onAdjustScore={onAdjustScore}
+                />
+              </div>
+            )}
           </div>
         )}
 
