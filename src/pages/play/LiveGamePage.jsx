@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import StickerHeading from '../../components/ui/StickerHeading';
 import {
   RefreshIcon, PauseIcon, LiveCallIcon, LiveTapIcon, LiveShuffleIcon,
   UserIcon, PlusIcon, MinusIcon, SpeakerIcon, LiveChatIcon,
@@ -46,10 +45,10 @@ function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifeli
       <div className="mt-2 flex items-center gap-2">
         {isHost && (
           <button
-            onClick={() => onAdjustScore(participant.id, -50)}
+            onClick={() => onAdjustScore(participant.id, 50)}
             className="flex h-6 w-6 items-center justify-center rounded-full bg-carissma-400 text-carissma-50 hover:bg-carissma-500"
           >
-            <MinusIcon className="h-3 w-3" />
+            <PlusIcon className="h-3 w-3" />
           </button>
         )}
         <span className="rounded-full bg-carissma-400 px-5 py-1.5 text-sm font-extrabold text-carissma-50">
@@ -57,10 +56,10 @@ function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifeli
         </span>
         {isHost && (
           <button
-            onClick={() => onAdjustScore(participant.id, 50)}
+            onClick={() => onAdjustScore(participant.id, -50)}
             className="flex h-6 w-6 items-center justify-center rounded-full bg-carissma-400 text-carissma-50 hover:bg-carissma-500"
           >
-            <PlusIcon className="h-3 w-3" />
+            <MinusIcon className="h-3 w-3" />
           </button>
         )}
       </div>
@@ -188,25 +187,27 @@ function GamesBoard({ board, onPick, canPick }) {
             disabled={q.used || !canPick}
             onClick={() => onPick(q.id)}
             className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition ${
-              q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-400 text-carissma-50 hover:bg-carissma-500 disabled:opacity-50'
+              q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-200 text-carissma-400 hover:bg-carissma-300 disabled:opacity-50'
             }`}
           >
             {q.points}
           </button>
         );
         return (
-          <div key={column.id} className="relative pt-7">
-            <div className="absolute start-1/2 top-0 z-20 -translate-x-1/2 rounded-full bg-white px-5 py-1.5 shadow-sm">
+          <div key={column.id} className="relative pt-4">
+            <div className="absolute start-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white px-5 py-1.5 shadow-sm">
               <span dir="rtl" className="whitespace-nowrap text-xs font-extrabold text-carissma-400">
                 {column.title_ar || column.title_en}
               </span>
             </div>
-            <div className="flex items-center justify-center">
-              <div className="z-0 -me-3 flex flex-col gap-2">{left.map(pointButton)}</div>
-              <div className="relative z-10 aspect-[204/218] w-32 flex-none overflow-hidden rounded-[1.25rem] border-[3px] border-carissma-50 bg-[#CBE0F3] shadow-sm sm:w-36">
-                <img src={gameTileDefault} alt="" className="h-full w-full object-cover" />
+            <div className="rounded-[1.75rem] bg-carissma-100 pb-4 pt-6">
+              <div className="flex items-center justify-center">
+                <div className="z-0 -me-3 flex flex-col gap-2">{left.map(pointButton)}</div>
+                <div className="relative z-10 aspect-[204/218] w-32 flex-none overflow-hidden rounded-[1.25rem] bg-[#CBE0F3] shadow-sm sm:w-36">
+                  <img src={gameTileDefault} alt="" className="h-full w-full object-cover" />
+                </div>
+                <div className="z-0 -ms-3 flex flex-col gap-2">{right.map(pointButton)}</div>
               </div>
-              <div className="z-0 -ms-3 flex flex-col gap-2">{right.map(pointButton)}</div>
             </div>
           </div>
         );
@@ -486,9 +487,15 @@ export default function LiveGamePage() {
               </>
             ) : (
               <>
-                <StickerHeading as="h2" className="mb-4 text-center text-xl">
+                <p
+                  className="mb-4 text-center text-xl font-extrabold text-carissma-400"
+                  style={{
+                    textShadow:
+                      '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff',
+                  }}
+                >
                   Games
-                </StickerHeading>
+                </p>
                 <GamesBoard board={session.board || []} onPick={onPick} canPick={isMyTurn && session.status === 'active'} />
               </>
             )}
