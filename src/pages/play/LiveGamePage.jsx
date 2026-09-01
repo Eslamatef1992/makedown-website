@@ -100,16 +100,16 @@ function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline }) {
 
 function ScorePill({ participant }) {
   return (
-    <div className="flex h-12 items-center gap-1.5 rounded-full bg-carissma-400 px-6">
-      <span className="text-base font-medium text-carissma-50">{participant.full_name}:</span>
-      <span className="text-2xl font-semibold text-carissma-50">{participant.score}</span>
+    <div className="flex h-12 w-full max-w-full items-center gap-1.5 rounded-full bg-carissma-400 px-4">
+      <span className="min-w-0 flex-1 truncate text-base font-medium text-carissma-50">{participant.full_name}:</span>
+      <span className="flex-none text-2xl font-semibold text-carissma-50">{participant.score}</span>
     </div>
   );
 }
 
 function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline }) {
   return (
-    <div className="flex w-44 flex-none flex-col items-center gap-4 rounded-[2rem] bg-carissma-100 px-6 py-8">
+    <div className="flex w-[177px] flex-none flex-col items-center gap-4 rounded-[2rem] bg-carissma-100 px-6 py-8 lg:h-[418px]">
       <ScorePill participant={participant} />
       <HelpOptionsBlock isMe={isMe} usedLifelines={usedLifelines} canAct={canAct} onLifeline={onLifeline} />
     </div>
@@ -427,7 +427,7 @@ export default function LiveGamePage() {
 
         {/* Turn indicator + logo mark */}
         <div className="mt-4 flex items-center justify-between rounded-3xl bg-carissma-100 px-5 py-4">
-          <span className="inline-flex items-center rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white">
+          <span className="inline-flex min-w-0 max-w-[60%] items-center truncate rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white sm:max-w-[70%]">
             {currentTurnParticipant ? (
               <>It&rsquo;s&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>&rsquo;s Turn To Play.</>
             ) : 'Waiting for the next turn…'}
