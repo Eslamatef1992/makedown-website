@@ -146,16 +146,19 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] bg-carissma-50/60 p-6 sm:p-8">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(115deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 36px, transparent 36px, transparent 80px)',
-        }}
-      />
-      <div className="relative">
-        <p className="text-center text-lg font-extrabold text-espresso-900">{question.question_text_en}</p>
+    <div className="relative pt-9 sm:pt-10">
+      <div className="absolute start-1/2 top-0 z-10 flex h-9 max-w-[88%] -translate-x-1/2 items-center justify-center rounded-t-2xl bg-carissma-100 px-8 sm:h-10 sm:px-14">
+        <p className="truncate text-center text-base font-extrabold text-espresso-900 sm:text-lg">{question.question_text_en}</p>
+      </div>
+      <div className="relative overflow-hidden rounded-[2rem] bg-carissma-100 p-6 pt-5 sm:p-8 sm:pt-6">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(115deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 36px, transparent 36px, transparent 80px)',
+          }}
+        />
+        <div className="relative">
 
         {question.question_type === 'image' && question.media_url && (
           <img src={question.media_url} alt="" className="mx-auto mt-4 max-h-56 w-full rounded-2xl object-cover" />
@@ -185,6 +188,7 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
               </button>
             );
           })}
+        </div>
         </div>
       </div>
     </div>
@@ -425,7 +429,7 @@ export default function LiveGamePage() {
         <div className="mt-4 flex items-center justify-between rounded-3xl bg-carissma-100 px-5 py-4">
           <span className="inline-flex items-center rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white">
             {currentTurnParticipant ? (
-              <>It&rsquo;s&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>&rsquo;s turn to play.</>
+              <>It&rsquo;s&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>&rsquo;s Turn To Play.</>
             ) : 'Waiting for the next turn…'}
           </span>
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
@@ -463,7 +467,7 @@ export default function LiveGamePage() {
               </div>
 
               <div>
-                <div className="mb-4">
+                <div>
                   <div className="text-center">
                     {currentCategory && (
                       <p dir="rtl" className="text-sm font-bold text-carissma-500">
@@ -479,7 +483,7 @@ export default function LiveGamePage() {
                       </div>
                     )}
                   </div>
-                  <p className="mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
+                  <p className="relative z-10 mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
                     <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
                   </p>
                 </div>
