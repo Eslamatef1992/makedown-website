@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import StickerHeading from '../../components/ui/StickerHeading';
 import {
-  RefreshIcon, PauseIcon, PhoneIcon, HandTapIcon, ShuffleIcon,
-  UserIcon, LeaveIcon, PlusIcon, MinusIcon, SpeakerIcon, ChatBubbleIcon,
+  RefreshIcon, PauseIcon, LiveCallIcon, LiveTapIcon, LiveShuffleIcon,
+  UserIcon, PlusIcon, MinusIcon, SpeakerIcon, LiveChatIcon,
 } from '../../components/ui/icons';
 import {
   getGame, pickTile, submitAnswer, leaveGame,
@@ -11,6 +11,7 @@ import {
 } from '../../api/play.api';
 import { joinGameRoom, onGameEvent } from '../../lib/gameSocket';
 import { useAuth } from '../../context/AuthContext';
+import gameTileDefault from '../../assets/game-tile-default.jpg';
 
 // The play API's question/options payload ultimately comes from MySQL's
 // JSON-typed options_json_en/options_json_ar columns, which the backend
@@ -29,46 +30,63 @@ const parseOptions = (value) => {
 };
 
 const LIFELINES = [
-  { key: 'phone_a_friend', icon: PhoneIcon, label: 'Phone a friend' },
-  { key: 'fifty_fifty', icon: HandTapIcon, label: '50 / 50' },
-  { key: 'skip', icon: ShuffleIcon, label: 'Skip' },
+  { key: 'phone_a_friend', icon: LiveCallIcon, label: 'Phone a friend' },
+  { key: 'fifty_fifty', icon: LiveTapIcon, label: '50 / 50' },
+  { key: 'skip', icon: LiveShuffleIcon, label: 'Skip' },
 ];
 
 function ParticipantPanel({ participant, isMe, isCurrentTurn, isHost, usedLifelines, canAct, onLifeline, onAdjustScore }) {
   return (
-    <div className={`flex w-full max-w-[220px] flex-col items-center rounded-3xl p-5 ${isCurrentTurn ? 'bg-carissma-100' : 'bg-carissma-50'}`}>
-      <span className="flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-2 text-sm font-bold text-white">
-        {isHost && (
-          <button onClick={() => onAdjustScore(participant.id, -50)} className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 hover:bg-white/40">
-            <MinusIcon className="h-2.5 w-2.5" />
-          </button>
-        )}
+    <div className={`flex w-full max-w-[220px] flex-col items-center rounded-3xl p-4 transition ${isCurrentTurn ? 'bg-carissma-50' : ''}`}>
+      <p className="text-sm font-extrabold text-espresso-900">
         {participant.full_name}
-        {isMe && ' (you)'}: {participant.score}
+        {isMe && ' (you)'}
+      </p>
+
+      <div className="mt-2 flex items-center gap-2">
         {isHost && (
-          <button onClick={() => onAdjustScore(participant.id, 50)} className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 hover:bg-white/40">
-            <PlusIcon className="h-2.5 w-2.5" />
+          <button
+            onClick={() => onAdjustScore(participant.id, -50)}
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-carissma-400 text-carissma-50 hover:bg-carissma-500"
+          >
+            <MinusIcon className="h-3 w-3" />
           </button>
         )}
-      </span>
+        <span className="rounded-full bg-carissma-400 px-5 py-1.5 text-sm font-extrabold text-carissma-50">
+          {participant.score}
+        </span>
+        {isHost && (
+          <button
+            onClick={() => onAdjustScore(participant.id, 50)}
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-carissma-400 text-carissma-50 hover:bg-carissma-500"
+          >
+            <PlusIcon className="h-3 w-3" />
+          </button>
+        )}
+      </div>
 
-      <span className="mt-4 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-carissma-500 shadow-sm">Help Options</span>
+      <p
+        className="mt-4 text-sm font-extrabold text-carissma-400"
+        style={{
+          textShadow:
+            '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff',
+        }}
+      >
+        Help Options
+      </p>
 
-      <div className="mt-3 flex flex-col items-center gap-3">
+      <div className="mt-3 flex items-center gap-3">
         {LIFELINES.map(({ key, icon: Icon }) => {
           const used = usedLifelines.includes(key);
           const active = isMe && canAct && !used;
-          const isPhone = key === 'phone_a_friend';
           return (
             <button
               key={key}
               disabled={!active}
               onClick={() => onLifeline(key)}
-              className={`flex h-12 w-12 items-center justify-center rounded-full transition ${
-                isPhone
-                  ? 'bg-carissma-500 text-white ring-4 ring-carissma-200 hover:bg-carissma-600'
-                  : 'bg-white text-carissma-400 hover:bg-carissma-100'
-              } ${active ? '' : 'opacity-40'}`}
+              className={`flex h-12 w-12 items-center justify-center rounded-full bg-carissma-400/[0.14] text-carissma-400 transition ${
+                active ? 'border-4 border-carissma-500 hover:bg-carissma-400/20' : 'border border-carissma-50'
+              } ${used ? 'opacity-40' : ''}`}
             >
               <Icon className="h-5 w-5" />
             </button>
@@ -158,7 +176,7 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
 
 function GamesBoard({ board, onPick, canPick }) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3">
       {board.map((column) => {
         const sorted = [...column.questions].sort((a, b) => a.points - b.points);
         const mid = Math.ceil(sorted.length / 2);
@@ -169,22 +187,26 @@ function GamesBoard({ board, onPick, canPick }) {
             key={q.id}
             disabled={q.used || !canPick}
             onClick={() => onPick(q.id)}
-            className={`rounded-full px-4 py-1.5 text-xs font-extrabold transition ${
-              q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-500 text-white hover:bg-carissma-600 disabled:opacity-50'
+            className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition ${
+              q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-400 text-carissma-50 hover:bg-carissma-500 disabled:opacity-50'
             }`}
           >
             {q.points}
           </button>
         );
         return (
-          <div key={column.id} className="rounded-3xl bg-carissma-50 p-4 text-center">
-            <span dir="rtl" className="mb-3 inline-block rounded-full bg-carissma-100 px-3 py-1 text-xs font-bold text-carissma-600">
-              {column.title_ar || column.title_en}
-            </span>
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex flex-col gap-2">{left.map(pointButton)}</div>
-              <div className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-sky-100 text-2xl">🎨</div>
-              <div className="flex flex-col gap-2">{right.map(pointButton)}</div>
+          <div key={column.id} className="relative pt-7">
+            <div className="absolute start-1/2 top-0 z-20 -translate-x-1/2 rounded-full bg-white px-5 py-1.5 shadow-sm">
+              <span dir="rtl" className="whitespace-nowrap text-xs font-extrabold text-carissma-400">
+                {column.title_ar || column.title_en}
+              </span>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="z-0 -me-3 flex flex-col gap-2">{left.map(pointButton)}</div>
+              <div className="relative z-10 aspect-[204/218] w-32 flex-none overflow-hidden rounded-[1.25rem] border-[3px] border-carissma-50 bg-[#CBE0F3] shadow-sm sm:w-36">
+                <img src={gameTileDefault} alt="" className="h-full w-full object-cover" />
+              </div>
+              <div className="z-0 -ms-3 flex flex-col gap-2">{right.map(pointButton)}</div>
             </div>
           </div>
         );
@@ -372,18 +394,20 @@ export default function LiveGamePage() {
         {/* Header */}
         <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-200 via-carissma-400 to-carissma-200 px-5 py-3">
           <span className="w-24" />
-          <StickerHeading as="h1" className="text-lg text-white sm:text-xl">
+          <h1 className="text-lg font-extrabold text-white sm:text-xl">
             {session.title || 'Live Game'}
-          </StickerHeading>
-          <button onClick={onLeave} className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-bold text-carissma-600 hover:bg-carissma-50">
-            <LeaveIcon className="h-4 w-4" /> Leave Game
+          </h1>
+          <button onClick={onLeave} className="rounded-full bg-carissma-100 px-5 py-2 text-xs font-extrabold text-carissma-400 hover:bg-carissma-200">
+            Leave Game
           </button>
         </div>
 
         {/* Turn indicator + logo mark */}
         <div className="mt-4 flex items-center justify-between">
-          <span className="rounded-full bg-carissma-500 px-5 py-2 text-sm font-bold text-white">
-            {currentTurnParticipant ? `It's ${currentTurnParticipant.full_name}'s turn to play.` : 'Waiting for the next turn…'}
+          <span className="inline-flex items-center rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white">
+            {currentTurnParticipant ? (
+              <>It&rsquo;s&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>&rsquo;s turn to play.</>
+            ) : 'Waiting for the next turn…'}
           </span>
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
           <span className="w-24" />
@@ -549,8 +573,8 @@ export default function LiveGamePage() {
         </div>
       )}
 
-      <button className="fixed bottom-6 end-6 flex h-14 w-14 items-center justify-center rounded-full bg-carissma-500 text-white shadow-lg hover:bg-carissma-600">
-        <ChatBubbleIcon className="h-6 w-6" />
+      <button className="fixed bottom-6 end-6 flex h-14 w-14 items-center justify-center rounded-full bg-white text-carissma-400 shadow-lg hover:bg-carissma-50">
+        <LiveChatIcon className="h-7 w-7" />
       </button>
     </div>
   );
