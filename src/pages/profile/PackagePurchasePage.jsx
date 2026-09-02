@@ -29,7 +29,7 @@ export default function PackagePurchasePage() {
   // for packages in the admin's Cash On Delivery settings — it's off by
   // default, unlike the shop checkout's physical products.
   const PAYMENT_METHODS = [
-    { value: 'knet', label: 'KNET', icon: knetIcon },
+    { value: 'knet', label: t('shop.checkout.knet'), icon: knetIcon },
     { value: 'credit_card', label: t('packagePurchase.creditCard'), icon: cardsIcon },
     ...(codEnabled ? [{ value: 'cash', label: t('packagePurchase.cash'), icon: cashIcon }] : []),
   ];

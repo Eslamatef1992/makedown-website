@@ -362,5 +362,199 @@
       "missingReference": "حدث خطأ أثناء بدء عملية الدفع. يُرجى المحاولة مرة أخرى.",
       "orderNotFound": "تعذّر العثور على هذا الطلب. يُرجى المحاولة مرة أخرى."
     }
+  },
+  "profile": {
+    "avatarAlt": "صورة الملف الشخصي",
+    "stats": {
+      "following": "متابَعون",
+      "followers": "متابِعون"
+    },
+    "chats": "المحادثات",
+    "shareProfile": "مشاركة الملف الشخصي",
+    "linkCopied": "تم نسخ الرابط!",
+    "tabs": {
+      "packages": "الباقات",
+      "following": "متابعتي",
+      "followers": "متابعيّ",
+      "orders": "طلباتي",
+      "history": "سجل الألعاب"
+    },
+    "currentPackage": {
+      "title": "الباقة الحالية",
+      "gamesLeft_zero": "تبقّت {{count}} لعبة",
+      "gamesLeft_one": "تبقّت لعبة واحدة",
+      "gamesLeft_two": "تبقّت لعبتان",
+      "gamesLeft_few": "تبقّت {{count}} ألعاب",
+      "gamesLeft_many": "تبقّت {{count}} لعبة",
+      "gamesLeft_other": "تبقّت {{count}} لعبة",
+      "keepPlaying": "استمر باللعب واستمتع بباقي باقتك.",
+      "upgradePackage": "ترقية الباقة",
+      "continuePlaying": "متابعة اللعب",
+      "renew": "تجديد"
+    },
+    "noActivePackage": {
+      "title": "ليس لديك باقة نشطة حاليًا.",
+      "subtitle": "احصل على باقة لتبدأ اللعب.",
+      "browsePackages": "تصفح الباقات"
+    },
+    "packagesTab": {
+      "chooseSuits": "اختر الباقة التي تناسبك",
+      "loading": "جارٍ تحميل الباقات…",
+      "loadError": "تعذّر تحميل الباقات الآن.",
+      "empty": "لا توجد باقات متاحة بعد.",
+      "buyAgain": "اشترِ مرة أخرى",
+      "buyNow": "اشترِ الآن",
+      "purchaseHistory": "سجل المشتريات",
+      "purchased": "تم الشراء في {{date}}",
+      "left": "متبقٍ {{count}}",
+      "status": {
+        "active": "نشطة",
+        "expired": "منتهية",
+        "used": "مستخدَمة"
+      }
+    },
+    "follow": {
+      "titleFollowing": "متابعتي",
+      "titleFollowers": "متابعيّ",
+      "loading": "جارٍ التحميل…",
+      "loadError": "تعذّر تحميل هذه القائمة الآن.",
+      "emptyFollowing": "أنت لا تتابع أحدًا بعد.",
+      "emptyFollowers": "لا يوجد متابعون بعد.",
+      "unfollow": "إلغاء المتابعة",
+      "remove": "إزالة",
+      "follow": "متابعة",
+      "message": "مراسلة"
+    },
+    "orders": {
+      "loading": "جارٍ تحميل الطلبات…",
+      "loadError": "تعذّر تحميل طلباتك الآن.",
+      "empty": "لم تقم بأي طلب بعد.",
+      "orderIdLabel": "رقم الطلب:",
+      "view": "عرض"
+    },
+    "orderItem": {
+      "color": "اللون:",
+      "width": "العرض: {{value}} سم",
+      "height": "الارتفاع: {{value}} سم",
+      "qty": "الكمية:",
+      "noItems": "لا توجد عناصر في هذا الطلب."
+    },
+    "orderStatus": {
+      "pending": "قيد الانتظار",
+      "processing": "قيد التجهيز",
+      "shipped": "في الطريق",
+      "paid": "مدفوع",
+      "delivered": "تم التوصيل",
+      "cancelled": "ملغى",
+      "refunded": "مسترد"
+    },
+    "orderDetails": {
+      "closeAriaLabel": "إغلاق تفاصيل الطلب",
+      "title": "تفاصيل الطلب",
+      "orderId": "رقم الطلب",
+      "fullName": "الاسم الكامل:",
+      "paymentMethod": "طريقة الدفع:",
+      "phoneNumber": "رقم الهاتف:",
+      "date": "التاريخ:",
+      "address": "العنوان:",
+      "orderStatus": "حالة الطلب:",
+      "myOrder": "طلبي",
+      "guest": "ضيف"
+    },
+    "gameHistory": {
+      "title": "سجل الألعاب",
+      "loading": "جارٍ تحميل سجل الألعاب…",
+      "loadError": "تعذّر تحميل سجل ألعابك الآن.",
+      "empty": "لم تلعب أي لعبة بعد.",
+      "mode": {
+        "solo": "فردي",
+        "team": "فرق",
+        "random": "عشوائي"
+      },
+      "onlineGame": "لعبة أونلاين",
+      "win": "فوز!",
+      "numberOfPoints": "عدد النقاط",
+      "gameName": "اسم اللعبة",
+      "games": "الألعاب",
+      "helpOptions": "خيارات المساعدة"
+    },
+    "editProfile": {
+      "title": "تعديل الملف الشخصي",
+      "subTabs": {
+        "info": "تعديل المعلومات",
+        "address": "تعديل العنوان",
+        "password": "تغيير كلمة المرور"
+      },
+      "info": {
+        "uploading": "جارٍ الرفع…",
+        "changePhoto": "تغيير الصورة",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "phone": "رقم الهاتف",
+        "phonePlaceholder": "+965 ...",
+        "bio": "نبذة",
+        "bioPlaceholder": "أخبر الآخرين قليلاً عن نفسك",
+        "uploadError": "تعذّر رفع هذه الصورة. يُرجى تجربة صورة PNG/JPG/WEBP أصغر حجمًا.",
+        "saveError": "تعذّر حفظ التغييرات. يُرجى المحاولة مرة أخرى.",
+        "saved": "تم تحديث الملف الشخصي!",
+        "saveChanges": "حفظ التغييرات"
+      },
+      "address": {
+        "loading": "جارٍ تحميل العناوين…",
+        "loadError": "تعذّر تحميل عناوينك الآن.",
+        "defaultTag": "(افتراضي)",
+        "addressFallback": "عنوان",
+        "addNew": "+ إضافة عنوان جديد",
+        "label": "التسمية",
+        "labelPlaceholder": "المنزل، العمل…",
+        "fullName": "الاسم الكامل",
+        "phone": "رقم الهاتف",
+        "governorate": "المحافظة",
+        "area": "المنطقة",
+        "block": "القطعة",
+        "street": "الشارع",
+        "building": "المبنى",
+        "setDefault": "تعيين كعنوان افتراضي",
+        "saveError": "تعذّر حفظ هذا العنوان. يُرجى مراجعة الحقول المطلوبة.",
+        "saveAddress": "حفظ العنوان",
+        "addAddress": "إضافة عنوان"
+      },
+      "password": {
+        "current": "كلمة المرور الحالية",
+        "newPassword": "كلمة المرور الجديدة",
+        "confirm": "تأكيد كلمة المرور الجديدة",
+        "tooShort": "يجب أن تتكون كلمة المرور الجديدة من 8 أحرف على الأقل.",
+        "mismatch": "كلمتا المرور الجديدتان غير متطابقتين.",
+        "genericError": "تعذّر تغيير كلمة المرور.",
+        "update": "تحديث كلمة المرور",
+        "saved": "تم تغيير كلمة المرور!"
+      }
+    },
+    "userProfile": {
+      "notFound": "الملف الشخصي غير موجود",
+      "backHome": "العودة إلى الرئيسية",
+      "followingCount": "{{count}} متابَع",
+      "followersCount": "{{count}} متابِع"
+    },
+    "paymentResult": {
+      "success": "تم الدفع بنجاح!",
+      "failed": "فشلت عملية الدفع!",
+      "cashNote": "كل شيء جاهز — ألعابك متاحة الآن. يُرجى تسديد المبلغ نقدًا.",
+      "cashNoteWithPackage": "كل شيء جاهز مع {{package}} — ألعابك متاحة الآن. يُرجى تسديد المبلغ نقدًا.",
+      "successBody": "تمت عملية الدفع بنجاح وباقتك الآن نشطة.",
+      "goToProfile": "الذهاب إلى ملفي الشخصي",
+      "backToProfile": "العودة إلى الملف الشخصي",
+      "changePaymentMethod": "تغيير طريقة الدفع"
+    },
+    "chat": {
+      "loadError": "تعذّر تحميل محادثاتك.",
+      "empty": "لا توجد محادثات بعد — ابدأ واحدة من صفحة أحد متابعيك.",
+      "selectConversation": "اختر محادثة",
+      "conversationFallback": "محادثة",
+      "unknownUser": "غير معروف",
+      "sayHello": "قل مرحبًا!",
+      "loadingMessages": "جارٍ تحميل الرسائل…",
+      "typeMessage": "اكتب رسالة…"
+    }
   }
 }

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChatBubbleIcon } from '../../../components/ui/icons';
 import { followUser, listUserFollowers, listUserFollowing, removeFollower, startChatThread, unfollowUser } from '../../../api/me.api';
 
 function FollowRow({ person, isFollowingTab, onUnfollow, onRemove, onFollowBack, onOpen, onChat }) {
+  const { t } = useTranslation();
   const initials = (person.fullName?.[0] || '?').toUpperCase();
   return (
     <div className="flex items-center gap-3 px-4 py-3.5">
@@ -24,7 +26,7 @@ function FollowRow({ person, isFollowingTab, onUnfollow, onRemove, onFollowBack,
           onClick={() => onUnfollow(person.id)}
           className="shrink-0 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-carissma-500 shadow-sm hover:bg-carissma-50"
         >
-          Unfollow
+          {t('profile.follow.unfollow')}
         </button>
       ) : person.isFollowedByMe ? (
         <>
@@ -32,11 +34,11 @@ function FollowRow({ person, isFollowingTab, onUnfollow, onRemove, onFollowBack,
             onClick={() => onRemove(person.id)}
             className="shrink-0 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-espresso-700 shadow-sm hover:bg-carissma-50"
           >
-            Remove
+            {t('profile.follow.remove')}
           </button>
           <button
             onClick={() => onChat(person.id)}
-            aria-label="Message"
+            aria-label={t('profile.follow.message')}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-carissma-100 text-carissma-500 hover:bg-carissma-200"
           >
             <ChatBubbleIcon className="h-4 w-4" />
@@ -47,7 +49,7 @@ function FollowRow({ person, isFollowingTab, onUnfollow, onRemove, onFollowBack,
           onClick={() => onFollowBack(person.id)}
           className="shrink-0 rounded-full bg-carissma-500 px-5 py-1.5 text-xs font-bold text-white hover:bg-carissma-600"
         >
-          Follow
+          {t('profile.follow.follow')}
         </button>
       )}
     </div>
@@ -55,6 +57,7 @@ function FollowRow({ person, isFollowingTab, onUnfollow, onRemove, onFollowBack,
 }
 
 export default function FollowListTab({ userId, type, onChanged }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [state, setState] = useState('loading');
@@ -115,17 +118,17 @@ export default function FollowListTab({ userId, type, onChanged }) {
     }
   };
 
-  const title = isFollowingTab ? 'My Following' : 'My Followers';
+  const title = isFollowingTab ? t('profile.follow.titleFollowing') : t('profile.follow.titleFollowers');
 
-  if (state === 'loading') return <p className="text-center text-sm font-semibold text-espresso-500">Loading…</p>;
-  if (state === 'error') return <p className="text-center text-sm font-semibold text-carnation-600">Couldn't load this list right now.</p>;
+  if (state === 'loading') return <p className="text-center text-sm font-semibold text-espresso-500">{t('profile.follow.loading')}</p>;
+  if (state === 'error') return <p className="text-center text-sm font-semibold text-carnation-600">{t('profile.follow.loadError')}</p>;
 
   return (
     <div>
       <p className="mb-3 text-base font-extrabold text-carissma-500">{title}</p>
       {rows.length === 0 ? (
         <p className="rounded-[2rem] border-4 border-carissma-200 bg-white/70 p-8 text-center text-sm font-semibold text-espresso-500">
-          {isFollowingTab ? "You're not following anyone yet." : 'No followers yet.'}
+          {isFollowingTab ? t('profile.follow.emptyFollowing') : t('profile.follow.emptyFollowers')}
         </p>
       ) : (
         <div className="divide-y divide-carissma-100 overflow-hidden rounded-[2rem] border-4 border-carissma-300 bg-carissma-50/60">

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +9,7 @@ import { connectSocket, getSocket } from '../../lib/socket';
 import { ChevronLeftIcon, SendIcon } from '../../components/ui/icons';
 
 function ThreadRow({ thread, active, onClick }) {
+  const { t } = useTranslation();
   const initials = (thread.other_user_name?.[0] || '?').toUpperCase();
   return (
     <button
@@ -22,8 +24,8 @@ function ThreadRow({ thread, active, onClick }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-espresso-900">{thread.other_user_name || 'Unknown'}</p>
-        <p className="truncate text-xs font-medium text-espresso-500">{thread.last_message || 'Say hello!'}</p>
+        <p className="truncate text-sm font-bold text-espresso-900">{thread.other_user_name || t('profile.chat.unknownUser')}</p>
+        <p className="truncate text-xs font-medium text-espresso-500">{thread.last_message || t('profile.chat.sayHello')}</p>
       </div>
       {thread.unread_count > 0 && (
         <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-carissma-400 px-1.5 text-[10px] font-bold text-white">
@@ -35,6 +37,7 @@ function ThreadRow({ thread, active, onClick }) {
 }
 
 export default function ChatPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeThreadId = searchParams.get('thread') ? Number(searchParams.get('thread')) : null;
@@ -121,18 +124,18 @@ export default function ChatPage() {
             <ChevronLeftIcon />
           </Link>
           <StickerHeading as="h1" className="text-2xl">
-            Chats
+            {t('profile.chats')}
           </StickerHeading>
         </div>
 
         <div className="mt-6 grid grid-cols-1 overflow-hidden rounded-3xl border-2 border-carissma-200 bg-white/80 sm:grid-cols-[280px_1fr] sm:h-[560px]">
           <div className={`border-carissma-100 sm:border-e sm:block ${activeThreadId ? 'hidden' : 'block'}`}>
             <div className="h-full space-y-1 overflow-y-auto p-3">
-              {threadsState === 'loading' && <p className="p-3 text-center text-xs font-semibold text-espresso-500">Loading…</p>}
-              {threadsState === 'error' && <p className="p-3 text-center text-xs font-semibold text-carnation-600">Couldn't load your chats.</p>}
+              {threadsState === 'loading' && <p className="p-3 text-center text-xs font-semibold text-espresso-500">{t('common.loading')}</p>}
+              {threadsState === 'error' && <p className="p-3 text-center text-xs font-semibold text-carnation-600">{t('profile.chat.loadError')}</p>}
               {threadsState === 'ready' && threads.length === 0 && (
                 <p className="p-3 text-center text-xs font-semibold text-espresso-500">
-                  No conversations yet — start one from a follower's profile.
+                  {t('profile.chat.empty')}
                 </p>
               )}
               {threads.map((t) => (
@@ -142,7 +145,7 @@ export default function ChatPage() {
           </div>
 
           <div className={`flex flex-col ${activeThreadId ? 'flex' : 'hidden sm:flex'}`}>
-            {!activeThreadId && <div className="flex flex-1 items-center justify-center text-sm font-semibold text-espresso-400">Select a conversation</div>}
+            {!activeThreadId && <div className="flex flex-1 items-center justify-center text-sm font-semibold text-espresso-400">{t('profile.chat.selectConversation')}</div>}
 
             {activeThreadId && (
               <>
@@ -150,11 +153,11 @@ export default function ChatPage() {
                   <button onClick={() => setSearchParams({})} className="text-espresso-500 hover:text-carissma-500 sm:hidden">
                     <ChevronLeftIcon />
                   </button>
-                  <p className="text-sm font-bold text-espresso-900">{activeThread?.other_user_name || 'Conversation'}</p>
+                  <p className="text-sm font-bold text-espresso-900">{activeThread?.other_user_name || t('profile.chat.conversationFallback')}</p>
                 </div>
 
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
-                  {messagesLoading && <p className="text-center text-xs font-semibold text-espresso-500">Loading messages…</p>}
+                  {messagesLoading && <p className="text-center text-xs font-semibold text-espresso-500">{t('profile.chat.loadingMessages')}</p>}
                   {!messagesLoading &&
                     messages.map((m) => {
                       const mine = m.sender_id === user?.id;
@@ -177,7 +180,7 @@ export default function ChatPage() {
                   <input
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
-                    placeholder="Type a message…"
+                    placeholder={t('profile.chat.typeMessage')}
                     className="flex-1 rounded-full border border-carissma-200 bg-white px-4 py-2.5 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
                   />
                   <button

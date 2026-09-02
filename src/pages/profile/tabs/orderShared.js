@@ -1,17 +1,22 @@
 // Shared between MyOrdersTab.jsx (the order list) and OrderDetailsDrawer.jsx
 // (the "View" slide-over) so both read the same order shape the same way.
 
+// labelKey resolves through i18next ("profile.orderStatus.<status>" /
+// "shop.checkout.<method>") — this module has no hook access, so the
+// consuming components call t(meta.labelKey) themselves.
 export const STATUS_META = {
-  pending: { label: 'Pending', dot: 'bg-espresso-300', pill: 'bg-linen-100 text-espresso-500' },
-  processing: { label: 'Preparing', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-600' },
-  shipped: { label: 'On The Way', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-600' },
-  paid: { label: 'Paid', dot: 'bg-green-500', pill: 'bg-green-50 text-green-600' },
-  delivered: { label: 'Delivered', dot: 'bg-green-500', pill: 'bg-green-50 text-green-600' },
-  cancelled: { label: 'Canceled', dot: 'bg-carnation-500', pill: 'bg-carnation-50 text-carnation-600' },
-  refunded: { label: 'Refunded', dot: 'bg-carnation-500', pill: 'bg-carnation-50 text-carnation-600' },
+  pending: { labelKey: 'profile.orderStatus.pending', dot: 'bg-espresso-300', pill: 'bg-linen-100 text-espresso-500' },
+  processing: { labelKey: 'profile.orderStatus.processing', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-600' },
+  shipped: { labelKey: 'profile.orderStatus.shipped', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-600' },
+  paid: { labelKey: 'profile.orderStatus.paid', dot: 'bg-green-500', pill: 'bg-green-50 text-green-600' },
+  delivered: { labelKey: 'profile.orderStatus.delivered', dot: 'bg-green-500', pill: 'bg-green-50 text-green-600' },
+  cancelled: { labelKey: 'profile.orderStatus.cancelled', dot: 'bg-carnation-500', pill: 'bg-carnation-50 text-carnation-600' },
+  refunded: { labelKey: 'profile.orderStatus.refunded', dot: 'bg-carnation-500', pill: 'bg-carnation-50 text-carnation-600' },
 };
 
-export const PAYMENT_METHOD_LABELS = { knet: 'KNET', credit_card: 'Credit Card', cash: 'Cash On Delivery' };
+// Reuses the Shop checkout's payment-method translations (KNET / Credit Card
+// / Cash On Delivery already exist there and read identically here).
+export const PAYMENT_METHOD_KEYS = { knet: 'shop.checkout.knet', credit_card: 'shop.checkout.creditCard', cash: 'shop.checkout.cashOnDelivery' };
 
 // Same multi-directional white text-shadow used by StickerHeading.jsx and
 // PackageCard.jsx — kept as a plain style object here (rather than reusing

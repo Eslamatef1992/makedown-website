@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +9,7 @@ import { ChatBubbleIcon } from '../../components/ui/icons';
 import FollowListTab from './tabs/FollowListTab';
 
 export default function UserProfilePage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -59,7 +61,7 @@ export default function UserProfilePage() {
     return (
       <SiteLayout>
         <div className="mx-auto max-w-lg px-6 py-24 text-center sm:px-8">
-          <p className="text-sm font-semibold text-espresso-500">Loading…</p>
+          <p className="text-sm font-semibold text-espresso-500">{t('common.loading')}</p>
         </div>
       </SiteLayout>
     );
@@ -70,10 +72,10 @@ export default function UserProfilePage() {
       <SiteLayout>
         <div className="mx-auto max-w-lg px-6 py-24 text-center sm:px-8">
           <StickerHeading as="h1" className="text-xl">
-            Profile Not Found
+            {t('profile.userProfile.notFound')}
           </StickerHeading>
           <Link to="/" className="mt-6 inline-block font-bold text-carissma-600 hover:underline">
-            Back Home
+            {t('profile.userProfile.backHome')}
           </Link>
         </div>
       </SiteLayout>
@@ -108,13 +110,13 @@ export default function UserProfilePage() {
               onClick={() => setSubTab('following')}
               className={`rounded-full px-4 py-2 text-xs font-bold ${subTab === 'following' ? 'bg-carissma-400 text-white' : 'bg-white/80 text-espresso-700 hover:bg-carissma-50'}`}
             >
-              {profile.followingCount} Following
+              {t('profile.userProfile.followingCount', { count: profile.followingCount })}
             </button>
             <button
               onClick={() => setSubTab('followers')}
               className={`rounded-full px-4 py-2 text-xs font-bold ${subTab === 'followers' ? 'bg-carissma-400 text-white' : 'bg-white/80 text-espresso-700 hover:bg-carissma-50'}`}
             >
-              {profile.followersCount} Followers
+              {t('profile.userProfile.followersCount', { count: profile.followersCount })}
             </button>
             <button
               onClick={toggleFollow}
@@ -123,11 +125,11 @@ export default function UserProfilePage() {
                 profile.isFollowedByMe ? 'border-2 border-carissma-300 text-carissma-500 hover:bg-carissma-50' : 'bg-carissma-400 text-white hover:bg-carissma-500'
               }`}
             >
-              {profile.isFollowedByMe ? 'Unfollow' : 'Follow'}
+              {profile.isFollowedByMe ? t('profile.follow.unfollow') : t('profile.follow.follow')}
             </button>
             {isAuthenticated && (
               <button onClick={handleMessage} className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-espresso-700 hover:bg-carissma-50">
-                <ChatBubbleIcon className="h-4 w-4" /> Message
+                <ChatBubbleIcon className="h-4 w-4" /> {t('profile.follow.message')}
               </button>
             )}
           </div>

@@ -354,5 +354,195 @@
       "missingReference": "Something went wrong starting the payment. Please try again.",
       "orderNotFound": "We couldn't find this order. Please try again."
     }
+  },
+  "profile": {
+    "avatarAlt": "Profile photo",
+    "stats": {
+      "following": "Following",
+      "followers": "Followers"
+    },
+    "chats": "Chats",
+    "shareProfile": "Share Profile",
+    "linkCopied": "Link Copied!",
+    "tabs": {
+      "packages": "Packages",
+      "following": "My Following",
+      "followers": "My Followers",
+      "orders": "My Orders",
+      "history": "Game History"
+    },
+    "currentPackage": {
+      "title": "Current Package",
+      "gamesLeft_one": "Games Left {{count}} Game",
+      "gamesLeft_other": "Games Left {{count}} Games",
+      "keepPlaying": "Keep Playing And Enjoy The Rest Of Your Package.",
+      "upgradePackage": "Upgrade Package",
+      "continuePlaying": "Continue Playing",
+      "renew": "Renew"
+    },
+    "noActivePackage": {
+      "title": "You don't have an active package yet.",
+      "subtitle": "Grab a package to start playing games.",
+      "browsePackages": "Browse Packages"
+    },
+    "packagesTab": {
+      "chooseSuits": "Choose The Package That Suits You",
+      "loading": "Loading packages…",
+      "loadError": "Couldn't load packages right now.",
+      "empty": "No packages available yet.",
+      "buyAgain": "Buy Again",
+      "buyNow": "Buy Now",
+      "purchaseHistory": "Purchase History",
+      "purchased": "Purchased {{date}}",
+      "left": "{{count}} left",
+      "status": {
+        "active": "Active",
+        "expired": "Expired",
+        "used": "Used"
+      }
+    },
+    "follow": {
+      "titleFollowing": "My Following",
+      "titleFollowers": "My Followers",
+      "loading": "Loading…",
+      "loadError": "Couldn't load this list right now.",
+      "emptyFollowing": "You're not following anyone yet.",
+      "emptyFollowers": "No followers yet.",
+      "unfollow": "Unfollow",
+      "remove": "Remove",
+      "follow": "Follow",
+      "message": "Message"
+    },
+    "orders": {
+      "loading": "Loading orders…",
+      "loadError": "Couldn't load your orders right now.",
+      "empty": "You haven't placed any orders yet.",
+      "orderIdLabel": "Order Id:",
+      "view": "View"
+    },
+    "orderItem": {
+      "color": "Color:",
+      "width": "W: {{value}} Cm",
+      "height": "H: {{value}} Cm",
+      "qty": "Qty:",
+      "noItems": "No items on this order."
+    },
+    "orderStatus": {
+      "pending": "Pending",
+      "processing": "Preparing",
+      "shipped": "On The Way",
+      "paid": "Paid",
+      "delivered": "Delivered",
+      "cancelled": "Canceled",
+      "refunded": "Refunded"
+    },
+    "orderDetails": {
+      "closeAriaLabel": "Close order details",
+      "title": "Order Details",
+      "orderId": "Order Id",
+      "fullName": "Full Name:",
+      "paymentMethod": "Payment Method:",
+      "phoneNumber": "Phone Number:",
+      "date": "Date:",
+      "address": "Address:",
+      "orderStatus": "Order Status:",
+      "myOrder": "My Order",
+      "guest": "Guest"
+    },
+    "gameHistory": {
+      "title": "Game History",
+      "loading": "Loading game history…",
+      "loadError": "Couldn't load your game history right now.",
+      "empty": "You haven't played any games yet.",
+      "mode": {
+        "solo": "Solo",
+        "team": "Team",
+        "random": "Random"
+      },
+      "onlineGame": "Online Game",
+      "win": "WIN!",
+      "numberOfPoints": "Number Of Point",
+      "gameName": "Game Name",
+      "games": "Games",
+      "helpOptions": "Help Options"
+    },
+    "editProfile": {
+      "title": "Edit Profile",
+      "subTabs": {
+        "info": "Change Info",
+        "address": "Change Address",
+        "password": "Change Password"
+      },
+      "info": {
+        "uploading": "Uploading…",
+        "changePhoto": "Change Photo",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "phone": "Phone",
+        "phonePlaceholder": "+965 ...",
+        "bio": "Bio",
+        "bioPlaceholder": "Tell people a bit about yourself",
+        "uploadError": "Could not upload that image. Please try a smaller PNG/JPG/WEBP.",
+        "saveError": "Could not save your changes. Please try again.",
+        "saved": "Profile updated!",
+        "saveChanges": "Save Changes"
+      },
+      "address": {
+        "loading": "Loading addresses…",
+        "loadError": "Couldn't load your addresses right now.",
+        "defaultTag": "(Default)",
+        "addressFallback": "Address",
+        "addNew": "+ Add New Address",
+        "label": "Label",
+        "labelPlaceholder": "Home, Work…",
+        "fullName": "Full Name",
+        "phone": "Phone",
+        "governorate": "Governorate",
+        "area": "Area",
+        "block": "Block",
+        "street": "Street",
+        "building": "Building",
+        "setDefault": "Set as default address",
+        "saveError": "Could not save this address. Please check the required fields.",
+        "saveAddress": "Save Address",
+        "addAddress": "Add Address"
+      },
+      "password": {
+        "current": "Current Password",
+        "newPassword": "New Password",
+        "confirm": "Confirm New Password",
+        "tooShort": "New password must be at least 8 characters.",
+        "mismatch": "New passwords don't match.",
+        "genericError": "Could not change your password.",
+        "update": "Update Password",
+        "saved": "Password changed!"
+      }
+    },
+    "userProfile": {
+      "notFound": "Profile Not Found",
+      "backHome": "Back Home",
+      "followingCount": "{{count}} Following",
+      "followersCount": "{{count}} Followers"
+    },
+    "paymentResult": {
+      "success": "Payment Successful!",
+      "failed": "Payment Failed!",
+      "cashNote": "You're all set — your games are ready. Please settle the payment in cash.",
+      "cashNoteWithPackage": "You're all set with {{package}} — your games are ready. Please settle the payment in cash.",
+      "successBody": "Your payment went through and your package is now active.",
+      "goToProfile": "Go To My Profile",
+      "backToProfile": "Back To Profile",
+      "changePaymentMethod": "Change Payment Method"
+    },
+    "chat": {
+      "loadError": "Couldn't load your chats.",
+      "empty": "No conversations yet — start one from a follower's profile.",
+      "selectConversation": "Select a conversation",
+      "conversationFallback": "Conversation",
+      "unknownUser": "Unknown",
+      "sayHello": "Say hello!",
+      "loadingMessages": "Loading messages…",
+      "typeMessage": "Type a message…"
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import TextField from '../../components/ui/TextField';
@@ -17,12 +18,13 @@ import {
 import { MapPinIcon, LockIcon, PencilIcon, TrashIcon } from '../../components/ui/icons';
 
 const SUB_TABS = [
-  { key: 'info', label: 'Change Info', icon: PencilIcon },
-  { key: 'address', label: 'Change Address', icon: MapPinIcon },
-  { key: 'password', label: 'Change Password', icon: LockIcon },
+  { key: 'info', labelKey: 'profile.editProfile.subTabs.info', icon: PencilIcon },
+  { key: 'address', labelKey: 'profile.editProfile.subTabs.address', icon: MapPinIcon },
+  { key: 'password', labelKey: 'profile.editProfile.subTabs.password', icon: LockIcon },
 ];
 
 function InfoPanel() {
+  const { t } = useTranslation();
   const { user, refreshUser } = useAuth();
   const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', bio: '' });
   const [saving, setSaving] = useState(false);
@@ -47,7 +49,7 @@ function InfoPanel() {
       await uploadMyAvatar(file);
       await refreshUser();
     } catch {
-      setError('Could not upload that image. Please try a smaller PNG/JPG/WEBP.');
+      setError(t('profile.editProfile.info.uploadError'));
     } finally {
       setUploading(false);
     }
@@ -61,9 +63,9 @@ function InfoPanel() {
     try {
       await updateMyProfile(form);
       await refreshUser();
-      setMessage('Profile updated!');
+      setMessage(t('profile.editProfile.info.saved'));
     } catch {
-      setError('Could not save your changes. Please try again.');
+      setError(t('profile.editProfile.info.saveError'));
     } finally {
       setSaving(false);
     }
@@ -82,23 +84,23 @@ function InfoPanel() {
           )}
         </div>
         <label className="cursor-pointer rounded-full border-2 border-carissma-400 px-5 py-2 text-sm font-bold text-carissma-500 hover:bg-carissma-50">
-          {uploading ? 'Uploading…' : 'Change Photo'}
+          {uploading ? t('profile.editProfile.info.uploading') : t('profile.editProfile.info.changePhoto')}
           <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={onAvatarChange} className="hidden" disabled={uploading} />
         </label>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <TextField label="First Name" value={form.firstName} onChange={update('firstName')} />
-        <TextField label="Last Name" value={form.lastName} onChange={update('lastName')} />
+        <TextField label={t('profile.editProfile.info.firstName')} value={form.firstName} onChange={update('firstName')} />
+        <TextField label={t('profile.editProfile.info.lastName')} value={form.lastName} onChange={update('lastName')} />
       </div>
-      <TextField label="Phone" value={form.phone} onChange={update('phone')} placeholder="+965 ..." />
+      <TextField label={t('profile.editProfile.info.phone')} value={form.phone} onChange={update('phone')} placeholder={t('profile.editProfile.info.phonePlaceholder')} />
       <label className="block">
-        <span className="mb-2 block text-sm font-bold text-espresso-900">Bio</span>
+        <span className="mb-2 block text-sm font-bold text-espresso-900">{t('profile.editProfile.info.bio')}</span>
         <textarea
           rows={3}
           value={form.bio}
           onChange={update('bio')}
-          placeholder="Tell people a bit about yourself"
+          placeholder={t('profile.editProfile.info.bioPlaceholder')}
           className="w-full rounded-2xl border border-carissma-200 bg-white px-4 py-3 text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
         />
       </label>
@@ -107,16 +109,28 @@ function InfoPanel() {
       {error && <p className="text-sm font-semibold text-carnation-600">{error}</p>}
 
       <Button type="submit" loading={saving}>
-        Save Changes
+        {t('profile.editProfile.info.saveChanges')}
       </Button>
     </form>
   );
 }
 
 const GOVERNORATES = ['Al Asimah', 'Hawalli', 'Farwaniya', 'Mubarak Al-Kabeer', 'Ahmadi', 'Jahra'];
+// Same Arabic governorate names CheckoutPage.jsx uses for the Kuwait address
+// form — the stored/submitted value stays this English name unchanged,
+// only the displayed <option> label switches with the site language.
+const GOVERNORATE_LABELS_AR = {
+  'Al Asimah': 'العاصمة',
+  Hawalli: 'حولي',
+  Farwaniya: 'الفروانية',
+  'Mubarak Al-Kabeer': 'مبارك الكبير',
+  Ahmadi: 'الأحمدي',
+  Jahra: 'الجهراء',
+};
 const EMPTY_ADDRESS = { label: '', fullName: '', phone: '', city: GOVERNORATES[0], area: '', block: '', street: '', building: '', isDefault: false };
 
 function AddressPanel() {
+  const { t, i18n } = useTranslation();
   const [addresses, setAddresses] = useState([]);
   const [state, setState] = useState('loading');
   const [editingId, setEditingId] = useState(null);
@@ -174,7 +188,7 @@ function AddressPanel() {
       setShowForm(false);
       load();
     } catch {
-      setError('Could not save this address. Please check the required fields.');
+      setError(t('profile.editProfile.address.saveError'));
     } finally {
       setSaving(false);
     }
@@ -191,15 +205,15 @@ function AddressPanel() {
 
   return (
     <div className="space-y-4">
-      {state === 'loading' && <p className="text-sm font-semibold text-espresso-500">Loading addresses…</p>}
-      {state === 'error' && <p className="text-sm font-semibold text-carnation-600">Couldn't load your addresses right now.</p>}
+      {state === 'loading' && <p className="text-sm font-semibold text-espresso-500">{t('profile.editProfile.address.loading')}</p>}
+      {state === 'error' && <p className="text-sm font-semibold text-carnation-600">{t('profile.editProfile.address.loadError')}</p>}
 
       {state === 'ready' &&
         addresses.map((address) => (
           <div key={address.id} className="flex items-start justify-between gap-3 rounded-2xl border border-carissma-100 bg-white/70 p-4">
             <div>
               <p className="text-sm font-bold text-espresso-900">
-                {address.label || 'Address'} {address.is_default ? <span className="ms-1 text-xs font-bold text-carissma-500">(Default)</span> : null}
+                {address.label || t('profile.editProfile.address.addressFallback')} {address.is_default ? <span className="ms-1 text-xs font-bold text-carissma-500">{t('profile.editProfile.address.defaultTag')}</span> : null}
               </p>
               <p className="mt-1 text-sm text-espresso-600">
                 {[address.building, address.street, address.block, address.area, address.city].filter(Boolean).join(', ')}
@@ -221,46 +235,46 @@ function AddressPanel() {
 
       {!showForm && (
         <button onClick={startNew} className="w-full rounded-2xl border-2 border-dashed border-carissma-300 py-4 text-sm font-bold text-carissma-500 hover:bg-carissma-50">
-          + Add New Address
+          {t('profile.editProfile.address.addNew')}
         </button>
       )}
 
       {showForm && (
         <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-carissma-200 bg-white p-6">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <TextField label="Label" value={form.label} onChange={update('label')} placeholder="Home, Work…" />
-            <TextField label="Full Name" required value={form.fullName} onChange={update('fullName')} />
-            <TextField label="Phone" required value={form.phone} onChange={update('phone')} />
+            <TextField label={t('profile.editProfile.address.label')} value={form.label} onChange={update('label')} placeholder={t('profile.editProfile.address.labelPlaceholder')} />
+            <TextField label={t('profile.editProfile.address.fullName')} required value={form.fullName} onChange={update('fullName')} />
+            <TextField label={t('profile.editProfile.address.phone')} required value={form.phone} onChange={update('phone')} />
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-espresso-900">Governorate</span>
+              <span className="mb-2 block text-sm font-bold text-espresso-900">{t('profile.editProfile.address.governorate')}</span>
               <select
                 value={form.city}
                 onChange={update('city')}
                 className="w-full rounded-2xl border border-carissma-200 bg-white px-4 py-3 text-espresso-900 focus:outline-none focus:ring-2 focus:ring-carissma-400"
               >
                 {GOVERNORATES.map((g) => (
-                  <option key={g} value={g}>{g}</option>
+                  <option key={g} value={g}>{(i18n.language?.startsWith('ar') && GOVERNORATE_LABELS_AR[g]) || g}</option>
                 ))}
               </select>
             </label>
-            <TextField label="Area" value={form.area} onChange={update('area')} />
-            <TextField label="Block" value={form.block} onChange={update('block')} />
-            <TextField label="Street" value={form.street} onChange={update('street')} />
-            <TextField label="Building" value={form.building} onChange={update('building')} />
+            <TextField label={t('profile.editProfile.address.area')} value={form.area} onChange={update('area')} />
+            <TextField label={t('profile.editProfile.address.block')} value={form.block} onChange={update('block')} />
+            <TextField label={t('profile.editProfile.address.street')} value={form.street} onChange={update('street')} />
+            <TextField label={t('profile.editProfile.address.building')} value={form.building} onChange={update('building')} />
           </div>
           <label className="flex items-center gap-2 text-sm font-semibold text-espresso-700">
             <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))} className="h-4 w-4 accent-carissma-500" />
-            Set as default address
+            {t('profile.editProfile.address.setDefault')}
           </label>
 
           {error && <p className="text-sm font-semibold text-carnation-600">{error}</p>}
 
           <div className="flex gap-3">
             <Button type="submit" loading={saving}>
-              {editingId ? 'Save Address' : 'Add Address'}
+              {editingId ? t('profile.editProfile.address.saveAddress') : t('profile.editProfile.address.addAddress')}
             </Button>
             <button type="button" onClick={() => setShowForm(false)} className="shrink-0 rounded-full border-2 border-carissma-200 px-6 py-3.5 font-bold text-espresso-600 hover:bg-linen-50">
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -270,6 +284,7 @@ function AddressPanel() {
 }
 
 function PasswordPanel() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -281,15 +296,15 @@ function PasswordPanel() {
     e.preventDefault();
     setMessage('');
     setError('');
-    if (form.newPassword.length < 8) return setError('New password must be at least 8 characters.');
-    if (form.newPassword !== form.confirmPassword) return setError("New passwords don't match.");
+    if (form.newPassword.length < 8) return setError(t('profile.editProfile.password.tooShort'));
+    if (form.newPassword !== form.confirmPassword) return setError(t('profile.editProfile.password.mismatch'));
     setSaving(true);
     try {
       await changeMyPassword({ currentPassword: form.currentPassword, newPassword: form.newPassword });
-      setMessage('Password changed!');
+      setMessage(t('profile.editProfile.password.saved'));
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
-      setError(err?.response?.data?.message || 'Could not change your password.');
+      setError(err?.response?.data?.message || t('profile.editProfile.password.genericError'));
     } finally {
       setSaving(false);
     }
@@ -297,46 +312,47 @@ function PasswordPanel() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-5 rounded-3xl border border-carissma-100 bg-white/70 p-6 sm:p-8">
-      <TextField label="Current Password" type="password" required value={form.currentPassword} onChange={update('currentPassword')} />
-      <TextField label="New Password" type="password" required value={form.newPassword} onChange={update('newPassword')} />
-      <TextField label="Confirm New Password" type="password" required value={form.confirmPassword} onChange={update('confirmPassword')} />
+      <TextField label={t('profile.editProfile.password.current')} type="password" required value={form.currentPassword} onChange={update('currentPassword')} />
+      <TextField label={t('profile.editProfile.password.newPassword')} type="password" required value={form.newPassword} onChange={update('newPassword')} />
+      <TextField label={t('profile.editProfile.password.confirm')} type="password" required value={form.confirmPassword} onChange={update('confirmPassword')} />
 
       {message && <p className="text-sm font-semibold text-green-600">{message}</p>}
       {error && <p className="text-sm font-semibold text-carnation-600">{error}</p>}
 
       <Button type="submit" loading={saving}>
-        Update Password
+        {t('profile.editProfile.password.update')}
       </Button>
     </form>
   );
 }
 
 export default function EditProfilePage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = SUB_TABS.some((t) => t.key === searchParams.get('section')) ? searchParams.get('section') : 'info';
+  const activeTab = SUB_TABS.some((tab) => tab.key === searchParams.get('section')) ? searchParams.get('section') : 'info';
 
   return (
     <SiteLayout>
       <div className="mx-auto max-w-4xl px-6 py-10 sm:px-8">
         <div className="flex items-center justify-between">
           <StickerHeading as="h1" className="text-2xl">
-            Edit Profile
+            {t('profile.editProfile.title')}
           </StickerHeading>
           <Link to="/profile" className="text-sm font-bold text-carissma-600 hover:underline">
-            Back
+            {t('common.back')}
           </Link>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          {SUB_TABS.map((t) => (
+          {SUB_TABS.map((tab) => (
             <button
-              key={t.key}
-              onClick={() => setSearchParams({ section: t.key })}
+              key={tab.key}
+              onClick={() => setSearchParams({ section: tab.key })}
               className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition ${
-                activeTab === t.key ? 'bg-carissma-400 text-white' : 'bg-white/70 text-espresso-700 hover:bg-carissma-50'
+                activeTab === tab.key ? 'bg-carissma-400 text-white' : 'bg-white/70 text-espresso-700 hover:bg-carissma-50'
               }`}
             >
-              <t.icon className="h-4 w-4" /> {t.label}
+              <tab.icon className="h-4 w-4" /> {t(tab.labelKey)}
             </button>
           ))}
         </div>

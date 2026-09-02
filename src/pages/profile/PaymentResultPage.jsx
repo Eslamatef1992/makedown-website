@@ -1,16 +1,20 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { CheckIcon, CloseIcon } from '../../components/ui/icons';
 
-const FAILURE_MESSAGES = {
-  not_paid: 'Your payment was not completed — it may have been declined or cancelled.',
-  status_check_failed: "We couldn't confirm your payment due to a network error. If any amount was deducted, it will be refunded automatically.",
-  missing_reference: 'Something went wrong starting the payment. Please try again.',
-  order_not_found: "We couldn't find this order. Please try again.",
+// Reuses the shop's Order Result failure copy — the messages read identically
+// whether it's a shop order or a package purchase that failed to pay.
+const FAILURE_KEYS = {
+  not_paid: 'shop.orderResult.notPaid',
+  status_check_failed: 'shop.orderResult.statusCheckFailed',
+  missing_reference: 'shop.orderResult.missingReference',
+  order_not_found: 'shop.orderResult.orderNotFound',
 };
 
 export default function PaymentResultPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const status = searchParams.get('status');
@@ -33,27 +37,29 @@ export default function PaymentResultPage() {
         </div>
 
         <StickerHeading as="h1" className="mt-6 text-2xl">
-          {isSuccess ? 'Payment Successful!' : 'Payment Failed!'}
+          {isSuccess ? t('profile.paymentResult.success') : t('profile.paymentResult.failed')}
         </StickerHeading>
 
         <p className="mt-4 text-espresso-600">
           {isSuccess
             ? method === 'cash'
-              ? `You're all set${packageName ? ` with ${packageName}` : ''} — your games are ready. Please settle the payment in cash.`
-              : 'Your payment went through and your package is now active.'
-            : FAILURE_MESSAGES[reason] || 'Something went wrong with this payment. Please try again.'}
+              ? (packageName
+                  ? t('profile.paymentResult.cashNoteWithPackage', { package: packageName })
+                  : t('profile.paymentResult.cashNote'))
+              : t('profile.paymentResult.successBody')
+            : (FAILURE_KEYS[reason] ? t(FAILURE_KEYS[reason]) : t('shop.orderResult.genericFailure'))}
         </p>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link to="/profile" className="rounded-full bg-carissma-400 px-8 py-3 font-bold text-white hover:bg-carissma-500">
-            {isSuccess ? 'Go To My Profile' : 'Back To Profile'}
+            {isSuccess ? t('profile.paymentResult.goToProfile') : t('profile.paymentResult.backToProfile')}
           </Link>
           {!isSuccess && (
             <Link
               to="/profile?tab=packages"
               className="rounded-full border-2 border-carissma-400 px-8 py-3 font-bold text-carissma-500 hover:bg-carissma-50"
             >
-              Change Payment Method
+              {t('profile.paymentResult.changePaymentMethod')}
             </Link>
           )}
         </div>
