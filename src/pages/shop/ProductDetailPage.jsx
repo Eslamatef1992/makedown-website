@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { getProductBySlug, listProducts } from '../../api/content.api';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { MinusIcon, PlusIcon } from '../../components/ui/icons';
-import { activeProductPrice, isProductOutOfStock } from '../../utils/productDisplay';
+import { activeProductPrice, isProductOutOfStock, productName, productDescription } from '../../utils/productDisplay';
 
 function parseAttrs(variant) {
   if (!variant?.attributes_json) return {};
@@ -20,27 +21,30 @@ function titleCase(str) {
 
 function ProductCard({ product }) {
   const { formatPrice } = useCurrency();
+  const { t, i18n } = useTranslation();
   const { price, original } = activeProductPrice(product);
   const outOfStock = isProductOutOfStock(product);
+  const displayName = productName(product, i18n.language);
+  const displayDescription = productDescription(product, i18n.language);
   return (
     <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
       <Link to={`/products/${product.slug}`} className="relative block aspect-square w-full overflow-hidden bg-carissma-100">
         {product.thumbnail_url ? (
-          <img src={product.thumbnail_url} alt={product.name_en} className="h-full w-full object-cover" />
+          <img src={product.thumbnail_url} alt={displayName} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-carissma-300">No image</div>
+          <div className="flex h-full w-full items-center justify-center text-carissma-300">{t('common.noImage')}</div>
         )}
         {outOfStock && (
           <span className="absolute inset-x-0 top-0 bg-espresso-900/70 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-white">
-            Out Of Stock
+            {t('shop.products.outOfStock')}
           </span>
         )}
       </Link>
       <div className="p-3">
         <Link to={`/products/${product.slug}`} className="block text-sm font-bold text-carissma-500 hover:underline">
-          {product.name_en}
+          {displayName}
         </Link>
-        {product.description_en && <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{product.description_en}</p>}
+        {displayDescription && <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{displayDescription}</p>}
         <p className="mt-1 flex items-baseline gap-1.5 text-sm font-bold text-espresso-900">
           {formatPrice(price)}
           {original && <span className="text-xs font-semibold text-espresso-400 line-through">{formatPrice(original)}</span>}
@@ -51,7 +55,7 @@ function ProductCard({ product }) {
             outOfStock ? 'bg-carissma-100 text-carissma-300' : 'bg-carissma-400 text-white hover:bg-carissma-500'
           }`}
         >
-          {outOfStock ? 'Out Of Stock' : 'Add To Cart'}
+          {outOfStock ? t('shop.products.outOfStock') : t('shop.products.addToCart')}
         </Link>
       </div>
     </div>
@@ -79,6 +83,7 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
+  const { t, i18n } = useTranslation();
   const [product, setProduct] = useState(null);
   const [selection, setSelection] = useState({});
   const [quantity, setQuantity] = useState(1);
@@ -169,7 +174,7 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <SiteLayout>
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-24 text-center text-espresso-500">Loading…</div>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-24 text-center text-espresso-500">{t('shop.productDetail.loading')}</div>
       </SiteLayout>
     );
   }
@@ -178,9 +183,9 @@ export default function ProductDetailPage() {
     return (
       <SiteLayout>
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-24 text-center">
-          <h1 className="text-2xl font-semibold text-espresso-900">Product not found</h1>
+          <h1 className="text-2xl font-semibold text-espresso-900">{t('shop.productDetail.notFound')}</h1>
           <Link to="/products" className="mt-4 inline-block font-semibold text-carissma-600 hover:underline">
-            Back to shop
+            {t('shop.productDetail.backToShop')}
           </Link>
         </div>
       </SiteLayout>
@@ -207,6 +212,8 @@ export default function ProductDetailPage() {
   const stockAvailable = hasVariants ? selectedVariant?.stock_quantity : product.stock_quantity;
   const giftBoxPrice = product.has_gift_box ? Number(product.gift_box_price) || 0 : 0;
   const unitPrice = Number(displayPrice) + (giftBox ? giftBoxPrice : 0);
+  const displayName = productName(product, i18n.language);
+  const displayDescription = productDescription(product, i18n.language);
 
   const handleAddToCart = () => {
     if (outOfStock) return;
@@ -216,6 +223,10 @@ export default function ProductDetailPage() {
       productId: product.id,
       variantId: selectedVariant?.id ?? null,
       name: product.name_en,
+      // Kept alongside the English name so the cart/checkout can show the
+      // product in whichever language is active later, even if the site's
+      // language changes after the item was added.
+      nameAr: product.name_ar || null,
       image: gallery[0] || null,
       price: unitPrice,
       currency: product.currency,
@@ -233,18 +244,18 @@ export default function ProductDetailPage() {
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-16">
         <nav className="text-sm font-semibold text-espresso-500">
-          <Link to="/products" className="hover:text-carissma-500">Products</Link>
+          <Link to="/products" className="hover:text-carissma-500">{t('shop.productDetail.breadcrumbProducts')}</Link>
           <span className="mx-1.5">›</span>
-          <span className="text-carissma-500">Product Detail</span>
+          <span className="text-carissma-500">{t('shop.productDetail.breadcrumbDetail')}</span>
         </nav>
 
         <div className="mt-6 grid grid-cols-1 gap-10 md:grid-cols-2">
           <div>
             <div className="aspect-square overflow-hidden rounded-3xl bg-linen-100">
               {gallery[activeImage] ? (
-                <img src={gallery[activeImage]} alt={product.name_en} className="h-full w-full object-cover" />
+                <img src={gallery[activeImage]} alt={displayName} className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-espresso-300">No image</div>
+                <div className="flex h-full w-full items-center justify-center text-espresso-300">{t('common.noImage')}</div>
               )}
             </div>
             {gallery.length > 1 && (
@@ -267,7 +278,7 @@ export default function ProductDetailPage() {
 
           <div>
             <StickerHeading as="h1" className="text-2xl">
-              {product.name_en}
+              {displayName}
             </StickerHeading>
             <div className="mt-3 flex items-baseline gap-2">
               <p className="text-2xl font-extrabold text-espresso-900">
@@ -279,7 +290,7 @@ export default function ProductDetailPage() {
                 </p>
               )}
             </div>
-            {product.description_en && <p className="mt-4 whitespace-pre-line text-espresso-600">{product.description_en}</p>}
+            {displayDescription && <p className="mt-4 whitespace-pre-line text-espresso-600">{displayDescription}</p>}
 
             {optionGroups.map(([key, values]) => {
               const isColor = key.toLowerCase() === 'color';
@@ -332,20 +343,20 @@ export default function ProductDetailPage() {
                   onChange={(e) => setGiftBox(e.target.checked)}
                   className="h-4 w-4 rounded border-carissma-300 text-carissma-500 focus:ring-carissma-400"
                 />
-                Add A Gift Box (+{formatPrice(giftBoxPrice)})
+                {t('shop.productDetail.addGiftBox', { price: formatPrice(giftBoxPrice) })}
               </label>
             )}
 
-            {outOfStock && <p className="mt-4 text-sm font-bold text-carnation-600">Out of stock</p>}
+            {outOfStock && <p className="mt-4 text-sm font-bold text-carnation-600">{t('shop.productDetail.outOfStock')}</p>}
 
             <div className="mt-6 flex items-center gap-4">
-              <p className="text-sm font-bold text-espresso-800">Quantity</p>
+              <p className="text-sm font-bold text-espresso-800">{t('shop.productDetail.quantity')}</p>
               <div className="flex items-center gap-3 rounded-full border border-carissma-200 px-3 py-1.5">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
-                  aria-label="Decrease quantity"
+                  aria-label={t('shop.productDetail.decreaseQuantity')}
                 >
                   <MinusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -354,7 +365,7 @@ export default function ProductDetailPage() {
                   type="button"
                   onClick={() => setQuantity((q) => Math.min(stockAvailable || 999, q + 1))}
                   className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
-                  aria-label="Increase quantity"
+                  aria-label={t('shop.productDetail.increaseQuantity')}
                 >
                   <PlusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -366,26 +377,26 @@ export default function ProductDetailPage() {
               disabled={outOfStock}
               className="mt-8 w-full rounded-full bg-carissma-400 py-3.5 font-bold text-white transition hover:bg-carissma-500 disabled:cursor-not-allowed disabled:bg-carissma-200"
             >
-              {outOfStock ? 'Out of stock' : 'Add To Cart'}
+              {outOfStock ? t('shop.productDetail.outOfStock') : t('shop.productDetail.addToCart')}
             </button>
 
             {added && (
               <div className="mt-4 flex items-center justify-between rounded-2xl bg-carissma-50 px-4 py-3 text-sm font-semibold text-carissma-700">
-                <span>Added to your cart.</span>
+                <span>{t('shop.productDetail.addedToCart')}</span>
                 <button onClick={() => navigate('/cart')} className="font-bold text-carissma-600 hover:underline">
-                  View Cart
+                  {t('shop.productDetail.viewCart')}
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        <ProductRow title="Related Products" products={related} />
-        <ProductRow title="You Will Love This" products={recommended} />
+        <ProductRow title={t('shop.productDetail.relatedProducts')} products={related} />
+        <ProductRow title={t('shop.productDetail.recommended')} products={recommended} />
 
         <div className="mt-10 flex justify-center">
           <Link to="/products" className="rounded-full border-2 border-carissma-300 px-8 py-2.5 text-sm font-bold text-carissma-400 hover:bg-carissma-50">
-            Continue Shopping
+            {t('shop.productDetail.continueShopping')}
           </Link>
         </div>
       </div>

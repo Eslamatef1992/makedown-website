@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import { listProducts } from '../../api/content.api';
 import { useCurrency } from '../../context/CurrencyContext';
 import { SearchIcon, ChevronDownIcon } from '../../components/ui/icons';
 import StickerHeading from '../../components/ui/StickerHeading';
-import { activeProductPrice, isProductOutOfStock } from '../../utils/productDisplay';
+import { activeProductPrice, isProductOutOfStock, productName, productDescription } from '../../utils/productDisplay';
 
 const PAGE_SIZE = 60;
 const BATCH = 20;
 
 export default function ProductsPage() {
   const { formatPrice } = useCurrency();
+  const { t, i18n } = useTranslation();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,7 +30,7 @@ export default function ProductsPage() {
         if (!cancelled) setRows(data.rows || []);
       })
       .catch(() => {
-        if (!cancelled) setError('Could not load products right now.');
+        if (!cancelled) setError(t('shop.products.loadError'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -36,7 +38,7 @@ export default function ProductsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const filteredSorted = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -59,7 +61,7 @@ export default function ProductsPage() {
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <StickerHeading as="h1" className="text-2xl">
-            Products
+            {t('shop.products.title')}
           </StickerHeading>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -71,20 +73,20 @@ export default function ProductsPage() {
                   setSearch(e.target.value);
                   setVisible(BATCH);
                 }}
-                placeholder="Search Product"
+                placeholder={t('shop.products.searchPlaceholder')}
                 className="w-full rounded-full border border-carissma-200 bg-white py-2 ps-9 pe-4 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400 sm:w-56"
               />
             </div>
             <label className="flex items-center gap-2 text-sm font-semibold text-espresso-900">
-              Sort By:
+              {t('shop.products.sortBy')}
               <div className="relative">
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
                   className="appearance-none rounded-full border border-carissma-200 bg-white py-2 ps-3 pe-8 text-sm font-bold text-carissma-500 focus:outline-none focus:ring-2 focus:ring-carissma-400"
                 >
-                  <option value="low-high">Low-High Price</option>
-                  <option value="high-low">High-Low Price</option>
+                  <option value="low-high">{t('shop.products.sortLowHigh')}</option>
+                  <option value="high-low">{t('shop.products.sortHighLow')}</option>
                 </select>
                 <ChevronDownIcon className="pointer-events-none absolute inset-y-0 end-2 my-auto h-4 w-4 text-carissma-400" />
               </div>
@@ -92,10 +94,10 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {loading && <p className="mt-10 text-espresso-500">Loading products…</p>}
+        {loading && <p className="mt-10 text-espresso-500">{t('shop.products.loading')}</p>}
         {error && <p className="mt-10 text-carnation-600">{error}</p>}
         {!loading && !error && filteredSorted.length === 0 && (
-          <p className="mt-10 text-espresso-500">No products available yet — check back soon.</p>
+          <p className="mt-10 text-espresso-500">{t('shop.products.empty')}</p>
         )}
 
         {!loading && !error && visibleRows.length > 0 && (
@@ -104,26 +106,28 @@ export default function ProductsPage() {
               {visibleRows.map((p) => {
                 const { price, original } = activeProductPrice(p);
                 const outOfStock = isProductOutOfStock(p);
+                const displayName = productName(p, i18n.language);
+                const displayDescription = productDescription(p, i18n.language);
                 return (
                   <div key={p.id} className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
                     <Link to={`/products/${p.slug}`} className="relative block aspect-square w-full overflow-hidden bg-carissma-100">
                       {p.thumbnail_url ? (
-                        <img src={p.thumbnail_url} alt={p.name_en} className="h-full w-full object-cover" />
+                        <img src={p.thumbnail_url} alt={displayName} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-carissma-300">No image</div>
+                        <div className="flex h-full w-full items-center justify-center text-carissma-300">{t('common.noImage')}</div>
                       )}
                       {outOfStock && (
                         <span className="absolute inset-x-0 top-0 bg-espresso-900/70 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-white">
-                          Out Of Stock
+                          {t('shop.products.outOfStock')}
                         </span>
                       )}
                     </Link>
                     <div className="p-3">
                       <Link to={`/products/${p.slug}`} className="block text-sm font-bold text-carissma-500 hover:underline">
-                        {p.name_en}
+                        {displayName}
                       </Link>
-                      {p.description_en && (
-                        <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{p.description_en}</p>
+                      {displayDescription && (
+                        <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{displayDescription}</p>
                       )}
                       <p className="mt-1 flex items-baseline gap-1.5 text-sm font-bold text-espresso-900">
                         {formatPrice(price)}
@@ -135,7 +139,7 @@ export default function ProductsPage() {
                           outOfStock ? 'bg-carissma-100 text-carissma-300' : 'bg-carissma-400 text-white hover:bg-carissma-500'
                         }`}
                       >
-                        {outOfStock ? 'Out Of Stock' : 'Add To Cart'}
+                        {outOfStock ? t('shop.products.outOfStock') : t('shop.products.addToCart')}
                       </Link>
                     </div>
                   </div>
@@ -149,7 +153,7 @@ export default function ProductsPage() {
                   onClick={() => setVisible((v) => v + BATCH)}
                   className="rounded-full border-2 border-carissma-300 px-8 py-2.5 text-sm font-bold text-carissma-400 hover:bg-carissma-50"
                 >
-                  See More
+                  {t('shop.products.seeMore')}
                 </button>
               </div>
             )}

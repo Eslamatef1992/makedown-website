@@ -19,3 +19,14 @@ export function isProductOutOfStock(product) {
   if (product.variants?.length) return product.variants.every((v) => Number(v.stock_quantity) <= 0);
   return product.stock_quantity != null && Number(product.stock_quantity) <= 0;
 }
+
+// Products are stored bilingually (name_en/name_ar, description_en/
+// description_ar) — show the Arabic column when the site is in Arabic,
+// falling back to English if a product has no Arabic text yet.
+export function productName(product, lang) {
+  return (lang?.startsWith('ar') && product.name_ar) || product.name_en;
+}
+
+export function productDescription(product, lang) {
+  return (lang?.startsWith('ar') && product.description_ar) || product.description_en;
+}

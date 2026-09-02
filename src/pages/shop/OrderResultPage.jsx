@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { CheckIcon, CloseIcon } from '../../components/ui/icons';
 import { trackOrder } from '../../api/content.api';
 
-const FAILURE_MESSAGES = {
-  not_paid: 'Your payment was not completed — it may have been declined or cancelled.',
-  status_check_failed: "We couldn't confirm your payment due to a network error. If any amount was deducted, it will be refunded automatically.",
-  missing_reference: 'Something went wrong starting the payment. Please try again.',
-  order_not_found: "We couldn't find this order. Please try again.",
+const FAILURE_KEYS = {
+  not_paid: 'shop.orderResult.notPaid',
+  status_check_failed: 'shop.orderResult.statusCheckFailed',
+  missing_reference: 'shop.orderResult.missingReference',
+  order_not_found: 'shop.orderResult.orderNotFound',
 };
 
-const PAYMENT_METHOD_LABELS = { knet: 'KNET', credit_card: 'Credit Card', cash: 'Cash On Delivery' };
+const PAYMENT_METHOD_KEYS = { knet: 'shop.checkout.knet', credit_card: 'shop.checkout.creditCard', cash: 'shop.checkout.cashOnDelivery' };
 
 function formatAddress(shippingAddressJson) {
   if (!shippingAddressJson) return '';
@@ -38,6 +39,7 @@ function itemAttrs(item) {
 
 export default function OrderResultPage({ status: initialStatus }) {
   const location = useLocation();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [order, setOrder] = useState(location.state?.order || null);
   const [loading, setLoading] = useState(!location.state?.order && Boolean(searchParams.get('orderNumber')));
@@ -69,17 +71,17 @@ export default function OrderResultPage({ status: initialStatus }) {
           </div>
 
           <StickerHeading as="h1" className="mt-6 text-2xl">
-            We Couldn't Place Your Order
+            {t('shop.orderResult.couldNotPlace')}
           </StickerHeading>
 
-          <p className="mt-4 text-espresso-600">{message || FAILURE_MESSAGES[reason] || 'Something went wrong while placing your order. Please try again.'}</p>
+          <p className="mt-4 text-espresso-600">{message || (FAILURE_KEYS[reason] && t(FAILURE_KEYS[reason])) || t('shop.orderResult.genericFailure')}</p>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link to="/products" className="rounded-full bg-carissma-400 px-8 py-3 font-bold text-white hover:bg-carissma-500">
-              Continue Shopping
+              {t('shop.orderResult.continueShopping')}
             </Link>
             <Link to="/checkout" className="rounded-full border-2 border-carissma-400 px-8 py-3 font-bold text-carissma-500 hover:bg-carissma-50">
-              Try Again
+              {t('shop.orderResult.tryAgain')}
             </Link>
           </div>
         </div>
@@ -90,7 +92,7 @@ export default function OrderResultPage({ status: initialStatus }) {
   if (loading) {
     return (
       <SiteLayout>
-        <div className="mx-auto max-w-lg px-8 py-24 text-center text-espresso-500">Loading…</div>
+        <div className="mx-auto max-w-lg px-8 py-24 text-center text-espresso-500">{t('shop.orderResult.loading')}</div>
       </SiteLayout>
     );
   }
@@ -107,45 +109,45 @@ export default function OrderResultPage({ status: initialStatus }) {
         </div>
 
         <StickerHeading as="h1" className="mt-6 text-2xl">
-          Payment Successful!
+          {t('shop.orderResult.paymentSuccessful')}
         </StickerHeading>
-        <p className="mt-3 text-espresso-600">Your Order Has Been Successfully Placed &amp; Is Being Prepared For Shipped.</p>
+        <p className="mt-3 text-espresso-600">{t('shop.orderResult.orderPlacedBody')}</p>
 
         {order && (
           <>
             <div className="mt-8 rounded-2xl bg-white p-6 text-start shadow-sm">
-              <p className="text-sm font-bold text-carissma-400">Order Summary</p>
+              <p className="text-sm font-bold text-carissma-400">{t('shop.orderResult.orderSummary')}</p>
               <div className="mt-3 space-y-2.5 border-t border-linen-200 pt-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="font-bold text-carnation-500">Order Id</span>
+                  <span className="font-bold text-carnation-500">{t('shop.orderResult.orderId')}</span>
                   <span className="font-bold text-espresso-900">#{order.order_number}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-bold text-carnation-500">No Of Items</span>
-                  <span className="font-bold text-espresso-900">{itemCount} Item{itemCount === 1 ? '' : 's'}</span>
+                  <span className="font-bold text-carnation-500">{t('shop.orderResult.noOfItems')}</span>
+                  <span className="font-bold text-espresso-900">{t('shop.orderResult.item', { count: itemCount })}</span>
                 </div>
                 {order.shipping_address_json && (
                   <div className="flex justify-between gap-4">
-                    <span className="shrink-0 font-bold text-carnation-500">Address</span>
+                    <span className="shrink-0 font-bold text-carnation-500">{t('shop.orderResult.address')}</span>
                     <span className="text-end font-bold text-espresso-900">{formatAddress(order.shipping_address_json)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="font-bold text-carnation-500">Payment Status</span>
+                  <span className="font-bold text-carnation-500">{t('shop.orderResult.paymentStatus')}</span>
                   <span className={`font-bold ${order.payment_status === 'paid' ? 'text-green-600' : 'text-carissma-500'}`}>
-                    {order.payment_status === 'paid' ? 'Paid' : 'Pending'}
+                    {order.payment_status === 'paid' ? t('shop.orderResult.paid') : t('shop.orderResult.pending')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-bold text-carnation-500">Payment Method</span>
-                  <span className="font-bold text-espresso-900">{PAYMENT_METHOD_LABELS[order.payment_method] || order.payment_method}</span>
+                  <span className="font-bold text-carnation-500">{t('shop.orderResult.paymentMethod')}</span>
+                  <span className="font-bold text-espresso-900">{PAYMENT_METHOD_KEYS[order.payment_method] ? t(PAYMENT_METHOD_KEYS[order.payment_method]) : order.payment_method}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-bold text-carnation-500">Add Delivery Fees</span>
+                  <span className="font-bold text-carnation-500">{t('shop.orderResult.addDeliveryFees')}</span>
                   <span className="font-bold text-espresso-900">{Number(order.shipping_total).toFixed(2)} {currency}</span>
                 </div>
                 <div className="flex justify-between border-t border-linen-200 pt-2.5">
-                  <span className="font-bold text-carnation-500">Total</span>
+                  <span className="font-bold text-carnation-500">{t('shop.orderResult.total')}</span>
                   <span className="font-extrabold text-espresso-900">{Number(order.grand_total).toFixed(0)} {currency}</span>
                 </div>
               </div>
@@ -153,7 +155,7 @@ export default function OrderResultPage({ status: initialStatus }) {
 
             {items.length > 0 && (
               <div className="mt-5 rounded-2xl bg-white p-6 text-start shadow-sm">
-                <p className="text-sm font-bold text-carissma-400">Orders</p>
+                <p className="text-sm font-bold text-carissma-400">{t('shop.orderResult.orders')}</p>
                 <div className="mt-3 space-y-3 border-t border-linen-200 pt-3">
                   {items.map((it) => {
                     // Prefer the richer cart snapshot for image/color/W/H when
@@ -175,7 +177,7 @@ export default function OrderResultPage({ status: initialStatus }) {
                           {(image || it.thumbnail_url) ? (
                             <img src={image || it.thumbnail_url} alt="" className="h-full w-full object-cover" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-[10px] text-espresso-300">No image</div>
+                            <div className="flex h-full w-full items-center justify-center text-[10px] text-espresso-300">{t('common.noImage')}</div>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -183,17 +185,17 @@ export default function OrderResultPage({ status: initialStatus }) {
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-espresso-700">
                             {color && (
                               <span className="flex items-center gap-1.5">
-                                Color:
+                                {t('shop.orderResult.color')}
                                 <span className="inline-block h-3 w-3 rounded-full border border-espresso-200" style={{ backgroundColor: color }} />
                               </span>
                             )}
-                            {width && <span>W: {width}</span>}
-                            {height && <span>H: {height}</span>}
+                            {width && <span>{t('shop.cart.width', { value: width })}</span>}
+                            {height && <span>{t('shop.cart.height', { value: height })}</span>}
                           </div>
                         </div>
                         <div className="shrink-0 text-end">
                           <p className="text-xs font-bold text-espresso-700">
-                            Qty: <span className="text-carissma-500">{it.quantity}</span>
+                            {t('shop.orderResult.qty')} <span className="text-carissma-500">{it.quantity}</span>
                           </p>
                           <p className="mt-1 text-sm font-bold text-espresso-900">{Number(it.line_total).toFixed(0)} {currency}</p>
                         </div>
@@ -210,7 +212,7 @@ export default function OrderResultPage({ status: initialStatus }) {
           to="/products"
           className="mt-8 inline-block w-full rounded-full bg-carissma-400 py-3.5 font-bold text-white hover:bg-carissma-500"
         >
-          Continue Shopping
+          {t('shop.orderResult.continueShopping')}
         </Link>
       </div>
     </SiteLayout>
