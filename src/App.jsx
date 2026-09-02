@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -45,6 +46,7 @@ import LiveGamePage from './pages/play/LiveGamePage';
 import ResultsPage from './pages/play/ResultsPage';
 
 export default function App() {
+  const { t } = useTranslation();
   return (
     <AuthProvider>
       <CurrencyProvider>
@@ -95,15 +97,15 @@ export default function App() {
         <Route path="/profile/payment-result" element={<ProtectedRoute><PaymentResultPage /></ProtectedRoute>} />
 
         {/* CMS-backed static pages */}
-        <Route path="/about-us" element={<StaticPage slug="about-us" title="About us" />} />
-        <Route path="/privacy-policy" element={<StaticPage slug="privacy-policy" title="Privacy policy" />} />
-        <Route path="/terms-and-conditions" element={<StaticPage slug="terms-and-conditions" title="Terms & conditions" />} />
-        <Route path="/return-policy" element={<StaticPage slug="return-policy" title="Return policy" />} />
-        <Route path="/how-it-works" element={<StaticPage slug="how-it-works" title="How it works" />} />
+        <Route path="/about-us" element={<StaticPage slug="about-us" title={t('staticPage.titles.aboutUs')} />} />
+        <Route path="/privacy-policy" element={<StaticPage slug="privacy-policy" title={t('staticPage.titles.privacyPolicy')} />} />
+        <Route path="/terms-and-conditions" element={<StaticPage slug="terms-and-conditions" title={t('staticPage.titles.termsAndConditions')} />} />
+        <Route path="/return-policy" element={<StaticPage slug="return-policy" title={t('staticPage.titles.returnPolicy')} />} />
+        <Route path="/how-it-works" element={<StaticPage slug="how-it-works" title={t('staticPage.titles.howItWorks')} />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
 
-        <Route path="*" element={<ComingSoon title="Page not found" />} />
+        <Route path="*" element={<ComingSoon title={t('comingSoon.notFoundTitle')} />} />
       </Routes>
       </CartProvider>
       </CurrencyProvider>

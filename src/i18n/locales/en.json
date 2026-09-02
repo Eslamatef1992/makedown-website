@@ -587,5 +587,96 @@
       "loadingMessages": "Loading messages…",
       "typeMessage": "Type a message…"
     }
+  },
+  "comingSoon": {
+    "notFoundTitle": "Page not found",
+    "body": "This page is on the roadmap and not built yet.",
+    "backHome": "Back to home"
+  },
+  "staticPage": {
+    "loadError": "This page is not available yet.",
+    "titles": {
+      "aboutUs": "About us",
+      "privacyPolicy": "Privacy policy",
+      "termsAndConditions": "Terms & conditions",
+      "returnPolicy": "Return policy",
+      "howItWorks": "How it works"
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "loadError": "Could not load FAQs right now.",
+    "empty": "No FAQs published yet."
+  },
+  "packagesPage": {
+    "empty": "No packages yet — add some from the admin panel."
+  },
+  "education": {
+    "schools": {
+      "title": "Schools",
+      "subtitle": "Browse the schools taking part in Make Down's education program.",
+      "loading": "Loading schools…",
+      "loadError": "Could not load schools right now.",
+      "empty": "No schools are listed yet — check back soon."
+    },
+    "schoolDetail": {
+      "notFound": "School not found",
+      "backToSchools": "Back to schools",
+      "noGames": "No live games right now",
+      "noGamesBody": "When a teacher at {{school}} schedules a game session, it'll show up here.",
+      "gamesHeading": "{{school}} Games",
+      "audience": {
+        "girls": "Only Girl",
+        "boys": "Only Boy",
+        "mixed": "Boy & Girl"
+      },
+      "am": "AM",
+      "pm": "PM",
+      "joinOpensNote": "Join opens 10 minutes before start.",
+      "teamFallback": "Team {{index}}",
+      "playersSuffix_one": " ({{count}} Player)",
+      "playersSuffix_other": " ({{count}} Players)",
+      "vsSuffix": " Vs",
+      "gameFallback": "Game",
+      "joinGame": "Join Game",
+      "modal": {
+        "closeAriaLabel": "Close",
+        "title": "Game Code",
+        "instructions": "Enter the code your teacher shared with you{{suffix}}.",
+        "forGameSuffix": " for \"{{title}}\"",
+        "placeholder": "e.g. ACA1234",
+        "checking": "Checking…",
+        "startGame": "Start Game",
+        "couldntJoin": "Couldn't Join",
+        "genericError": "That code didn't work. Double check it and try again.",
+        "tryAgain": "Try Again"
+      }
+    }
+  },
+  "contactUs": {
+    "title": "Contact Us",
+    "sectionLabel": "— Contact Us —",
+    "companyEmail": "Company Email",
+    "phoneNumber": "Phone Number",
+    "supportEmail": "Support Email",
+    "socialMediaLinks": "Social Media Links",
+    "messageSent": "Message sent!",
+    "messageSentBody": "Thanks for reaching out — our team will get back to you soon.",
+    "sendAnother": "Send another message",
+    "getInTouch": "Get In Touch",
+    "name": "Name",
+    "namePlaceholder": "enter first name",
+    "email": "Email",
+    "emailPlaceholder": "example@gmail.com",
+    "phonePlaceholder": "enter phone number",
+    "message": "Message",
+    "messagePlaceholder": "enter your message",
+    "submit": "Submit",
+    "errors": {
+      "name": "Please enter your name.",
+      "email": "Please enter a valid email.",
+      "message": "Please enter a message.",
+      "generic": "Something went wrong sending your message. Please try again."
+    }
   }
 }

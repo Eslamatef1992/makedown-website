@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../components/layout/SiteLayout';
 import { listPackages } from '../api/content.api';
 import StickerHeading from '../components/ui/StickerHeading';
@@ -17,6 +18,7 @@ function Subtitle({ children }) {
 }
 
 export default function PackagesPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [packages, setPackages] = useState([]);
@@ -34,18 +36,18 @@ export default function PackagesPage() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 py-16 text-center sm:px-6 lg:px-10">
-        <StickerHeading className="text-2xl sm:text-3xl">Packages</StickerHeading>
+        <StickerHeading className="text-2xl sm:text-3xl">{t('profile.tabs.packages')}</StickerHeading>
 
         {state === 'ready' && packages.length > 0 && (
           <div className="mt-4">
-            <Subtitle>Choose The Package That Suits You</Subtitle>
+            <Subtitle>{t('profile.packagesTab.chooseSuits')}</Subtitle>
           </div>
         )}
 
-        {state === 'loading' && <p className="mt-10 text-sm font-semibold text-espresso-500">Loading packages…</p>}
-        {state === 'error' && <p className="mt-10 text-sm font-semibold text-carnation-600">Couldn't load packages right now.</p>}
+        {state === 'loading' && <p className="mt-10 text-sm font-semibold text-espresso-500">{t('profile.packagesTab.loading')}</p>}
+        {state === 'error' && <p className="mt-10 text-sm font-semibold text-carnation-600">{t('profile.packagesTab.loadError')}</p>}
         {state === 'ready' && packages.length === 0 && (
-          <p className="mt-10 text-sm font-semibold text-espresso-500">No packages yet — add some from the admin panel.</p>
+          <p className="mt-10 text-sm font-semibold text-espresso-500">{t('packagesPage.empty')}</p>
         )}
 
         {state === 'ready' && packages.length > 0 && (

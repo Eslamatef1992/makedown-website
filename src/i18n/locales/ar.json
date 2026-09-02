@@ -599,5 +599,100 @@
       "loadingMessages": "جارٍ تحميل الرسائل…",
       "typeMessage": "اكتب رسالة…"
     }
+  },
+  "comingSoon": {
+    "notFoundTitle": "الصفحة غير موجودة",
+    "body": "هذه الصفحة على خارطة الطريق ولم يتم بناؤها بعد.",
+    "backHome": "العودة إلى الرئيسية"
+  },
+  "staticPage": {
+    "loadError": "هذه الصفحة غير متاحة بعد.",
+    "titles": {
+      "aboutUs": "من نحن",
+      "privacyPolicy": "سياسة الخصوصية",
+      "termsAndConditions": "الشروط والأحكام",
+      "returnPolicy": "سياسة الإرجاع",
+      "howItWorks": "كيف يعمل"
+    }
+  },
+  "faq": {
+    "title": "الأسئلة الشائعة",
+    "loadError": "تعذّر تحميل الأسئلة الشائعة الآن.",
+    "empty": "لا توجد أسئلة شائعة منشورة بعد."
+  },
+  "packagesPage": {
+    "empty": "لا توجد باقات بعد — أضف بعضها من لوحة التحكم."
+  },
+  "education": {
+    "schools": {
+      "title": "المدارس",
+      "subtitle": "تصفح المدارس المشاركة في برنامج Make Down التعليمي.",
+      "loading": "جارٍ تحميل المدارس…",
+      "loadError": "تعذّر تحميل المدارس الآن.",
+      "empty": "لا توجد مدارس مدرجة بعد — تحقق مرة أخرى قريبًا."
+    },
+    "schoolDetail": {
+      "notFound": "المدرسة غير موجودة",
+      "backToSchools": "العودة إلى المدارس",
+      "noGames": "لا توجد ألعاب مباشرة حاليًا",
+      "noGamesBody": "عندما يقوم أحد المعلمين في {{school}} بجدولة جلسة لعبة، ستظهر هنا.",
+      "gamesHeading": "ألعاب {{school}}",
+      "audience": {
+        "girls": "بنات فقط",
+        "boys": "أولاد فقط",
+        "mixed": "أولاد وبنات"
+      },
+      "am": "ص",
+      "pm": "م",
+      "joinOpensNote": "يفتح الانضمام قبل 10 دقائق من البدء.",
+      "teamFallback": "فريق {{index}}",
+      "playersSuffix_zero": " ({{count}} لاعب)",
+      "playersSuffix_one": " (لاعب واحد)",
+      "playersSuffix_two": " (لاعبان)",
+      "playersSuffix_few": " ({{count}} لاعبين)",
+      "playersSuffix_many": " ({{count}} لاعبًا)",
+      "playersSuffix_other": " ({{count}} لاعب)",
+      "vsSuffix": " ضد",
+      "gameFallback": "لعبة",
+      "joinGame": "انضم إلى اللعبة",
+      "modal": {
+        "closeAriaLabel": "إغلاق",
+        "title": "رمز اللعبة",
+        "instructions": "أدخل الرمز الذي شاركي معك معلمك{{suffix}}.",
+        "forGameSuffix": " لـ \"{{title}}\"",
+        "placeholder": "مثال: ACA1234",
+        "checking": "جارٍ التحقق…",
+        "startGame": "ابدأ اللعبة",
+        "couldntJoin": "تعذّر الانضمام",
+        "genericError": "لم ينجح هذا الرمز. تحقق منه وحاول مرة أخرى.",
+        "tryAgain": "حاول مرة أخرى"
+      }
+    }
+  },
+  "contactUs": {
+    "title": "تواصل معنا",
+    "sectionLabel": "— تواصل معنا —",
+    "companyEmail": "البريد الإلكتروني للشركة",
+    "phoneNumber": "رقم الهاتف",
+    "supportEmail": "بريد الدعم الإلكتروني",
+    "socialMediaLinks": "روابط التواصل الاجتماعي",
+    "messageSent": "تم إرسال الرسالة!",
+    "messageSentBody": "شكرًا لتواصلك معنا — سيتواصل معك فريقنا قريبًا.",
+    "sendAnother": "إرسال رسالة أخرى",
+    "getInTouch": "تواصل معنا",
+    "name": "الاسم",
+    "namePlaceholder": "أدخل الاسم الأول",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "example@gmail.com",
+    "phonePlaceholder": "أدخل رقم الهاتف",
+    "message": "الرسالة",
+    "messagePlaceholder": "أدخل رسالتك",
+    "submit": "إرسال",
+    "errors": {
+      "name": "يُرجى إدخال اسمك.",
+      "email": "يُرجى إدخال بريد إلكتروني صالح.",
+      "message": "يُرجى إدخال رسالة.",
+      "generic": "حدث خطأ أثناء إرسال رسالتك. يُرجى المحاولة مرة أخرى."
+    }
   }
 }

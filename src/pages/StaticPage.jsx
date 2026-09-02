@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../components/layout/SiteLayout';
 import StickerHeading from '../components/ui/StickerHeading';
 import { getCmsPage } from '../api/content.api';
+import { pickLang } from '../utils/bilingual';
 
 // Renders any admin-managed CMS page by slug: about-us, privacy-policy,
 // terms-and-conditions, return-policy, how-it-works.
 export default function StaticPage({ slug: slugProp, title: titleProp }) {
+  const { t, i18n } = useTranslation();
   const params = useParams();
   const slug = slugProp || params.slug;
 
@@ -23,7 +26,7 @@ export default function StaticPage({ slug: slugProp, title: titleProp }) {
         if (!cancelled) setPage(data);
       })
       .catch(() => {
-        if (!cancelled) setError('This page is not available yet.');
+        if (!cancelled) setError(t('staticPage.loadError'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -31,18 +34,18 @@ export default function StaticPage({ slug: slugProp, title: titleProp }) {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, t]);
 
   return (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
         <div className="text-center">
           <StickerHeading as="h1" className="text-2xl sm:text-3xl">
-            {page?.title_en || titleProp || ''}
+            {(page && pickLang(page, 'title', i18n.language)) || titleProp || ''}
           </StickerHeading>
         </div>
 
-        {loading && <p className="mt-10 text-center text-espresso-500">Loading…</p>}
+        {loading && <p className="mt-10 text-center text-espresso-500">{t('common.loading')}</p>}
         {error && <p className="mt-10 text-center text-carnation-600">{error}</p>}
 
         {!loading && !error && page && (
@@ -53,7 +56,7 @@ export default function StaticPage({ slug: slugProp, title: titleProp }) {
                 prose-p:leading-relaxed
                 prose-ul:list-disc prose-ul:pl-5 prose-li:marker:text-carissma-400
                 prose-a:text-carissma-600 prose-a:no-underline hover:prose-a:underline"
-              dangerouslySetInnerHTML={{ __html: page.content_html_en || '' }}
+              dangerouslySetInnerHTML={{ __html: pickLang(page, 'content_html', i18n.language) || '' }}
             />
           </div>
         )}

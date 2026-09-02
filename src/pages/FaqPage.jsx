@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../components/layout/SiteLayout';
 import { listFaqs } from '../api/content.api';
+import { pickLang } from '../utils/bilingual';
 
 export default function FaqPage() {
+  const { t, i18n } = useTranslation();
   const [faqs, setFaqs] = useState([]);
   const [openId, setOpenId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,19 +14,19 @@ export default function FaqPage() {
   useEffect(() => {
     listFaqs()
       .then(setFaqs)
-      .catch(() => setError('Could not load FAQs right now.'))
+      .catch(() => setError(t('faq.loadError')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   return (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-8 py-16">
-        <h1 className="text-3xl font-bold text-espresso-900">Frequently asked questions</h1>
+        <h1 className="text-3xl font-bold text-espresso-900">{t('faq.title')}</h1>
 
-        {loading && <p className="mt-8 text-espresso-500">Loading…</p>}
+        {loading && <p className="mt-8 text-espresso-500">{t('common.loading')}</p>}
         {error && <p className="mt-8 text-carnation-600">{error}</p>}
         {!loading && !error && faqs.length === 0 && (
-          <p className="mt-8 text-espresso-500">No FAQs published yet.</p>
+          <p className="mt-8 text-espresso-500">{t('faq.empty')}</p>
         )}
 
         {!loading && !error && faqs.length > 0 && (
@@ -36,10 +39,10 @@ export default function FaqPage() {
                     onClick={() => setOpenId(isOpen ? null : faq.id)}
                     className="flex w-full items-center justify-between text-left font-semibold text-espresso-900"
                   >
-                    {faq.question_en}
+                    {pickLang(faq, 'question', i18n.language)}
                     <span className="ml-4 text-carissma-600">{isOpen ? '−' : '+'}</span>
                   </button>
-                  {isOpen && <p className="mt-3 text-sm text-espresso-600">{faq.answer_en}</p>}
+                  {isOpen && <p className="mt-3 text-sm text-espresso-600">{pickLang(faq, 'answer', i18n.language)}</p>}
                 </div>
               );
             })}

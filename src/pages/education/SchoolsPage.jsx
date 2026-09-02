@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { listSchools } from '../../api/content.api';
 
+// Schools carry nameEn/nameAr (camelCase, from schools.controller.js) rather
+// than the usual snake_case _en/_ar pair, so this picks the display name
+// directly instead of going through the shared pickLang() helper.
+function schoolName(school, lang) {
+  return (lang?.startsWith('ar') && school.nameAr) || school.nameEn;
+}
+
 export default function SchoolsPage() {
+  const { t, i18n } = useTranslation();
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -16,7 +25,7 @@ export default function SchoolsPage() {
         if (!cancelled) setSchools(data || []);
       })
       .catch(() => {
-        if (!cancelled) setError('Could not load schools right now.');
+        if (!cancelled) setError(t('education.schools.loadError'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -24,20 +33,20 @@ export default function SchoolsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   return (
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <StickerHeading as="h1" className="text-2xl">
-          Schools
+          {t('education.schools.title')}
         </StickerHeading>
-        <p className="mt-2 text-espresso-600">Browse the schools taking part in Make Down's education program.</p>
+        <p className="mt-2 text-espresso-600">{t('education.schools.subtitle')}</p>
 
-        {loading && <p className="mt-10 text-espresso-500">Loading schools…</p>}
+        {loading && <p className="mt-10 text-espresso-500">{t('education.schools.loading')}</p>}
         {error && <p className="mt-10 text-carnation-600">{error}</p>}
         {!loading && !error && schools.length === 0 && (
-          <p className="mt-10 text-espresso-500">No schools are listed yet — check back soon.</p>
+          <p className="mt-10 text-espresso-500">{t('education.schools.empty')}</p>
         )}
 
         {!loading && !error && schools.length > 0 && (
@@ -50,12 +59,12 @@ export default function SchoolsPage() {
               >
                 <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-linen-100">
                   {s.logoUrl ? (
-                    <img src={s.logoUrl} alt={s.nameEn} className="h-full w-full object-cover" />
+                    <img src={s.logoUrl} alt={schoolName(s, i18n.language)} className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-2xl font-extrabold text-carissma-300">{(s.nameEn || '?')[0]}</span>
+                    <span className="text-2xl font-extrabold text-carissma-300">{(schoolName(s, i18n.language) || '?')[0]}</span>
                   )}
                 </div>
-                <p className="text-sm font-bold text-espresso-900">{s.nameEn}</p>
+                <p className="text-sm font-bold text-espresso-900">{schoolName(s, i18n.language)}</p>
               </Link>
             ))}
           </div>
