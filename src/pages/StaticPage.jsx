@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '../components/layout/SiteLayout';
 import StickerHeading from '../components/ui/StickerHeading';
+import { SparkleIcon } from '../components/ui/icons';
 import { getCmsPage } from '../api/content.api';
 import { pickLang } from '../utils/bilingual';
 
@@ -38,27 +39,25 @@ export default function StaticPage({ slug: slugProp, title: titleProp }) {
 
   return (
     <SiteLayout>
-      <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
-        <div className="text-center">
-          <StickerHeading as="h1" className="text-2xl sm:text-3xl">
-            {(page && pickLang(page, 'title', i18n.language)) || titleProp || ''}
-          </StickerHeading>
-        </div>
+      <div className="relative mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
+        <SparkleIcon className="pointer-events-none absolute end-6 top-2 h-7 w-7 sm:end-10 sm:top-4 sm:h-8 sm:w-8" />
 
-        {loading && <p className="mt-10 text-center text-espresso-500">{t('common.loading')}</p>}
-        {error && <p className="mt-10 text-center text-carnation-600">{error}</p>}
+        <StickerHeading as="h1" className="text-2xl sm:text-3xl">
+          {(page && pickLang(page, 'title', i18n.language)) || titleProp || ''}
+        </StickerHeading>
+
+        {loading && <p className="mt-10 text-espresso-500">{t('common.loading')}</p>}
+        {error && <p className="mt-10 text-carnation-600">{error}</p>}
 
         {!loading && !error && page && (
-          <div className="mt-10 rounded-3xl border border-carissma-100 bg-white/70 p-6 sm:p-10">
-            <div
-              className="prose prose-espresso max-w-none text-espresso-700
-                prose-headings:font-extrabold prose-headings:text-espresso-900
-                prose-p:leading-relaxed
-                prose-ul:list-disc prose-ul:pl-5 prose-li:marker:text-carissma-400
-                prose-a:text-carissma-600 prose-a:no-underline hover:prose-a:underline"
-              dangerouslySetInnerHTML={{ __html: pickLang(page, 'content_html', i18n.language) || '' }}
-            />
-          </div>
+          <div
+            className="prose prose-espresso mt-10 max-w-none text-espresso-700
+              prose-headings:font-extrabold prose-headings:text-espresso-900
+              prose-p:leading-relaxed
+              prose-ul:list-disc prose-ul:pl-5 prose-li:marker:text-carissma-400
+              prose-a:text-carissma-600 prose-a:no-underline hover:prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: pickLang(page, 'content_html', i18n.language) || '' }}
+          />
         )}
       </div>
     </SiteLayout>
