@@ -66,7 +66,7 @@ function ScoreBlock({ participant, isMe, canAdjust, onAdjustScore }) {
   );
 }
 
-function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline }) {
+function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline, layout = 'row' }) {
   return (
     <div className="flex flex-col items-center">
       <p
@@ -76,7 +76,7 @@ function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline }) {
         Help Options
       </p>
 
-      <div className="mt-3 flex items-center gap-3">
+      <div className={`mt-3 flex items-center gap-3 ${layout === 'column' ? 'flex-col gap-4' : ''}`}>
         {LIFELINES.map(({ key, icon: Icon }) => {
           const used = usedLifelines.includes(key);
           const active = isMe && canAct && !used;
@@ -111,7 +111,7 @@ function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline 
   return (
     <div className="flex w-[177px] flex-none flex-col items-center gap-4 rounded-[2rem] bg-carissma-100 px-6 py-8 lg:h-[418px]">
       <ScorePill participant={participant} />
-      <HelpOptionsBlock isMe={isMe} usedLifelines={usedLifelines} canAct={canAct} onLifeline={onLifeline} />
+      <HelpOptionsBlock isMe={isMe} usedLifelines={usedLifelines} canAct={canAct} onLifeline={onLifeline} layout="column" />
     </div>
   );
 }
