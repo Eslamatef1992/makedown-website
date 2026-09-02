@@ -10,6 +10,13 @@ import FollowListTab from './tabs/FollowListTab';
 import MyOrdersTab from './tabs/MyOrdersTab';
 import GameHistoryTab from './tabs/GameHistoryTab';
 
+// Matches PackageCard.jsx's sticker-style outline exactly, so the "Current
+// Package" summary card's pink text reads consistently with the package
+// tiles below it (Standard / Perineum / VIP).
+const STICKER_SHADOW = {
+  textShadow: '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
+};
+
 const TABS = [
   { key: 'packages', label: 'Packages' },
   { key: 'following', label: 'My Following' },
@@ -182,24 +189,35 @@ export default function ProfilePage() {
           {currentPackage ? (
             <>
               <p className="text-sm font-bold text-espresso-900">Current Package</p>
-              <p className="mt-1 text-2xl font-extrabold text-carissma-500">{currentPackage.package_name_en}</p>
-              <p className="mt-3 text-lg font-extrabold text-carissma-400">
+              <p className="mt-1 text-2xl font-extrabold text-carissma-400" style={STICKER_SHADOW}>
+                {currentPackage.package_name_en}
+              </p>
+              <p className="mt-3 text-lg font-extrabold text-carissma-400" style={STICKER_SHADOW}>
                 Games Left {currentPackage.credits_remaining} Game{currentPackage.credits_remaining === 1 ? '' : 's'}
               </p>
               <p className="mt-2 text-sm font-bold text-espresso-900">Keep Playing And Enjoy The Rest Of Your Package.</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <button
                   onClick={() => setTab('packages')}
-                  className="rounded-full bg-white/80 px-6 py-3 text-sm font-bold text-carissma-500 hover:bg-white"
+                  className="rounded-full bg-white px-6 py-3 text-sm font-bold text-carissma-400 hover:bg-carissma-50"
                 >
                   Upgrade Package
                 </button>
-                <button
-                  onClick={() => navigate('/play')}
-                  className="rounded-full bg-carissma-400 px-6 py-3 text-sm font-bold text-white hover:bg-carissma-500"
-                >
-                  Continue Playing
-                </button>
+                {currentPackage.credits_remaining > 0 ? (
+                  <button
+                    onClick={() => navigate('/play')}
+                    className="rounded-full bg-carissma-400 px-6 py-3 text-sm font-bold text-white hover:bg-carissma-500"
+                  >
+                    Continue Playing
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate(`/profile/packages/${currentPackage.package_id}/purchase`)}
+                    className="rounded-full bg-carissma-400 px-6 py-3 text-sm font-bold text-white hover:bg-carissma-500"
+                  >
+                    Renew
+                  </button>
+                )}
               </div>
             </>
           ) : (

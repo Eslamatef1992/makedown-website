@@ -1,38 +1,15 @@
 import { useEffect, useState } from 'react';
 import { getMyOrder, listMyOrders } from '../../../api/me.api';
+import { STATUS_META, itemAttrs, formatPrice } from './orderShared';
+import OrderDetailsDrawer from './OrderDetailsDrawer';
 
-const STATUS_META = {
-  pending: { label: 'Pending', dot: 'bg-espresso-300', pill: 'bg-linen-100 text-espresso-500' },
-  processing: { label: 'Preparing', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-600' },
-  shipped: { label: 'On The Way', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-600' },
-  paid: { label: 'Paid', dot: 'bg-green-500', pill: 'bg-green-50 text-green-600' },
-  delivered: { label: 'Delivered', dot: 'bg-green-500', pill: 'bg-green-50 text-green-600' },
-  cancelled: { label: 'Canceled', dot: 'bg-carnation-500', pill: 'bg-carnation-50 text-carnation-600' },
-  refunded: { label: 'Refunded', dot: 'bg-carnation-500', pill: 'bg-carnation-50 text-carnation-600' },
-};
-
-function itemAttrs(item) {
-  const attrs = item.attributes_json || {};
-  const key = (name) => Object.keys(attrs).find((k) => k.toLowerCase() === name);
-  const colorKey = key('color');
-  const widthKey = key('width');
-  const heightKey = key('height');
-  return {
-    color: colorKey ? attrs[colorKey] : null,
-    width: widthKey ? attrs[widthKey] : null,
-    height: heightKey ? attrs[heightKey] : null,
-  };
-}
-
-function formatPrice(value, currency) {
-  const num = Number(value) || 0;
-  const rounded = Math.round(num) === num ? num.toFixed(0) : num.toFixed(2);
-  return `${rounded} ${currency === 'KWD' ? 'Kwd' : currency}`;
-}
-
-function OrderItemCard({ order, item }) {
-  const [expanded, setExpanded] = useState(false);
+// One card per order (its first item as the preview, matching the design),
+// not one card per line item — "View" opens the full itemized breakdown in
+// OrderDetailsDrawer instead of an inline expand.
+function OrderCard({ order, onView }) {
   const meta = STATUS_META[order.status] || STATUS_META.pending;
+  const item = (order.items || [])[0];
+  if (!item) return null;
   const { color, width, height } = itemAttrs(item);
 
   return (
@@ -77,40 +54,28 @@ function OrderItemCard({ order, item }) {
         </div>
       </div>
 
-      {expanded && (
-        <div className="space-y-1.5 border-t border-carissma-100 px-5 py-3 text-start text-xs font-semibold text-espresso-600">
-          <p>Placed: {new Date(order.created_at).toLocaleDateString()}</p>
-          <p>Payment: {order.payment_method || 'n/a'} · {order.payment_status}</p>
-          <p>Total: {formatPrice(order.grand_total, order.currency)}</p>
-        </div>
-      )}
-
       <button
         type="button"
-        onClick={() => setExpanded((e) => !e)}
+        onClick={() => onView(order)}
         className="mt-auto w-full bg-carissma-300 py-3 text-sm font-bold text-white hover:bg-carissma-400"
       >
-        {expanded ? 'Hide' : 'View'}
+        View
       </button>
     </div>
   );
 }
 
 export default function MyOrdersTab() {
-  const [cards, setCards] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [state, setState] = useState('loading');
+  const [viewingOrder, setViewingOrder] = useState(null);
 
   useEffect(() => {
     listMyOrders()
       .then(async (result) => {
-        const orders = result?.rows || [];
-        const details = await Promise.all(orders.map((o) => getMyOrder(o.id).catch(() => null)));
-        const built = [];
-        details.forEach((order) => {
-          if (!order) return;
-          (order.items || []).forEach((item) => built.push({ order, item }));
-        });
-        setCards(built);
+        const rows = result?.rows || [];
+        const details = await Promise.all(rows.map((o) => getMyOrder(o.id).catch(() => null)));
+        setOrders(details.filter(Boolean));
         setState('ready');
       })
       .catch(() => setState('error'));
@@ -118,13 +83,16 @@ export default function MyOrdersTab() {
 
   if (state === 'loading') return <p className="text-center text-sm font-semibold text-espresso-500">Loading orders…</p>;
   if (state === 'error') return <p className="text-center text-sm font-semibold text-carnation-600">Couldn't load your orders right now.</p>;
-  if (cards.length === 0) return <p className="text-center text-sm font-semibold text-espresso-500">You haven't placed any orders yet.</p>;
+  if (orders.length === 0) return <p className="text-center text-sm font-semibold text-espresso-500">You haven't placed any orders yet.</p>;
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {cards.map(({ order, item }) => (
-        <OrderItemCard key={item.id} order={order} item={item} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {orders.map((order) => (
+          <OrderCard key={order.id} order={order} onView={setViewingOrder} />
+        ))}
+      </div>
+      {viewingOrder && <OrderDetailsDrawer order={viewingOrder} onClose={() => setViewingOrder(null)} />}
+    </>
   );
 }
