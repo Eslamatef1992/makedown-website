@@ -29,7 +29,9 @@
     "copyright": "Copyright {{year}} Make Down",
     "privacyPolicy": "Privacy Policy",
     "termsAndConditions": "Terms And Conditions",
-    "returnPolicy": "Return Policy"
+    "returnPolicy": "Return Policy",
+    "downloadOnAppStore": "Download on the App Store",
+    "getOnGooglePlay": "Get it on Google Play"
   },
   "home": {
     "hero": {
@@ -42,7 +44,8 @@
     "intro": {
       "blurb": "A Multiplayer Quiz Game Featuring More Than 200 Diverse Categories, With Dedicated Sections For Students, Adults, And Children.",
       "watchOnYoutube": "Watch On Youtube",
-      "buyPackage": "+ Buy A Package And Play"
+      "buyPackage": "+ Buy A Package And Play",
+      "videoThumbnailAlt": "Home page video thumbnail"
     },
     "categories": {
       "title": "Popular Categories",
@@ -76,7 +79,9 @@
       "forgetPassword": "Forget Password?",
       "submit": "Login",
       "noAccount": "Don't Have An Account?",
-      "createAccount": "Create An Account"
+      "createAccount": "Create An Account",
+      "emailPlaceholder": "example@gmail.com",
+      "passwordPlaceholder": "enter password"
     },
     "register": {
       "title": "Create Account",
@@ -96,7 +101,11 @@
         "passwordLength": "Password must be at least 8 characters",
         "passwordMismatch": "Passwords do not match",
         "acceptTerms": "Please accept the Terms And Conditions"
-      }
+      },
+      "firstNamePlaceholder": "enter first name",
+      "lastNamePlaceholder": "enter last name",
+      "phonePlaceholder": "enter phone number",
+      "confirmPasswordPlaceholder": "confirm password"
     },
     "forgotPassword": {
       "title": "Forgot password",
@@ -271,6 +280,21 @@
       "lifelineSkip": "Skip",
       "you": "you",
       "scanToReveal": "Scan to reveal"
+    },
+    "categorySelect": {
+      "title": "Select Categories",
+      "loading": "Loading categories…",
+      "empty": "No categories are available to play yet — check back soon.",
+      "howToPlay": "How to play",
+      "completeGameInfo": "Complete Game Information",
+      "gameNameLabel": "Game Name (optional)",
+      "gameNamePlaceholder": "Enter game name",
+      "playingAs": "Playing as",
+      "youFallback": "you",
+      "clear": "Clear",
+      "continue": "Continue",
+      "pickCategoryError": "Pick at least one category to build your board.",
+      "createGameError": "Could not create the game."
     }
   },
   "shop": {
@@ -679,5 +703,10 @@
       "message": "Please enter a message.",
       "generic": "Something went wrong sending your message. Please try again."
     }
+  },
+  "packageCard": {
+    "freeGamesPrefix_one": "+ {{count}} Game",
+    "freeGamesPrefix_other": "+ {{count}} Games",
+    "free": "Free"
   }
 }

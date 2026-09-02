@@ -50,7 +50,7 @@ export default function Login() {
           required
           type="email"
           name="email"
-          placeholder="example@gmail.com"
+          placeholder={t('auth.login.emailPlaceholder')}
           value={form.email}
           onChange={onChange}
           autoComplete="email"
@@ -60,7 +60,7 @@ export default function Login() {
           required
           type={showPassword ? 'text' : 'password'}
           name="password"
-          placeholder="enter password"
+          placeholder={t('auth.login.passwordPlaceholder')}
           value={form.password}
           onChange={onChange}
           autoComplete="current-password"

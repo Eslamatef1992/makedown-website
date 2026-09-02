@@ -254,7 +254,7 @@ export default function Home() {
             {youtubeId && (
               <img
                 src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
-                alt="Home page video thumbnail"
+                alt={t('home.intro.videoThumbnailAlt')}
                 className="absolute inset-0 h-full w-full object-cover opacity-90"
                 onError={(e) => {
                   e.currentTarget.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
@@ -266,7 +266,7 @@ export default function Home() {
               target={videoUrl ? '_blank' : undefined}
               rel={videoUrl ? 'noopener noreferrer' : undefined}
               className="absolute inset-0 flex items-center justify-center"
-              aria-label="Watch on YouTube"
+              aria-label={t('home.intro.watchOnYoutube')}
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-2xl text-carissma-500">▶</div>
             </a>

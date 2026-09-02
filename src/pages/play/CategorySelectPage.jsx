@@ -14,7 +14,7 @@ export default function CategorySelectPage() {
   const { mode } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
   const [quizzes, setQuizzes] = useState([]);
@@ -64,7 +64,7 @@ export default function CategorySelectPage() {
 
   const onContinue = async () => {
     if (!selected.length) {
-      setError('Pick at least one category to build your board.');
+      setError(t('play.categorySelect.pickCategoryError'));
       return;
     }
     setError('');
@@ -76,7 +76,7 @@ export default function CategorySelectPage() {
       if (err.response?.status === 402) {
         setNoFreeGame(true);
       } else {
-        setError(err.response?.data?.message || 'Could not create the game.');
+        setError(err.response?.data?.message || t('play.categorySelect.createGameError'));
       }
     } finally {
       setSubmitting(false);
@@ -91,13 +91,13 @@ export default function CategorySelectPage() {
     <SiteLayout>
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <StickerHeading as="h1" className="text-2xl sm:text-3xl">
-          Select Categories
+          {t('play.categorySelect.title')}
         </StickerHeading>
 
         {loading ? (
-          <p className="mt-8 text-espresso-500">Loading categories…</p>
+          <p className="mt-8 text-espresso-500">{t('play.categorySelect.loading')}</p>
         ) : grouped.length === 0 ? (
-          <p className="mt-8 text-espresso-500">No categories are available to play yet — check back soon.</p>
+          <p className="mt-8 text-espresso-500">{t('play.categorySelect.empty')}</p>
         ) : (
           <div className="relative z-10 mt-8 space-y-10">
             {grouped.map((group) => (
@@ -134,7 +134,7 @@ export default function CategorySelectPage() {
                           <>
                             <button
                               type="button"
-                              aria-label="How to play"
+                              aria-label={t('play.categorySelect.howToPlay')}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenInfo((cur) => (cur === quiz.id ? null : quiz.id));
@@ -172,11 +172,19 @@ export default function CategorySelectPage() {
         )}
 
         <div className="relative z-0 mt-8 rounded-[2rem] border-4 border-carissma-300 bg-white p-6 shadow-sm sm:p-8">
-          <h2 className="text-lg font-extrabold text-espresso-900">Complete Game Information</h2>
+          <h2 className="text-lg font-extrabold text-espresso-900">{t('play.categorySelect.completeGameInfo')}</h2>
           <div className="mt-4 space-y-4">
-            <TextField label="Game Name (optional)" value={gameName} onChange={(e) => setGameName(e.target.value)} placeholder="Enter game name" />
+            <TextField
+              label={t('play.categorySelect.gameNameLabel')}
+              value={gameName}
+              onChange={(e) => setGameName(e.target.value)}
+              placeholder={t('play.categorySelect.gameNamePlaceholder')}
+            />
             <p className="text-sm text-espresso-600">
-              Playing as <span className="font-bold text-espresso-900">{user?.full_name || user?.first_name || 'you'}</span>
+              {t('play.categorySelect.playingAs')}{' '}
+              <span className="font-bold text-espresso-900">
+                {user?.full_name || user?.first_name || t('play.categorySelect.youFallback')}
+              </span>
             </p>
           </div>
 
@@ -188,11 +196,11 @@ export default function CategorySelectPage() {
               onClick={clear}
               className="flex-1 rounded-full bg-carissma-100 py-3 text-sm font-bold text-carissma-600 hover:bg-carissma-200"
             >
-              Clear
+              {t('play.categorySelect.clear')}
             </button>
             <div className="flex-[2]">
               <Button onClick={onContinue} loading={submitting}>
-                Continue
+                {t('play.categorySelect.continue')}
               </Button>
             </div>
           </div>

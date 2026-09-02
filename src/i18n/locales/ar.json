@@ -29,7 +29,9 @@
     "copyright": "© {{year}} ميك داون",
     "privacyPolicy": "سياسة الخصوصية",
     "termsAndConditions": "الشروط والأحكام",
-    "returnPolicy": "سياسة الإرجاع"
+    "returnPolicy": "سياسة الإرجاع",
+    "downloadOnAppStore": "حمّل من App Store",
+    "getOnGooglePlay": "احصل عليه من Google Play"
   },
   "home": {
     "hero": {
@@ -42,7 +44,8 @@
     "intro": {
       "blurb": "لعبة أسئلة جماعية تضم أكثر من 200 فئة متنوعة، مع أقسام مخصصة للطلاب والبالغين والأطفال.",
       "watchOnYoutube": "شاهد على يوتيوب",
-      "buyPackage": "+ اشترِ باقة والعب"
+      "buyPackage": "+ اشترِ باقة والعب",
+      "videoThumbnailAlt": "صورة مصغّرة لفيديو الصفحة الرئيسية"
     },
     "categories": {
       "title": "الفئات الأكثر شعبية",
@@ -76,7 +79,9 @@
       "forgetPassword": "نسيت كلمة المرور؟",
       "submit": "تسجيل الدخول",
       "noAccount": "ليس لديك حساب؟",
-      "createAccount": "إنشاء حساب"
+      "createAccount": "إنشاء حساب",
+      "emailPlaceholder": "example@gmail.com",
+      "passwordPlaceholder": "أدخل كلمة المرور"
     },
     "register": {
       "title": "إنشاء حساب",
@@ -96,7 +101,11 @@
         "passwordLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
         "passwordMismatch": "كلمتا المرور غير متطابقتين",
         "acceptTerms": "يرجى الموافقة على الشروط والأحكام"
-      }
+      },
+      "firstNamePlaceholder": "أدخل الاسم الأول",
+      "lastNamePlaceholder": "أدخل اسم العائلة",
+      "phonePlaceholder": "أدخل رقم الهاتف",
+      "confirmPasswordPlaceholder": "تأكيد كلمة المرور"
     },
     "forgotPassword": {
       "title": "نسيت كلمة المرور",
@@ -275,6 +284,21 @@
       "lifelineSkip": "تخطي",
       "you": "أنت",
       "scanToReveal": "امسح للكشف"
+    },
+    "categorySelect": {
+      "title": "اختر الفئات",
+      "loading": "جارٍ تحميل الفئات…",
+      "empty": "لا توجد فئات متاحة للعب حاليًا — تحقق مرة أخرى قريبًا.",
+      "howToPlay": "طريقة اللعب",
+      "completeGameInfo": "أكمل معلومات اللعبة",
+      "gameNameLabel": "اسم اللعبة (اختياري)",
+      "gameNamePlaceholder": "أدخل اسم اللعبة",
+      "playingAs": "تلعب باسم",
+      "youFallback": "أنت",
+      "clear": "مسح",
+      "continue": "متابعة",
+      "pickCategoryError": "اختر فئة واحدة على الأقل لبناء لوحتك.",
+      "createGameError": "تعذّر إنشاء اللعبة."
     }
   },
   "shop": {
@@ -695,5 +719,14 @@
       "message": "يُرجى إدخال رسالة.",
       "generic": "حدث خطأ أثناء إرسال رسالتك. يُرجى المحاولة مرة أخرى."
     }
+  },
+  "packageCard": {
+    "freeGamesPrefix_zero": "+ {{count}} لعبة",
+    "freeGamesPrefix_one": "+ لعبة واحدة",
+    "freeGamesPrefix_two": "+ لعبتان",
+    "freeGamesPrefix_few": "+ {{count}} ألعاب",
+    "freeGamesPrefix_many": "+ {{count}} لعبة",
+    "freeGamesPrefix_other": "+ {{count}} لعبة",
+    "free": "مجانًا"
   }
 }

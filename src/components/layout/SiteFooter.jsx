@@ -78,10 +78,10 @@ export default function SiteFooter() {
             {t('footer.downloadApp')}
           </StickerHeading>
           <div className="mt-3 flex flex-col gap-2.5 sm:items-end">
-            <a href="#" aria-label="Download on the App Store">
+            <a href="#" aria-label={t('footer.downloadOnAppStore')}>
               <img src="/icons/apple-play.svg" alt="Apple Play" className="h-[52px] w-[148px]" />
             </a>
-            <a href="#" aria-label="Get it on Google Play">
+            <a href="#" aria-label={t('footer.getOnGooglePlay')}>
               <img src="/icons/google-play.svg" alt="Google Play" className="h-[52px] w-[148px]" />
             </a>
           </div>

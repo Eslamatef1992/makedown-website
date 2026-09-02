@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import { pickLang } from '../../utils/bilingual';
+
 const TIER_ICONS = ['🎮', '💎', '👑'];
 
 const STICKER_SHADOW = {
@@ -8,9 +11,11 @@ const STICKER_SHADOW = {
 // public Packages page and the profile's Packages tab so the two stay in
 // sync visually. `index` just cycles the icon for however many tiers an
 // admin has configured; it isn't tied to a fixed Standard/Perineum/VIP set.
-export default function PackageCard({ pkg, index = 0, ctaLabel = 'Buy Now', onBuy }) {
+export default function PackageCard({ pkg, index = 0, ctaLabel, onBuy }) {
+  const { t, i18n } = useTranslation();
   const freeGames = Number(pkg.free_credits) || 0;
   const paidGames = Number(pkg.credits) || 0;
+  const buyNowLabel = ctaLabel ?? t('profile.packagesTab.buyNow');
 
   return (
     <div className="flex flex-col rounded-[2rem] border-2 border-carissma-300 bg-white p-6 text-center sm:p-7">
@@ -19,7 +24,7 @@ export default function PackageCard({ pkg, index = 0, ctaLabel = 'Buy Now', onBu
       </div>
 
       <p className="mt-5 text-xl font-extrabold text-carissma-300" style={STICKER_SHADOW}>
-        {pkg.name_en}
+        {pickLang(pkg, 'name', i18n.language)}
       </p>
       <p className="mt-1 text-lg font-extrabold text-carissma-300" style={STICKER_SHADOW}>
         {Number(pkg.price).toFixed(0)} Kwd
@@ -29,10 +34,12 @@ export default function PackageCard({ pkg, index = 0, ctaLabel = 'Buy Now', onBu
         <div className="flex items-center gap-2 border-b border-linen-100 pb-3">
           <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-carissma-400 text-[10px] text-white">✓</span>
           <span className="text-sm font-bold text-espresso-900">
-            {paidGames} Game{paidGames === 1 ? '' : 's'}
+            {t('packagePurchase.games', { count: paidGames })}
             {freeGames > 0 && (
               <>
-                {' '}+ {freeGames} Game{freeGames === 1 ? '' : 's'} <span className="text-carissma-500">Free</span>
+                {' '}
+                {t('packageCard.freeGamesPrefix', { count: freeGames })}{' '}
+                <span className="text-carissma-500">{t('packageCard.free')}</span>
               </>
             )}
           </span>
@@ -45,7 +52,7 @@ export default function PackageCard({ pkg, index = 0, ctaLabel = 'Buy Now', onBu
         disabled={!onBuy}
         className="mt-6 w-full rounded-full bg-carissma-400 py-3 font-bold text-white hover:bg-carissma-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {ctaLabel}
+        {buyNowLabel}
       </button>
     </div>
   );

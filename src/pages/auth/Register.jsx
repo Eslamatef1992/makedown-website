@@ -74,11 +74,11 @@ export default function Register() {
     <AuthLayout title={t('auth.register.title')} cardClassName="max-w-lg">
       <form onSubmit={onSubmit} className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <TextField label={t('auth.register.firstName')} required name="firstName" placeholder="enter first name" value={form.firstName} onChange={onChange} />
-          <TextField label={t('auth.register.lastName')} required name="lastName" placeholder="enter last name" value={form.lastName} onChange={onChange} />
+          <TextField label={t('auth.register.firstName')} required name="firstName" placeholder={t('auth.register.firstNamePlaceholder')} value={form.firstName} onChange={onChange} />
+          <TextField label={t('auth.register.lastName')} required name="lastName" placeholder={t('auth.register.lastNamePlaceholder')} value={form.lastName} onChange={onChange} />
         </div>
 
-        <TextField label={t('auth.register.email')} required type="email" name="email" placeholder="example@gmail.com" value={form.email} onChange={onChange} />
+        <TextField label={t('auth.register.email')} required type="email" name="email" placeholder={t('auth.login.emailPlaceholder')} value={form.email} onChange={onChange} />
 
         <TextField
           label={t('auth.register.birthDate')}
@@ -109,7 +109,7 @@ export default function Register() {
             <input
               name="phone"
               type="tel"
-              placeholder="enter phone number"
+              placeholder={t('auth.register.phonePlaceholder')}
               value={form.phone}
               onChange={onChange}
               className="w-full bg-transparent px-3 py-3 text-espresso-900 placeholder:text-carissma-300 focus:outline-none"
@@ -122,7 +122,7 @@ export default function Register() {
           required
           type={showPassword ? 'text' : 'password'}
           name="password"
-          placeholder="enter password"
+          placeholder={t('auth.login.passwordPlaceholder')}
           value={form.password}
           onChange={onChange}
           minLength={8}
@@ -137,7 +137,7 @@ export default function Register() {
           required
           type={showConfirm ? 'text' : 'password'}
           name="confirmPassword"
-          placeholder="confirm password"
+          placeholder={t('auth.register.confirmPasswordPlaceholder')}
           value={form.confirmPassword}
           onChange={onChange}
           suffix={
