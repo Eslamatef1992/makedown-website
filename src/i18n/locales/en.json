@@ -96,6 +96,49 @@
         "passwordMismatch": "Passwords do not match",
         "acceptTerms": "Please accept the Terms And Conditions"
       }
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "We'll email you a reset code",
+      "email": "Email",
+      "emailPlaceholder": "example@gmail.com",
+      "checkInbox": "Check your inbox for a reset code.",
+      "submit": "Send reset code"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter the code we emailed you",
+      "email": "Email",
+      "code": "Code",
+      "codePlaceholder": "6-digit code",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "invalidCode": "Invalid or expired code",
+      "submit": "Reset password"
+    },
+    "verifyOtp": {
+      "title": "OTP Code",
+      "subtitle": "The Verification Code Has Been Sent To This Email Address",
+      "incompleteCode": "Enter the full {{count}}-digit code",
+      "invalidCode": "Invalid or expired code",
+      "resendFailed": "Could not resend the code. Try again shortly.",
+      "resendCode": "Resend Code",
+      "verifyAccount": "Verify Account",
+      "remainingTimeLabel": "Remaining time:",
+      "secondsUnit": "S"
+    },
+    "accountVerification": {
+      "title": "Account Verification",
+      "yourEmail": "Your Email",
+      "changeEmail": "Change Email",
+      "body": "You Will Recive An OTP Code By Email To Verify Your Account",
+      "sendOtp": "Send OTP"
+    },
+    "changeEmail": {
+      "title": "Change Email",
+      "yourEmail": "Your Email",
+      "emailPlaceholder": "dina@gmail.com",
+      "invalidEmail": "Enter a valid email address"
     }
   },
   "packagePurchase": {

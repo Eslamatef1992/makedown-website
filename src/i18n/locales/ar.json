@@ -96,6 +96,49 @@
         "passwordMismatch": "كلمتا المرور غير متطابقتين",
         "acceptTerms": "يرجى الموافقة على الشروط والأحكام"
       }
+    },
+    "forgotPassword": {
+      "title": "نسيت كلمة المرور",
+      "subtitle": "سنرسل لك رمز إعادة التعيين عبر البريد الإلكتروني",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "example@gmail.com",
+      "checkInbox": "تحقق من بريدك الإلكتروني للحصول على رمز إعادة التعيين.",
+      "submit": "إرسال رمز إعادة التعيين"
+    },
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "أدخل الرمز الذي أرسلناه إلى بريدك الإلكتروني",
+      "email": "البريد الإلكتروني",
+      "code": "الرمز",
+      "codePlaceholder": "رمز مكوّن من 6 أرقام",
+      "newPassword": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "8 أحرف على الأقل",
+      "invalidCode": "الرمز غير صالح أو منتهي الصلاحية",
+      "submit": "إعادة تعيين كلمة المرور"
+    },
+    "verifyOtp": {
+      "title": "رمز التحقق",
+      "subtitle": "تم إرسال رمز التحقق إلى هذا البريد الإلكتروني",
+      "incompleteCode": "أدخل الرمز كاملاً المكوّن من {{count}} أرقام",
+      "invalidCode": "الرمز غير صالح أو منتهي الصلاحية",
+      "resendFailed": "تعذّر إعادة إرسال الرمز. يُرجى المحاولة مرة أخرى بعد قليل.",
+      "resendCode": "إعادة إرسال الرمز",
+      "verifyAccount": "تحقق من الحساب",
+      "remainingTimeLabel": "الوقت المتبقي:",
+      "secondsUnit": "ث"
+    },
+    "accountVerification": {
+      "title": "التحقق من الحساب",
+      "yourEmail": "بريدك الإلكتروني",
+      "changeEmail": "تغيير البريد الإلكتروني",
+      "body": "سيتم إرسال رمز تحقق إلى بريدك الإلكتروني للتحقق من حسابك",
+      "sendOtp": "إرسال رمز التحقق"
+    },
+    "changeEmail": {
+      "title": "تغيير البريد الإلكتروني",
+      "yourEmail": "بريدك الإلكتروني",
+      "emailPlaceholder": "dina@gmail.com",
+      "invalidEmail": "أدخل بريدًا إلكترونيًا صالحًا"
     }
   },
   "packagePurchase": {

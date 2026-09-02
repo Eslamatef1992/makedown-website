@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AuthLayout from '../../components/layout/AuthLayout';
 import TextField from '../../components/ui/TextField';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const { forgotPassword } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -25,12 +27,12 @@ export default function ForgotPassword() {
   };
 
   return (
-    <AuthLayout title="Forgot password" subtitle="We'll email you a reset code">
+    <AuthLayout title={t('auth.forgotPassword.title')} subtitle={t('auth.forgotPassword.subtitle')}>
       <form onSubmit={onSubmit} className="space-y-4">
-        <TextField label="Email" type="email" placeholder="example@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        {sent && <p className="rounded-xl bg-carissma-50 px-3 py-2 text-sm text-carissma-700">Check your inbox for a reset code.</p>}
+        <TextField label={t('auth.forgotPassword.email')} type="email" placeholder={t('auth.forgotPassword.emailPlaceholder')} value={email} onChange={(e) => setEmail(e.target.value)} required />
+        {sent && <p className="rounded-xl bg-carissma-50 px-3 py-2 text-sm text-carissma-700">{t('auth.forgotPassword.checkInbox')}</p>}
         <Button type="submit" loading={loading}>
-          Send reset code
+          {t('auth.forgotPassword.submit')}
         </Button>
       </form>
     </AuthLayout>
