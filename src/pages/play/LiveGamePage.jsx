@@ -8,6 +8,7 @@ import {
   getGame, pickTile, submitAnswer, leaveGame,
   applyFiftyFifty, applySkip, callPhoneAFriend as phoneAFriendApi, respondPhoneAFriend, adjustScore,
 } from '../../api/play.api';
+import { useTranslation } from 'react-i18next';
 import { joinGameRoom, onGameEvent } from '../../lib/gameSocket';
 import { useAuth } from '../../context/AuthContext';
 import gameTileDefault from '../../assets/game-tile-default.jpg';
@@ -29,17 +30,17 @@ const parseOptions = (value) => {
 };
 
 const LIFELINES = [
-  { key: 'phone_a_friend', icon: LiveCallIcon, label: 'Phone a friend' },
-  { key: 'fifty_fifty', icon: LiveTapIcon, label: '50 / 50' },
-  { key: 'skip', icon: LiveShuffleIcon, label: 'Skip' },
+  { key: 'phone_a_friend', icon: LiveCallIcon, labelKey: 'play.live.lifelinePhoneAFriend' },
+  { key: 'fifty_fifty', icon: LiveTapIcon, labelKey: 'play.live.lifelineFiftyFifty' },
+  { key: 'skip', icon: LiveShuffleIcon, labelKey: 'play.live.lifelineSkip' },
 ];
 
-function ScoreBlock({ participant, isMe, canAdjust, onAdjustScore }) {
+function ScoreBlock({ participant, isMe, canAdjust, onAdjustScore, t }) {
   return (
     <div className="flex flex-col items-center">
       <p className="text-sm font-extrabold text-espresso-900">
         {participant.full_name}
-        {isMe && ' (you)'}
+        {isMe && ` (${t('play.live.you')})`}
       </p>
       <div className="mt-2 flex items-center gap-2">
         {canAdjust && (
@@ -66,18 +67,18 @@ function ScoreBlock({ participant, isMe, canAdjust, onAdjustScore }) {
   );
 }
 
-function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline, layout = 'row' }) {
+function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline, layout = 'row', t }) {
   return (
     <div className="flex flex-col items-center">
       <p
         className="text-sm font-extrabold text-carissma-400"
         style={{ textShadow: '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff' }}
       >
-        Help Options
+        {t('play.live.helpOptions')}
       </p>
 
       <div className={`mt-3 flex items-center gap-3 ${layout === 'column' ? 'flex-col gap-4' : ''}`}>
-        {LIFELINES.map(({ key, icon: Icon }) => {
+        {LIFELINES.map(({ key, icon: Icon, labelKey }) => {
           const used = usedLifelines.includes(key);
           const active = isMe && canAct && !used;
           return (
@@ -85,6 +86,8 @@ function HelpOptionsBlock({ isMe, usedLifelines, canAct, onLifeline, layout = 'r
               key={key}
               disabled={!active}
               onClick={() => onLifeline(key)}
+              aria-label={t(labelKey)}
+              title={t(labelKey)}
               className={`flex h-12 w-12 items-center justify-center rounded-full bg-carissma-400/[0.14] text-carissma-400 transition ${
                 active ? 'border-4 border-carissma-500 hover:bg-carissma-400/20' : 'border border-carissma-50'
               } ${used ? 'opacity-40' : ''}`}
@@ -107,39 +110,47 @@ function ScorePill({ participant }) {
   );
 }
 
-function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline }) {
+function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline, t }) {
   return (
     <div className="flex w-[177px] flex-none flex-col items-center gap-4 rounded-[2rem] bg-carissma-100 px-6 py-8 lg:h-[418px]">
       <ScorePill participant={participant} />
-      <HelpOptionsBlock isMe={isMe} usedLifelines={usedLifelines} canAct={canAct} onLifeline={onLifeline} layout="column" />
+      <HelpOptionsBlock isMe={isMe} usedLifelines={usedLifelines} canAct={canAct} onLifeline={onLifeline} layout="column" t={t} />
     </div>
   );
 }
 
-function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions }) {
-  const options = useMemo(() => parseOptions(question.options_json_en), [question]);
+function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions, t, i18n }) {
+  // Question bank content is bilingual per-row (question_text_en/_ar,
+  // options_json_en/_ar) — show the row's Arabic content when the site is
+  // in Arabic, falling back to English if a question has no Arabic text yet.
+  const isAr = i18n.language?.startsWith('ar');
+  const questionText = (isAr && question.question_text_ar) || question.question_text_en;
+  const options = useMemo(
+    () => parseOptions((isAr && question.options_json_ar) || question.options_json_en),
+    [question, isAr]
+  );
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   if (question.question_type === 'qr') {
     return (
       <div className="rounded-3xl bg-carissma-50 p-8 text-center">
-        <p className="text-lg font-extrabold text-espresso-900">{question.question_text_en}</p>
+        <p className="text-lg font-extrabold text-espresso-900">{questionText}</p>
         {awaitingScan ? (
           <>
             {scanQrDataUrl ? (
-              <img src={scanQrDataUrl} alt="Scan to reveal" className="mx-auto mt-6 h-48 w-48 rounded-2xl border-4 border-white" />
+              <img src={scanQrDataUrl} alt={t('play.live.scanToReveal')} className="mx-auto mt-6 h-48 w-48 rounded-2xl border-4 border-white" />
             ) : (
-              <p className="mt-6 text-sm text-espresso-500">Generating code…</p>
+              <p className="mt-6 text-sm text-espresso-500">{t('play.live.generatingCode')}</p>
             )}
-            <p className="mt-4 text-xs text-espresso-500">Scan with another device to start the timer.</p>
+            <p className="mt-4 text-xs text-espresso-500">{t('play.live.scanHint')}</p>
             {scanUrl && (
               <a href={scanUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-carissma-600 underline">
-                Open scan link
+                {t('play.live.openScanLink')}
               </a>
             )}
           </>
         ) : (
-          <p className="mt-4 font-bold text-carissma-600">Scanned — answer below!</p>
+          <p className="mt-4 font-bold text-carissma-600">{t('play.live.scannedAnswerBelow')}</p>
         )}
       </div>
     );
@@ -148,7 +159,7 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
   return (
     <div className="relative pt-9 sm:pt-10">
       <div className="absolute start-1/2 top-0 z-10 flex h-9 max-w-[88%] -translate-x-1/2 items-center justify-center rounded-t-2xl bg-carissma-100 px-8 sm:h-10 sm:px-14">
-        <p className="truncate text-center text-base font-extrabold text-espresso-900 sm:text-lg">{question.question_text_en}</p>
+        <p className="truncate text-center text-base font-extrabold text-espresso-900 sm:text-lg">{questionText}</p>
       </div>
       <div className="relative overflow-hidden rounded-[2rem] bg-carissma-100 p-6 pt-5 sm:p-8 sm:pt-6">
         <div
@@ -242,6 +253,7 @@ export default function LiveGamePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, i18n } = useTranslation();
 
   const [session, setSession] = useState(null);
   const [awaitingScan, setAwaitingScan] = useState(false);
@@ -408,7 +420,7 @@ export default function LiveGamePage() {
   };
 
   if (!session) {
-    return <div className="flex min-h-screen items-center justify-center text-espresso-500">Loading game…</div>;
+    return <div className="flex min-h-screen items-center justify-center text-espresso-500">{t('play.live.loading')}</div>;
   }
 
   return (
@@ -418,10 +430,10 @@ export default function LiveGamePage() {
         <div className="flex items-center justify-between rounded-3xl bg-gradient-to-r from-carissma-50 via-carissma-400 to-carissma-300 px-5 py-3">
           <img src="/logo-mark.png" alt="Make Down" className="h-12 w-12 flex-none object-contain" />
           <h1 className="text-lg font-extrabold text-white sm:text-xl">
-            {session.title || 'Live Game'}
+            {session.title || t('play.live.liveGame')}
           </h1>
           <button onClick={onLeave} className="rounded-xl bg-carissma-100 px-5 py-2 text-xs font-extrabold text-carissma-400 hover:bg-carissma-200">
-            Leave Game
+            {t('play.live.leaveGame')}
           </button>
         </div>
 
@@ -429,8 +441,8 @@ export default function LiveGamePage() {
         <div className="mt-4 flex items-center justify-between rounded-3xl bg-carissma-100 px-5 py-4">
           <span className="inline-flex min-w-0 max-w-[60%] items-center truncate rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white sm:max-w-[70%]">
             {currentTurnParticipant ? (
-              <>It&rsquo;s&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>&rsquo;s Turn To Play.</>
-            ) : 'Waiting for the next turn…'}
+              <>{t('play.live.turnPrefix')}&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>{t('play.live.turnSuffix')}</>
+            ) : t('play.live.waitingForNextTurn')}
           </span>
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
           <span className="w-24" />
@@ -438,13 +450,13 @@ export default function LiveGamePage() {
 
         {flash && (
           <div className={`mt-3 rounded-2xl px-4 py-2 text-center text-sm font-extrabold ${flash.isCorrect ? 'bg-green-100 text-green-700' : 'bg-carnation-100 text-carnation-700'}`}>
-            {flash.isCorrect ? 'Correct! 🎉' : 'Not quite — moving to the next turn.'}
+            {flash.isCorrect ? t('play.live.correct') : t('play.live.notQuite')}
           </div>
         )}
         {friendHint !== null && (
           <div className="mt-3 rounded-2xl bg-saffron-100 px-4 py-2 text-center text-sm font-bold text-saffron-700">
-            Your friend suggests option {['A', 'B', 'C', 'D'][friendHint]}
-            <button onClick={() => setFriendHint(null)} className="ms-3 underline">dismiss</button>
+            {t('play.live.friendSuggests', { letter: ['A', 'B', 'C', 'D'][friendHint] })}
+            <button onClick={() => setFriendHint(null)} className="ms-3 underline">{t('play.live.dismiss')}</button>
           </div>
         )}
 
@@ -462,6 +474,7 @@ export default function LiveGamePage() {
                     usedLifelines={myParticipant?.id === session.participants[0].id ? usedLifelines : []}
                     canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                     onLifeline={onLifeline}
+                    t={t}
                   />
                 )}
               </div>
@@ -476,7 +489,7 @@ export default function LiveGamePage() {
                     )}
                     {timeLeft !== null && (
                       <div className="mt-2">
-                        <p className="text-sm font-bold text-espresso-800">Remaining Time:</p>
+                        <p className="text-sm font-bold text-espresso-800">{t('play.live.remainingTime')}</p>
                         <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white">
                           <RefreshIcon className="h-4 w-4" /> {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} S <PauseIcon className="h-4 w-4" />
                         </span>
@@ -484,7 +497,7 @@ export default function LiveGamePage() {
                     )}
                   </div>
                   <p className="relative z-10 mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
-                    <span aria-hidden="true">⭐</span> {session.currentQuestion.points} Point
+                    <span aria-hidden="true">⭐</span> {session.currentQuestion.points} {t('play.live.pointsSuffix')}
                   </p>
                 </div>
                 <QuestionCard
@@ -495,6 +508,8 @@ export default function LiveGamePage() {
                   selected={selected}
                   onSelect={isMyTurn ? setSelected : () => {}}
                   hiddenOptions={hiddenOptions}
+                  t={t}
+                  i18n={i18n}
                 />
               </div>
 
@@ -506,6 +521,7 @@ export default function LiveGamePage() {
                     usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
                     canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                     onLifeline={onLifeline}
+                    t={t}
                   />
                 )}
               </div>
@@ -519,7 +535,7 @@ export default function LiveGamePage() {
                     '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff',
                 }}
               >
-                Games
+                {t('play.live.games')}
               </p>
               <GamesBoard board={session.board || []} onPick={onPick} canPick={isMyTurn && session.status === 'active'} />
             </>
@@ -532,7 +548,7 @@ export default function LiveGamePage() {
             disabled={selected === null}
             className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
           >
-            Next
+            {t('play.live.next')}
           </button>
         )}
 
@@ -548,12 +564,14 @@ export default function LiveGamePage() {
                 isMe={myParticipant?.id === session.participants[0].id}
                 canAdjust={isHost}
                 onAdjustScore={onAdjustScore}
+                t={t}
               />
               <HelpOptionsBlock
                 isMe={myParticipant?.id === session.participants[0].id}
                 usedLifelines={myParticipant?.id === session.participants[0].id ? usedLifelines : []}
                 canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                 onLifeline={onLifeline}
+                t={t}
               />
             </div>
 
@@ -564,12 +582,14 @@ export default function LiveGamePage() {
                   usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
                   canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                   onLifeline={onLifeline}
+                  t={t}
                 />
                 <ScoreBlock
                   participant={session.participants[1]}
                   isMe={myParticipant?.id === session.participants[1].id}
                   canAdjust={isHost}
                   onAdjustScore={onAdjustScore}
+                  t={t}
                 />
               </div>
             )}
@@ -585,12 +605,14 @@ export default function LiveGamePage() {
                   isMe={myParticipant?.id === p.id}
                   canAdjust={isHost}
                   onAdjustScore={onAdjustScore}
+                  t={t}
                 />
                 <HelpOptionsBlock
                   isMe={myParticipant?.id === p.id}
                   usedLifelines={myParticipant?.id === p.id ? usedLifelines : []}
                   canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                   onLifeline={onLifeline}
+                  t={t}
                 />
               </div>
             ))}
@@ -602,8 +624,8 @@ export default function LiveGamePage() {
       {phonePickerFor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center">
-            <h3 className="text-lg font-extrabold text-espresso-900">Phone a friend</h3>
-            <p className="mt-1 text-sm text-espresso-600">Who do you want to ask?</p>
+            <h3 className="text-lg font-extrabold text-espresso-900">{t('play.live.phoneAFriendTitle')}</h3>
+            <p className="mt-1 text-sm text-espresso-600">{t('play.live.phoneAFriendBody')}</p>
             <div className="mt-4 space-y-2">
               {session.participants.filter((p) => p.id !== myParticipant?.id).map((p) => (
                 <button
@@ -615,7 +637,7 @@ export default function LiveGamePage() {
                 </button>
               ))}
             </div>
-            <button onClick={() => setPhonePickerFor(false)} className="mt-4 text-sm font-bold text-carissma-600 underline">Cancel</button>
+            <button onClick={() => setPhonePickerFor(false)} className="mt-4 text-sm font-bold text-carissma-600 underline">{t('common.cancel')}</button>
           </div>
         </div>
       )}
@@ -624,10 +646,12 @@ export default function LiveGamePage() {
       {friendRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center">
-            <h3 className="text-lg font-extrabold text-espresso-900">A friend needs your help!</h3>
-            <p className="mt-2 text-sm font-bold text-espresso-900">{friendRequest.question.question_text_en}</p>
+            <h3 className="text-lg font-extrabold text-espresso-900">{t('play.live.friendNeedsHelp')}</h3>
+            <p className="mt-2 text-sm font-bold text-espresso-900">
+              {(i18n.language?.startsWith('ar') && friendRequest.question.question_text_ar) || friendRequest.question.question_text_en}
+            </p>
             <div className="mt-3 space-y-2">
-              {parseOptions(friendRequest.question.options_json_en).map((opt, i) => (
+              {parseOptions((i18n.language?.startsWith('ar') && friendRequest.question.options_json_ar) || friendRequest.question.options_json_en).map((opt, i) => (
                 <button
                   key={i}
                   onClick={() => respondToFriend(i)}
@@ -637,7 +661,7 @@ export default function LiveGamePage() {
                 </button>
               ))}
             </div>
-            <button onClick={() => setFriendRequest(null)} className="mt-4 text-sm font-bold text-carissma-600 underline">Ignore</button>
+            <button onClick={() => setFriendRequest(null)} className="mt-4 text-sm font-bold text-carissma-600 underline">{t('play.live.ignore')}</button>
           </div>
         </div>
       )}

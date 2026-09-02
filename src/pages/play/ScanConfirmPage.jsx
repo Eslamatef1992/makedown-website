@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { CheckIcon } from '../../components/ui/icons';
@@ -11,6 +12,7 @@ import { scanQuestion } from '../../api/play.api';
 // question reveal live over Socket.io.
 export default function ScanConfirmPage() {
   const { sessionId, token } = useParams();
+  const { t } = useTranslation();
   const [state, setState] = useState('scanning'); // 'scanning' | 'done' | 'error'
 
   useEffect(() => {
@@ -28,20 +30,20 @@ export default function ScanConfirmPage() {
               <CheckIcon className="h-7 w-7" />
             </span>
             <StickerHeading as="h2" className="mt-4 text-2xl">
-              Scanned!
+              {t('play.scanConfirm.scanned')}
             </StickerHeading>
-            <p className="mt-2 text-sm font-medium text-espresso-700">You can go back to the game — the question is starting now.</p>
+            <p className="mt-2 text-sm font-medium text-espresso-700">{t('play.scanConfirm.scannedBody')}</p>
           </>
         ) : state === 'error' ? (
           <>
             <StickerHeading as="h2" className="text-2xl">
-              That didn't work
+              {t('play.scanConfirm.errorTitle')}
             </StickerHeading>
-            <p className="mt-2 text-sm font-medium text-espresso-700">This code may have already been used or the question has changed.</p>
+            <p className="mt-2 text-sm font-medium text-espresso-700">{t('play.scanConfirm.errorBody')}</p>
           </>
         ) : (
           <StickerHeading as="h2" className="text-2xl">
-            Scanning…
+            {t('play.scanConfirm.scanning')}
           </StickerHeading>
         )}
       </PlayCard>

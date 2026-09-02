@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
@@ -9,6 +10,7 @@ import { getGame, matchRandomOpponent, searchInvitees, sendInvite } from '../../
 export default function InvitePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [session, setSession] = useState(null);
   const [view, setView] = useState('start'); // 'start' | 'link'
@@ -76,11 +78,11 @@ export default function InvitePage() {
   const goToLobby = () => navigate(`/play/sessions/${id}/lobby`);
 
   return (
-    <PlayModalLayout onBack={() => (view === 'link' ? setView('start') : navigate(-1))} backLabel="Back" backStyle="link">
+    <PlayModalLayout onBack={() => (view === 'link' ? setView('start') : navigate(-1))} backLabel={t('common.back')} backStyle="link">
       {view === 'start' ? (
         <div className="w-full max-w-2xl rounded-[2.5rem] border-4 border-carissma-300 bg-carissma-50/95 p-10 text-center shadow-lg">
           <StickerHeading as="h2" className="text-3xl">
-            Start Play With
+            {t('play.invite.startPlayWith')}
           </StickerHeading>
           <div className="mt-12 flex gap-4">
             <button
@@ -88,24 +90,24 @@ export default function InvitePage() {
               disabled={matching}
               className="flex-1 rounded-full bg-carissma-100 py-5 text-base font-extrabold text-carissma-600 hover:bg-carissma-200 disabled:opacity-60"
             >
-              {matching ? 'Matching…' : 'Random User'}
+              {matching ? t('play.invite.matching') : t('play.invite.randomUser')}
             </button>
             <button
               onClick={() => setView('link')}
               className="flex-1 rounded-full bg-carissma-500 py-5 text-base font-extrabold text-white hover:bg-carissma-600"
             >
-              Send Invitation
+              {t('play.invite.sendInvitation')}
             </button>
           </div>
         </div>
       ) : (
         <PlayCard maxWidth="max-w-2xl" border="border-4 border-carissma-300" radius="rounded-[2.5rem]" className="text-start">
           <StickerHeading as="h2" className="text-center text-2xl">
-            Game Link
+            {t('play.invite.gameLink')}
           </StickerHeading>
 
           <div className="mt-6">
-            <span className="mb-1.5 block text-sm font-bold text-espresso-900">Share Game Link</span>
+            <span className="mb-1.5 block text-sm font-bold text-espresso-900">{t('play.invite.shareGameLink')}</span>
             <div className="flex items-stretch gap-2">
               <input
                 readOnly
@@ -115,28 +117,28 @@ export default function InvitePage() {
               <button
                 onClick={copyLink}
                 className="flex flex-none items-center justify-center rounded-2xl bg-carissma-500 px-3 text-white hover:bg-carissma-600"
-                aria-label="Copy link"
+                aria-label={t('play.invite.copyLink')}
               >
                 <CopyIcon className="h-5 w-5" />
               </button>
             </div>
-            {copied && <span className="mt-1 block text-xs font-bold text-carissma-600">Copied!</span>}
+            {copied && <span className="mt-1 block text-xs font-bold text-carissma-600">{t('play.invite.copied')}</span>}
           </div>
 
           <div className="my-5 flex items-center gap-3">
             <span className="h-px flex-1 bg-carissma-100" />
-            <span className="text-xs font-bold text-carissma-400">OR</span>
+            <span className="text-xs font-bold text-carissma-400">{t('play.invite.or')}</span>
             <span className="h-px flex-1 bg-carissma-100" />
           </div>
 
           <div className="relative">
-            <span className="mb-1.5 block text-sm font-bold text-espresso-900">User Name</span>
+            <span className="mb-1.5 block text-sm font-bold text-espresso-900">{t('play.invite.userName')}</span>
             <div className="relative">
               <input
                 value={query}
                 onChange={(e) => onSearch(e.target.value)}
                 onFocus={() => setDropdownOpen(true)}
-                placeholder="Enter user name"
+                placeholder={t('play.invite.userNamePlaceholder')}
                 className="w-full rounded-2xl border border-carissma-200 bg-white px-4 py-2.5 pe-10 text-sm text-espresso-900 placeholder:text-carissma-300"
               />
               <ChevronDownIcon className={`pointer-events-none absolute inset-y-0 end-3 my-auto h-4 w-4 text-carissma-400 transition ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -161,7 +163,7 @@ export default function InvitePage() {
                       disabled={invited.includes(u.id)}
                       className="rounded-full bg-carissma-100 px-3 py-1 text-xs font-bold text-carissma-600 hover:bg-carissma-200 disabled:opacity-60"
                     >
-                      {invited.includes(u.id) ? 'Invited' : 'Add'}
+                      {invited.includes(u.id) ? t('play.invite.invited') : t('play.invite.add')}
                     </button>
                   </div>
                 ))}
@@ -170,7 +172,7 @@ export default function InvitePage() {
           </div>
 
           <Button className="mt-6" onClick={goToLobby}>
-            Send Invitation
+            {t('play.invite.sendInvitation')}
           </Button>
         </PlayCard>
       )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
@@ -12,6 +13,7 @@ export default function LobbyPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [session, setSession] = useState(null);
   const [starting, setStarting] = useState(false);
@@ -45,7 +47,7 @@ export default function LobbyPage() {
       await startGame(id);
       navigate(`/play/sessions/${id}/live`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not start the game yet.');
+      setError(err.response?.data?.message || t('play.lobby.startError'));
     } finally {
       setStarting(false);
     }
@@ -61,10 +63,10 @@ export default function LobbyPage() {
 
   if (!session) {
     return (
-      <PlayModalLayout backTo="/play" backLabel="Back" backStyle="link">
+      <PlayModalLayout backTo="/play" backLabel={t('common.back')} backStyle="link">
         <PlayCard maxWidth="max-w-2xl" border="border-4 border-carissma-300" radius="rounded-[2.5rem]" className="py-16">
           <StickerHeading as="h2" className="text-3xl">
-            Waiting……
+            {t('play.lobby.waiting')}
           </StickerHeading>
           <div className="mt-10 flex items-center justify-center gap-2">
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-carissma-200" />
@@ -77,10 +79,10 @@ export default function LobbyPage() {
   }
 
   return (
-    <PlayModalLayout onBack={onLeave} backLabel="Back" backStyle="link">
+    <PlayModalLayout onBack={onLeave} backLabel={t('common.back')} backStyle="link">
       <PlayCard maxWidth="max-w-2xl" border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
         <StickerHeading as="h2" className="text-2xl">
-          {session.status === 'waiting' ? 'Waiting……' : session.title || 'Game Lobby'}
+          {session.status === 'waiting' ? t('play.lobby.waiting') : session.title || t('play.lobby.gameLobby')}
         </StickerHeading>
 
         {session.status === 'waiting' && (
@@ -91,7 +93,7 @@ export default function LobbyPage() {
           </div>
         )}
 
-        <p className="mt-4 text-xs font-bold uppercase tracking-wide text-carissma-400">Join code</p>
+        <p className="mt-4 text-xs font-bold uppercase tracking-wide text-carissma-400">{t('play.lobby.joinCode')}</p>
         <p className="text-2xl font-extrabold tracking-[0.3em] text-carissma-600">{session.join_code}</p>
 
         <div className="mt-6 space-y-2 text-start">
@@ -106,7 +108,7 @@ export default function LobbyPage() {
               )}
               <span className="text-sm font-bold text-espresso-900">{p.full_name}</span>
               {p.team_name && <span className="ms-auto text-xs font-bold text-carissma-500">{p.team_name}</span>}
-              {p.user_id === session.host_user_id && <span className="ms-auto text-xs font-bold text-carissma-400">Host</span>}
+              {p.user_id === session.host_user_id && <span className="ms-auto text-xs font-bold text-carissma-400">{t('play.lobby.host')}</span>}
             </div>
           ))}
         </div>
@@ -115,11 +117,11 @@ export default function LobbyPage() {
 
         {isHost && session.status === 'waiting' && (
           <Button className="mt-6" onClick={onStart} loading={starting}>
-            Start Game
+            {t('play.lobby.startGame')}
           </Button>
         )}
         {!isHost && session.status === 'waiting' && (
-          <p className="mt-6 text-sm font-medium text-espresso-600">Waiting for the host to start the game…</p>
+          <p className="mt-6 text-sm font-medium text-espresso-600">{t('play.lobby.waitingForHost')}</p>
         )}
       </PlayCard>
     </PlayModalLayout>

@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
@@ -6,31 +7,32 @@ import Button from '../../components/ui/Button';
 export default function CreateJoinPage() {
   const { mode } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
-    <PlayModalLayout backTo="/play" backLabel="Back" backStyle="button">
+    <PlayModalLayout backTo="/play" backLabel={t('common.back')} backStyle="button">
       <div className="flex flex-col gap-6 sm:flex-row">
         <PlayCard border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
           <StickerHeading as="h2" className="text-2xl">
-            Create Game
+            {t('play.createJoin.create.title')}
           </StickerHeading>
           <p className="mt-4 text-sm font-medium text-espresso-700">
-            Choose your game and invite a player with a link or get matched randomly.
+            {t('play.createJoin.create.description')}
           </p>
           <Button className="mt-6" onClick={() => navigate(`/play/mode/${mode}/create`)}>
-            Start Now
+            {t('play.createJoin.startNow')}
           </Button>
         </PlayCard>
 
         <PlayCard border="border-4 border-carissma-300" radius="rounded-[2.5rem]">
           <StickerHeading as="h2" className="text-2xl">
-            Join Game
+            {t('play.createJoin.join.title')}
           </StickerHeading>
           <p className="mt-4 text-sm font-medium text-espresso-700">
-            Join a game through an invitation link or get matched with a random player.
+            {t('play.createJoin.join.description')}
           </p>
           <Button className="mt-6" onClick={() => navigate(`/play/mode/${mode}/join`)}>
-            Start Now
+            {t('play.createJoin.startNow')}
           </Button>
         </PlayCard>
       </div>

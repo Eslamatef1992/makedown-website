@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
@@ -11,6 +12,7 @@ export default function ResultsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [session, setSession] = useState(null);
 
   useEffect(() => {
@@ -24,12 +26,12 @@ export default function ResultsPage() {
     <SiteLayout>
       <div className="mx-auto max-w-2xl px-6 py-14 text-center sm:px-8">
         <StickerHeading as="h1" className="text-3xl">
-          Game Over!
+          {t('play.results.title')}
         </StickerHeading>
 
         {winner && (
           <p className="mt-3 text-lg font-bold text-espresso-800">
-            🏆 {winner.full_name === user?.full_name ? 'You won!' : `${winner.full_name} wins!`}
+            🏆 {winner.full_name === user?.full_name ? t('play.results.youWon') : t('play.results.winnerWins', { name: winner.full_name })}
           </p>
         )}
 
@@ -51,9 +53,9 @@ export default function ResultsPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button onClick={() => navigate('/play')}>Play Again</Button>
+          <Button onClick={() => navigate('/play')}>{t('play.results.playAgain')}</Button>
           <Button variant="outline" onClick={() => navigate('/profile?tab=game-history')}>
-            View Game History
+            {t('play.results.viewGameHistory')}
           </Button>
         </div>
       </div>

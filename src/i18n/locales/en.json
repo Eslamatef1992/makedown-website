@@ -113,5 +113,120 @@
     "discount": "Discount",
     "total": "Total",
     "pay": "Pay"
+  },
+  "play": {
+    "soloTeam": {
+      "solo": {
+        "title": "Solo",
+        "description": "A single-player game where the player answers a series of questions individually and earns points based on their correct answers. At the end of the game, the player can view their final score and results."
+      },
+      "team": {
+        "title": "Team",
+        "description": "A multiplayer game where players compete in teams by answering a series of questions. Each team earns points based on their correct answers, and the team with the highest score at the end of the game wins."
+      },
+      "startNow": "Start Now"
+    },
+    "createJoin": {
+      "create": {
+        "title": "Create Game",
+        "description": "Choose your game and invite a player with a link or get matched randomly."
+      },
+      "join": {
+        "title": "Join Game",
+        "description": "Join a game through an invitation link or get matched with a random player."
+      },
+      "startNow": "Start Now"
+    },
+    "joinByCode": {
+      "title": "Join Game",
+      "codeLabel": "Join Code",
+      "codePlaceholder": "e.g. 7F3KQ2",
+      "join": "Join",
+      "notFound": "No game found with that code."
+    },
+    "joinLink": {
+      "backToPlay": "Back to Play",
+      "joining": "Joining…",
+      "connecting": "Hang tight, connecting you to the game.",
+      "invalid": "This game link is no longer valid."
+    },
+    "scanConfirm": {
+      "scanned": "Scanned!",
+      "scannedBody": "You can go back to the game — the question is starting now.",
+      "errorTitle": "That didn't work",
+      "errorBody": "This code may have already been used or the question has changed.",
+      "scanning": "Scanning…"
+    },
+    "results": {
+      "title": "Game Over!",
+      "youWon": "You won!",
+      "winnerWins": "{{name}} wins!",
+      "playAgain": "Play Again",
+      "viewGameHistory": "View Game History"
+    },
+    "lobby": {
+      "waiting": "Waiting……",
+      "joinCode": "Join code",
+      "host": "Host",
+      "startGame": "Start Game",
+      "waitingForHost": "Waiting for the host to start the game…",
+      "startError": "Could not start the game yet.",
+      "gameLobby": "Game Lobby"
+    },
+    "invite": {
+      "startPlayWith": "Start Play With",
+      "matching": "Matching…",
+      "randomUser": "Random User",
+      "sendInvitation": "Send Invitation",
+      "gameLink": "Game Link",
+      "shareGameLink": "Share Game Link",
+      "copyLink": "Copy link",
+      "copied": "Copied!",
+      "or": "OR",
+      "userName": "User Name",
+      "userNamePlaceholder": "Enter user name",
+      "invited": "Invited",
+      "add": "Add"
+    },
+    "freeGameOver": {
+      "title": "🎮 Your Free Game Is Over!",
+      "completed": "You've Completed Your Free Game!",
+      "choosePackage": "To Keep Playing, Choose A Package That Suits You And Continue The Challenge.",
+      "packages": "Packages",
+      "choosePackageSuits": "Choose The Package That Suits You",
+      "loading": "Loading packages…",
+      "loadError": "Couldn't load packages right now.",
+      "noPackages": "No packages available yet — check back soon."
+    },
+    "live": {
+      "loading": "Loading game…",
+      "leaveGame": "Leave Game",
+      "liveGame": "Live Game",
+      "turnPrefix": "It's",
+      "turnSuffix": "'s Turn To Play.",
+      "waitingForNextTurn": "Waiting for the next turn…",
+      "correct": "Correct! 🎉",
+      "notQuite": "Not quite — moving to the next turn.",
+      "friendSuggests": "Your friend suggests option {{letter}}",
+      "dismiss": "dismiss",
+      "remainingTime": "Remaining Time:",
+      "pointsSuffix": "Point",
+      "games": "Games",
+      "next": "Next",
+      "helpOptions": "Help Options",
+      "phoneAFriendTitle": "Phone a friend",
+      "phoneAFriendBody": "Who do you want to ask?",
+      "friendNeedsHelp": "A friend needs your help!",
+      "ignore": "Ignore",
+      "generatingCode": "Generating code…",
+      "scanHint": "Scan with another device to start the timer.",
+      "openScanLink": "Open scan link",
+      "scannedAnswerBelow": "Scanned — answer below!",
+      "lifelinePhoneAFriend": "Phone a friend",
+      "lifelineFiftyFifty": "50 / 50",
+      "lifelineSkip": "Skip",
+      "you": "you",
+      "scanToReveal": "Scan to reveal"
+    }
   }
 }

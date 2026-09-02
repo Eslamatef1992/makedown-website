@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PlayModalLayout, { PlayCard } from './components/PlayModalLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
@@ -11,6 +12,7 @@ import { joinGameByCode } from '../../api/play.api';
 export default function JoinLinkPage() {
   const { code } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [error, setError] = useState('');
   const [noFreeGame, setNoFreeGame] = useState(false);
 
@@ -21,22 +23,22 @@ export default function JoinLinkPage() {
         if (err.response?.status === 402) {
           setNoFreeGame(true);
         } else {
-          setError(err.response?.data?.message || 'This game link is no longer valid.');
+          setError(err.response?.data?.message || t('play.joinLink.invalid'));
         }
       });
-  }, [code, navigate]);
+  }, [code, navigate, t]);
 
   if (noFreeGame) {
     return <FreeGameOverScreen onBack={() => navigate('/play')} />;
   }
 
   return (
-    <PlayModalLayout backTo="/play" backLabel="Back to Play" backStyle="button">
+    <PlayModalLayout backTo="/play" backLabel={t('play.joinLink.backToPlay')} backStyle="button">
       <PlayCard>
         <StickerHeading as="h2" className="text-2xl">
-          Joining…
+          {t('play.joinLink.joining')}
         </StickerHeading>
-        <p className="mt-4 text-sm font-medium text-espresso-700">{error || 'Hang tight, connecting you to the game.'}</p>
+        <p className="mt-4 text-sm font-medium text-espresso-700">{error || t('play.joinLink.connecting')}</p>
       </PlayCard>
     </PlayModalLayout>
   );
