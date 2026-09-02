@@ -185,7 +185,7 @@ export default function CheckoutPage() {
     setError('');
     try {
       const payload = {
-        items: items.map((it) => ({ productId: it.productId, variantId: it.variantId, quantity: it.quantity })),
+        items: items.map((it) => ({ productId: it.productId, variantId: it.variantId, quantity: it.quantity, giftBox: it.giftBox || undefined })),
         shippingAddress: address,
         paymentMethod,
         discountCode: discount?.code || undefined,
@@ -413,7 +413,7 @@ export default function CheckoutPage() {
                   const otherAttrs = Object.entries(attrs).filter(([k]) => k !== colorKey);
                   return (
                     <div
-                      key={`${it.productId}-${it.variantId ?? 'base'}`}
+                      key={`${it.productId}-${it.variantId ?? 'base'}-${it.giftBox ? 'gift' : 'plain'}`}
                       className="flex items-center gap-3 rounded-2xl bg-white p-3"
                     >
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-linen-100">
@@ -435,6 +435,7 @@ export default function CheckoutPage() {
                               />
                             </span>
                           )}
+                          {it.giftBox && <span className="text-carissma-500">🎁 Gift Boxed</span>}
                           {otherAttrs.map(([k, v]) => (
                             <span key={k}>
                               {k[0].toUpperCase()}: <span className="font-bold">{v}</span>

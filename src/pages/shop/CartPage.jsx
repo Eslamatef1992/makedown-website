@@ -93,7 +93,7 @@ export default function CartPage() {
               {items.map((item) => {
                 const { color, width, height } = itemAttrs(item);
                 return (
-                  <div key={`${item.productId}-${item.variantId ?? 'base'}`} className="flex flex-wrap items-center gap-3 py-4 sm:flex-nowrap sm:gap-4">
+                  <div key={`${item.productId}-${item.variantId ?? 'base'}-${item.giftBox ? 'gift' : 'plain'}`} className="flex flex-wrap items-center gap-3 py-4 sm:flex-nowrap sm:gap-4">
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-linen-100">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
@@ -113,6 +113,7 @@ export default function CartPage() {
                         )}
                         {width && <span>W: {width}</span>}
                         {height && <span>H: {height}</span>}
+                        {item.giftBox && <span className="text-carissma-500">🎁 Gift Boxed</span>}
                       </div>
                     </div>
 
@@ -125,7 +126,7 @@ export default function CartPage() {
                       <div className="flex items-center gap-2 rounded-full border border-carissma-200 px-2.5 py-1">
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity - 1, item.giftBox)}
                           className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
                           aria-label="Decrease quantity"
                         >
@@ -134,7 +135,7 @@ export default function CartPage() {
                         <span className="w-4 text-center text-sm font-bold text-espresso-900">{item.quantity}</span>
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1, item.giftBox)}
                           className="flex h-6 w-6 items-center justify-center rounded-full text-carissma-500 hover:bg-carissma-50"
                           aria-label="Increase quantity"
                         >
@@ -148,7 +149,7 @@ export default function CartPage() {
 
                       <button
                         type="button"
-                        onClick={() => removeItem(item.productId, item.variantId)}
+                        onClick={() => removeItem(item.productId, item.variantId, item.giftBox)}
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-carnation-500 hover:bg-carnation-50"
                         aria-label="Remove item"
                       >

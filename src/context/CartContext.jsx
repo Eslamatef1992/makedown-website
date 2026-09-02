@@ -14,7 +14,10 @@ function readStoredCart() {
 }
 
 function lineKey(item) {
-  return `${item.productId}::${item.variantId ?? 'base'}`;
+  // Gift-boxed and plain adds of the same product/variant are kept as
+  // separate lines — merging them would silently average away the gift
+  // box surcharge on one of the two.
+  return `${item.productId}::${item.variantId ?? 'base'}::${item.giftBox ? 'gift' : 'plain'}`;
 }
 
 export function CartProvider({ children }) {
@@ -45,15 +48,15 @@ export function CartProvider({ children }) {
     });
   }, []);
 
-  const removeItem = useCallback((productId, variantId) => {
-    setItems((prev) => prev.filter((it) => lineKey(it) !== lineKey({ productId, variantId })));
+  const removeItem = useCallback((productId, variantId, giftBox = false) => {
+    setItems((prev) => prev.filter((it) => lineKey(it) !== lineKey({ productId, variantId, giftBox })));
   }, []);
 
-  const updateQuantity = useCallback((productId, variantId, quantity) => {
+  const updateQuantity = useCallback((productId, variantId, quantity, giftBox = false) => {
     setItems((prev) =>
       prev
         .map((it) =>
-          lineKey(it) === lineKey({ productId, variantId })
+          lineKey(it) === lineKey({ productId, variantId, giftBox })
             ? { ...it, quantity: Math.max(1, Math.min(quantity, it.maxQuantity || 999)) }
             : it
         )

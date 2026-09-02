@@ -5,6 +5,7 @@ import { listProducts } from '../../api/content.api';
 import { useCurrency } from '../../context/CurrencyContext';
 import { SearchIcon, ChevronDownIcon } from '../../components/ui/icons';
 import StickerHeading from '../../components/ui/StickerHeading';
+import { activeProductPrice, isProductOutOfStock } from '../../utils/productDisplay';
 
 const PAGE_SIZE = 60;
 const BATCH = 20;
@@ -43,9 +44,11 @@ export default function ProductsPage() {
     if (q) {
       list = list.filter((p) => (p.name_en || '').toLowerCase().includes(q) || (p.name_ar || '').includes(q));
     }
-    return [...list].sort((a, b) =>
-      sort === 'low-high' ? Number(a.base_price) - Number(b.base_price) : Number(b.base_price) - Number(a.base_price)
-    );
+    return [...list].sort((a, b) => {
+      const priceA = activeProductPrice(a).price;
+      const priceB = activeProductPrice(b).price;
+      return sort === 'low-high' ? priceA - priceB : priceB - priceA;
+    });
   }, [rows, search, sort]);
 
   const visibleRows = filteredSorted.slice(0, visible);
@@ -98,34 +101,46 @@ export default function ProductsPage() {
         {!loading && !error && visibleRows.length > 0 && (
           <>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              {visibleRows.map((p) => (
-                <div key={p.id} className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
-                  <Link to={`/products/${p.slug}`} className="block aspect-square w-full overflow-hidden bg-carissma-100">
-                    {p.thumbnail_url ? (
-                      <img src={p.thumbnail_url} alt={p.name_en} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-carissma-300">No image</div>
-                    )}
-                  </Link>
-                  <div className="p-3">
-                    <Link to={`/products/${p.slug}`} className="block text-sm font-bold text-carissma-500 hover:underline">
-                      {p.name_en}
+              {visibleRows.map((p) => {
+                const { price, original } = activeProductPrice(p);
+                const outOfStock = isProductOutOfStock(p);
+                return (
+                  <div key={p.id} className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
+                    <Link to={`/products/${p.slug}`} className="relative block aspect-square w-full overflow-hidden bg-carissma-100">
+                      {p.thumbnail_url ? (
+                        <img src={p.thumbnail_url} alt={p.name_en} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-carissma-300">No image</div>
+                      )}
+                      {outOfStock && (
+                        <span className="absolute inset-x-0 top-0 bg-espresso-900/70 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-white">
+                          Out Of Stock
+                        </span>
+                      )}
                     </Link>
-                    {p.description_en && (
-                      <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{p.description_en}</p>
-                    )}
-                    <p className="mt-1 text-sm font-bold text-espresso-900">
-                      {formatPrice(p.base_price)}
-                    </p>
-                    <Link
-                      to={`/products/${p.slug}`}
-                      className="mt-2 block rounded-full bg-carissma-400 py-1.5 text-center text-xs font-bold text-white hover:bg-carissma-500"
-                    >
-                      Add To Cart
-                    </Link>
+                    <div className="p-3">
+                      <Link to={`/products/${p.slug}`} className="block text-sm font-bold text-carissma-500 hover:underline">
+                        {p.name_en}
+                      </Link>
+                      {p.description_en && (
+                        <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{p.description_en}</p>
+                      )}
+                      <p className="mt-1 flex items-baseline gap-1.5 text-sm font-bold text-espresso-900">
+                        {formatPrice(price)}
+                        {original && <span className="text-xs font-semibold text-espresso-400 line-through">{formatPrice(original)}</span>}
+                      </p>
+                      <Link
+                        to={`/products/${p.slug}`}
+                        className={`mt-2 block rounded-full py-1.5 text-center text-xs font-bold ${
+                          outOfStock ? 'bg-carissma-100 text-carissma-300' : 'bg-carissma-400 text-white hover:bg-carissma-500'
+                        }`}
+                      >
+                        {outOfStock ? 'Out Of Stock' : 'Add To Cart'}
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {hasMore && (

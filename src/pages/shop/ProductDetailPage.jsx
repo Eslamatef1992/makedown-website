@@ -6,6 +6,7 @@ import { getProductBySlug, listProducts } from '../../api/content.api';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { MinusIcon, PlusIcon } from '../../components/ui/icons';
+import { activeProductPrice, isProductOutOfStock } from '../../utils/productDisplay';
 
 function parseAttrs(variant) {
   if (!variant?.attributes_json) return {};
@@ -19,13 +20,20 @@ function titleCase(str) {
 
 function ProductCard({ product }) {
   const { formatPrice } = useCurrency();
+  const { price, original } = activeProductPrice(product);
+  const outOfStock = isProductOutOfStock(product);
   return (
     <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-carissma-50/60">
-      <Link to={`/products/${product.slug}`} className="block aspect-square w-full overflow-hidden bg-carissma-100">
+      <Link to={`/products/${product.slug}`} className="relative block aspect-square w-full overflow-hidden bg-carissma-100">
         {product.thumbnail_url ? (
           <img src={product.thumbnail_url} alt={product.name_en} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-carissma-300">No image</div>
+        )}
+        {outOfStock && (
+          <span className="absolute inset-x-0 top-0 bg-espresso-900/70 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-white">
+            Out Of Stock
+          </span>
         )}
       </Link>
       <div className="p-3">
@@ -33,14 +41,17 @@ function ProductCard({ product }) {
           {product.name_en}
         </Link>
         {product.description_en && <p className="mt-0.5 truncate text-xs font-medium text-espresso-700">{product.description_en}</p>}
-        <p className="mt-1 text-sm font-bold text-espresso-900">
-          {formatPrice(product.base_price)}
+        <p className="mt-1 flex items-baseline gap-1.5 text-sm font-bold text-espresso-900">
+          {formatPrice(price)}
+          {original && <span className="text-xs font-semibold text-espresso-400 line-through">{formatPrice(original)}</span>}
         </p>
         <Link
           to={`/products/${product.slug}`}
-          className="mt-2 block rounded-full bg-carissma-400 py-1.5 text-center text-xs font-bold text-white hover:bg-carissma-500"
+          className={`mt-2 block rounded-full py-1.5 text-center text-xs font-bold ${
+            outOfStock ? 'bg-carissma-100 text-carissma-300' : 'bg-carissma-400 text-white hover:bg-carissma-500'
+          }`}
         >
-          Add To Cart
+          {outOfStock ? 'Out Of Stock' : 'Add To Cart'}
         </Link>
       </div>
     </div>
@@ -71,6 +82,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [selection, setSelection] = useState({});
   const [quantity, setQuantity] = useState(1);
+  const [giftBox, setGiftBox] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -84,6 +96,7 @@ export default function ProductDetailPage() {
     setNotFound(false);
     setAdded(false);
     setQuantity(1);
+    setGiftBox(false);
     setActiveImage(0);
     setRelated([]);
     setRecommended([]);
@@ -175,11 +188,25 @@ export default function ProductDetailPage() {
   }
 
   const hasVariants = product.variants?.length > 0;
-  const displayPrice = selectedVariant ? selectedVariant.price : product.base_price;
-  const compareAtPrice = selectedVariant?.compare_at_price;
+  // A product-level offer price only wins when it's actually a discount —
+  // set but not lower than base_price (or cleared to null) just falls back
+  // to base_price, same as leaving it blank.
+  const offerPrice = Number(product.offer_price);
+  const basePriceActive =
+    product.offer_price != null && offerPrice > 0 && offerPrice < Number(product.base_price) ? offerPrice : Number(product.base_price);
+  const displayPrice = selectedVariant ? selectedVariant.price : basePriceActive;
+  const compareAtPrice = selectedVariant ? selectedVariant.compare_at_price : basePriceActive < Number(product.base_price) ? product.base_price : null;
   const gallery = product.images?.length ? product.images.map((i) => i.image_url) : [product.thumbnail_url].filter(Boolean);
-  const outOfStock = hasVariants ? !selectedVariant || selectedVariant.stock_quantity <= 0 : product.stock_quantity <= 0;
+  // stock_quantity is only enforced once an admin has actually set a
+  // number on the product — left blank (null) means "not tracked", so a
+  // product with no variants never goes out of stock just because this
+  // field is unset.
+  const outOfStock = hasVariants
+    ? !selectedVariant || Number(selectedVariant.stock_quantity) <= 0
+    : product.stock_quantity != null && Number(product.stock_quantity) <= 0;
   const stockAvailable = hasVariants ? selectedVariant?.stock_quantity : product.stock_quantity;
+  const giftBoxPrice = product.has_gift_box ? Number(product.gift_box_price) || 0 : 0;
+  const unitPrice = Number(displayPrice) + (giftBox ? giftBoxPrice : 0);
 
   const handleAddToCart = () => {
     if (outOfStock) return;
@@ -190,12 +217,14 @@ export default function ProductDetailPage() {
       variantId: selectedVariant?.id ?? null,
       name: product.name_en,
       image: gallery[0] || null,
-      price: displayPrice,
+      price: unitPrice,
       currency: product.currency,
       variantLabel,
       variantAttrs,
       quantity,
       maxQuantity: stockAvailable ?? 999,
+      giftBox: product.has_gift_box ? giftBox : false,
+      giftBoxPrice: giftBox ? giftBoxPrice : 0,
     });
     setAdded(true);
   };
@@ -294,6 +323,18 @@ export default function ProductDetailPage() {
                 </div>
               );
             })}
+
+            {product.has_gift_box && (
+              <label className="mt-6 flex w-fit items-center gap-3 rounded-2xl border-2 border-carissma-200 px-4 py-3 text-sm font-bold text-espresso-800 hover:border-carissma-300">
+                <input
+                  type="checkbox"
+                  checked={giftBox}
+                  onChange={(e) => setGiftBox(e.target.checked)}
+                  className="h-4 w-4 rounded border-carissma-300 text-carissma-500 focus:ring-carissma-400"
+                />
+                Add A Gift Box (+{formatPrice(giftBoxPrice)})
+              </label>
+            )}
 
             {outOfStock && <p className="mt-4 text-sm font-bold text-carnation-600">Out of stock</p>}
 
