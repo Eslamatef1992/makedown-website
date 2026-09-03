@@ -156,7 +156,7 @@ export default function CartPage() {
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-carnation-500 hover:bg-carnation-50"
                         aria-label={t('shop.cart.removeItem')}
                       >
-                        <TrashIcon className="h-4.5 w-4.5" />
+                        <TrashIcon className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
