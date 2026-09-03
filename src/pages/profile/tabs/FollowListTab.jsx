@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChatBubbleIcon } from '../../../components/ui/icons';
+import { ChatBubbleIcon, SearchIcon } from '../../../components/ui/icons';
 import { followUser, listUserFollowers, listUserFollowing, removeFollower, startChatThread, unfollowUser } from '../../../api/me.api';
 
 function FollowRow({ person, isFollowingTab, onUnfollow, onRemove, onFollowBack, onOpen, onChat }) {
@@ -61,6 +61,7 @@ export default function FollowListTab({ userId, type, onChanged }) {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [state, setState] = useState('loading');
+  const [query, setQuery] = useState('');
   const isFollowingTab = type === 'following';
 
   const load = () => {
@@ -123,16 +124,46 @@ export default function FollowListTab({ userId, type, onChanged }) {
   if (state === 'loading') return <p className="text-center text-sm font-semibold text-espresso-500">{t('profile.follow.loading')}</p>;
   if (state === 'error') return <p className="text-center text-sm font-semibold text-carnation-600">{t('profile.follow.loadError')}</p>;
 
+  const filteredRows = query.trim()
+    ? rows.filter((person) => (person.fullName || '').toLowerCase().includes(query.trim().toLowerCase()))
+    : rows;
+
   return (
     <div>
-      <p className="mb-3 text-base font-extrabold text-carissma-500">{title}</p>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-base font-extrabold text-carissma-500">{title}</p>
+        <button
+          type="button"
+          onClick={() => navigate('/profile/discover')}
+          className="shrink-0 rounded-full bg-carissma-500 px-4 py-1.5 text-xs font-bold text-white hover:bg-carissma-600"
+        >
+          {t('profile.follow.discoverPlayers')}
+        </button>
+      </div>
+
+      {rows.length > 0 && (
+        <div className="relative mb-3">
+          <SearchIcon className="pointer-events-none absolute inset-y-0 start-4 my-auto h-4 w-4 text-carissma-300" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('profile.follow.searchPlaceholder')}
+            className="w-full rounded-full border border-carissma-100 bg-white py-2.5 ps-11 pe-4 text-sm text-espresso-900 placeholder:text-carissma-300 focus:outline-none focus:ring-2 focus:ring-carissma-400"
+          />
+        </div>
+      )}
+
       {rows.length === 0 ? (
         <p className="rounded-[2rem] border-4 border-carissma-200 bg-white/70 p-8 text-center text-sm font-semibold text-espresso-500">
           {isFollowingTab ? t('profile.follow.emptyFollowing') : t('profile.follow.emptyFollowers')}
         </p>
+      ) : filteredRows.length === 0 ? (
+        <p className="rounded-[2rem] border-4 border-carissma-200 bg-white/70 p-8 text-center text-sm font-semibold text-espresso-500">
+          {t('profile.follow.noSearchResults')}
+        </p>
       ) : (
         <div className="divide-y divide-carissma-100 overflow-hidden rounded-[2rem] border-4 border-carissma-300 bg-carissma-50/60">
-          {rows.map((person) => (
+          {filteredRows.map((person) => (
             <FollowRow
               key={person.id}
               person={person}

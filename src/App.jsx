@@ -33,6 +33,7 @@ import ChatPage from './pages/profile/ChatPage';
 import PackagePurchasePage from './pages/profile/PackagePurchasePage';
 import PaymentResultPage from './pages/profile/PaymentResultPage';
 import UserProfilePage from './pages/profile/UserProfilePage';
+import DiscoverPlayersPage from './pages/profile/DiscoverPlayersPage';
 
 import SoloTeamPage from './pages/play/SoloTeamPage';
 import CreateJoinPage from './pages/play/CreateJoinPage';
@@ -90,6 +91,7 @@ export default function App() {
 
         {/* Profile (protected) + public user profiles */}
         <Route path="/profile/users/:id" element={<UserProfilePage />} />
+        <Route path="/profile/discover" element={<ProtectedRoute><DiscoverPlayersPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
         <Route path="/profile/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />

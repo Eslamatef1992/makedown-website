@@ -33,6 +33,8 @@ export const unfollowUser = (id) => client.delete(`/users/${id}/follow`).then((r
 export const listUserFollowers = (id, params) => client.get(`/users/${id}/followers`, { params }).then((r) => r.data.data);
 export const listUserFollowing = (id, params) => client.get(`/users/${id}/following`, { params }).then((r) => r.data.data);
 export const removeFollower = (followerId) => client.delete(`/users/me/followers/${followerId}`).then((r) => r.data.data);
+// "Discover Players" — search/browse every user (not just mine), for the follow-suggestions page.
+export const searchUsers = (params) => client.get('/users', { params }).then((r) => r.data.data);
 
 // ---- my chat ----
 export const listMyChatThreads = () => client.get('/me/chat/threads').then((r) => r.data.data);

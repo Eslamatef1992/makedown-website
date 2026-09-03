@@ -5,11 +5,20 @@ import { PhoneIcon, StarIcon } from '../../../components/ui/icons';
 
 const MODE_LABEL_KEYS = { solo: 'profile.gameHistory.mode.solo', team: 'profile.gameHistory.mode.team', random: 'profile.gameHistory.mode.random' };
 
-function PlayerCard({ name, score, isWinner }) {
+function PlayerCard({ name, score, isWinner, isTie }) {
   const { t } = useTranslation();
   return (
     <div className="relative rounded-2xl bg-carissma-50 p-4 text-start">
-      {isWinner && (
+      {isWinner && isTie && (
+        <span
+          className="absolute -top-2 end-3 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs shadow"
+          role="img"
+          aria-label={t('profile.gameHistory.tie')}
+        >
+          🏅
+        </span>
+      )}
+      {isWinner && !isTie && (
         <span className="absolute -top-2 end-3 rounded-full bg-amber-400 px-2.5 py-0.5 text-[10px] font-extrabold text-white shadow">
           {t('profile.gameHistory.win')}
         </span>
@@ -31,6 +40,7 @@ function SessionCard({ session }) {
     session.mode === 'team'
       ? session.teams.map((t) => ({ id: t.id, name: t.name, score: t.score, isWinner: t.isWinner }))
       : session.participants.map((p) => ({ id: p.id, name: p.name, score: p.score, isWinner: p.isWinner }));
+  const isTie = cards.filter((c) => c.isWinner).length > 1;
   const helpUsed = session.lifelinesUsed.includes('phone_a_friend');
 
   return (
@@ -43,7 +53,7 @@ function SessionCard({ session }) {
       <p className="mt-4 text-sm font-extrabold text-espresso-900">{t('profile.gameHistory.gameName')}</p>
       <div className="mt-2 grid grid-cols-2 gap-3">
         {cards.map((c) => (
-          <PlayerCard key={c.id} name={c.name} score={c.score} isWinner={c.isWinner} />
+          <PlayerCard key={c.id} name={c.name} score={c.score} isWinner={c.isWinner} isTie={isTie} />
         ))}
       </div>
 

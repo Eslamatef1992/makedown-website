@@ -4,6 +4,7 @@ import SiteLayout from '../../components/layout/SiteLayout';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { getUserProfile, listMyPackages, uploadMyAvatar } from '../../api/me.api';
+import { listPackages } from '../../api/content.api';
 import { ChatBubbleIcon, PencilIcon, ShareIcon } from '../../components/ui/icons';
 import { pickLang } from '../../utils/bilingual';
 
@@ -105,16 +106,18 @@ export default function ProfilePage() {
 
   const [profile, setProfile] = useState(null);
   const [packages, setPackages] = useState([]);
+  const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
   const [shareCopied, setShareCopied] = useState(false);
 
   const loadSummary = useCallback(() => {
     if (!user) return;
     setLoading(true);
-    Promise.all([getUserProfile(user.id), listMyPackages()])
-      .then(([profileData, pkgRows]) => {
+    Promise.all([getUserProfile(user.id), listMyPackages(), listPackages()])
+      .then(([profileData, pkgRows, catalogRows]) => {
         setProfile(profileData);
         setPackages(Array.isArray(pkgRows) ? pkgRows : []);
+        setCatalog(Array.isArray(catalogRows) ? catalogRows : []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -127,6 +130,10 @@ export default function ProfilePage() {
   const setTab = (key) => setSearchParams(key === 'packages' ? {} : { tab: key });
 
   const currentPackage = packages.find((p) => p.status === 'active');
+  const topTierPackageId = catalog.length
+    ? catalog.reduce((top, pkg) => (Number(pkg.price) > Number(top.price) ? pkg : top), catalog[0]).id
+    : null;
+  const isTopTierPackage = Boolean(currentPackage) && topTierPackageId != null && currentPackage.package_id === topTierPackageId;
 
   const handleShare = async () => {
     const url = `${window.location.origin}/profile/users/${user?.id}`;
@@ -201,12 +208,14 @@ export default function ProfilePage() {
               </p>
               <p className="mt-2 text-sm font-bold text-espresso-900">{t('profile.currentPackage.keepPlaying')}</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <button
-                  onClick={() => setTab('packages')}
-                  className="rounded-full bg-white px-6 py-3 text-sm font-bold text-carissma-400 hover:bg-carissma-50"
-                >
-                  {t('profile.currentPackage.upgradePackage')}
-                </button>
+                {!isTopTierPackage && (
+                  <button
+                    onClick={() => setTab('packages')}
+                    className="rounded-full bg-white px-6 py-3 text-sm font-bold text-carissma-400 hover:bg-carissma-50"
+                  >
+                    {t('profile.currentPackage.upgradePackage')}
+                  </button>
+                )}
                 {currentPackage.credits_remaining > 0 ? (
                   <button
                     onClick={() => navigate('/play')}

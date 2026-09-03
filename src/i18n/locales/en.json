@@ -458,7 +458,7 @@
       "loading": "Loading packages…",
       "loadError": "Couldn't load packages right now.",
       "empty": "No packages available yet.",
-      "buyAgain": "Buy Again",
+      "buyAgain": "Renew Again",
       "buyNow": "Buy Now",
       "purchaseHistory": "Purchase History",
       "purchased": "Purchased {{date}}",
@@ -479,7 +479,10 @@
       "unfollow": "Unfollow",
       "remove": "Remove",
       "follow": "Follow",
-      "message": "Message"
+      "message": "Message",
+      "discoverPlayers": "Discover Players",
+      "searchPlaceholder": "Search",
+      "noSearchResults": "No matches for your search."
     },
     "orders": {
       "loading": "Loading orders…",
@@ -532,7 +535,8 @@
       "numberOfPoints": "Number Of Point",
       "gameName": "Game Name",
       "games": "Games",
-      "helpOptions": "Help Options"
+      "helpOptions": "Help Options",
+      "tie": "Tie"
     },
     "editProfile": {
       "title": "Edit Profile",
@@ -611,6 +615,13 @@
       "sayHello": "Say hello!",
       "loadingMessages": "Loading messages…",
       "typeMessage": "Type a message…"
+    },
+    "discover": {
+      "title": "Discover Players",
+      "subtitle": "Search for players and follow them.",
+      "searchPlaceholder": "Search by name",
+      "loadError": "Couldn't load players right now.",
+      "empty": "No players found."
     }
   },
   "comingSoon": {

@@ -470,7 +470,7 @@
       "loading": "جارٍ تحميل الباقات…",
       "loadError": "تعذّر تحميل الباقات الآن.",
       "empty": "لا توجد باقات متاحة بعد.",
-      "buyAgain": "اشترِ مرة أخرى",
+      "buyAgain": "جدّد مرة أخرى",
       "buyNow": "اشترِ الآن",
       "purchaseHistory": "سجل المشتريات",
       "purchased": "تم الشراء في {{date}}",
@@ -491,7 +491,10 @@
       "unfollow": "إلغاء المتابعة",
       "remove": "إزالة",
       "follow": "متابعة",
-      "message": "مراسلة"
+      "message": "مراسلة",
+      "discoverPlayers": "اكتشف اللاعبين",
+      "searchPlaceholder": "بحث",
+      "noSearchResults": "لا توجد نتائج مطابقة لبحثك."
     },
     "orders": {
       "loading": "جارٍ تحميل الطلبات…",
@@ -544,7 +547,8 @@
       "numberOfPoints": "عدد النقاط",
       "gameName": "اسم اللعبة",
       "games": "الألعاب",
-      "helpOptions": "خيارات المساعدة"
+      "helpOptions": "خيارات المساعدة",
+      "tie": "تعادل"
     },
     "editProfile": {
       "title": "تعديل الملف الشخصي",
@@ -623,6 +627,13 @@
       "sayHello": "قل مرحبًا!",
       "loadingMessages": "جارٍ تحميل الرسائل…",
       "typeMessage": "اكتب رسالة…"
+    },
+    "discover": {
+      "title": "اكتشف اللاعبين",
+      "subtitle": "ابحث عن اللاعبين وتابعهم.",
+      "searchPlaceholder": "ابحث بالاسم",
+      "loadError": "تعذّر تحميل اللاعبين الآن.",
+      "empty": "لم يتم العثور على لاعبين."
     }
   },
   "comingSoon": {
