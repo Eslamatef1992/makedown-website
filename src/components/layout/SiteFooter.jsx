@@ -85,14 +85,6 @@ export default function SiteFooter() {
               <img src="/icons/google-play.svg" alt="Google Play" className="h-[52px] w-[148px]" />
             </a>
           </div>
-          <a
-            href="https://teknulugy.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 block w-[148px] text-end text-xs font-semibold text-espresso-800 hover:text-carissma-500"
-          >
-            {t('footer.developedBy')} <span className="font-extrabold">Teknulugy</span>
-          </a>
         </div>
       </div>
 

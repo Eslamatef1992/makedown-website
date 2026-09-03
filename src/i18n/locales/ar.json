@@ -25,7 +25,6 @@
     "quickLinks": "روابط سريعة",
     "packages": "الباقات",
     "downloadApp": "حمّل التطبيق",
-    "developedBy": "تطوير",
     "copyright": "© {{year}} ميك داون",
     "privacyPolicy": "سياسة الخصوصية",
     "termsAndConditions": "الشروط والأحكام",
@@ -149,7 +148,8 @@
       "yourEmail": "بريدك الإلكتروني",
       "emailPlaceholder": "dina@gmail.com",
       "invalidEmail": "أدخل بريدًا إلكترونيًا صالحًا"
-    }
+    },
+    "rightsReserved": "جميع الحقوق محفوظة لـ Make Down © {{year}}"
   },
   "packagePurchase": {
     "checkout": "إتمام الشراء",

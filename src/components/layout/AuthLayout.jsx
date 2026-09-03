@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import StickerHeading from '../ui/StickerHeading';
 
 // Mirrors the Figma auth screens: a wavy pink/blue checkerboard background
 // behind a centered pink-bordered card with a white-outlined "sticker" title.
 export default function AuthLayout({ title, subtitle, children, cardClassName = '' }) {
+  const { t } = useTranslation();
   return (
     <div
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-carissma-400 bg-cover bg-center bg-no-repeat bg-[url('/backgrounds/wavy-grid-portrait.jpg')] px-4 py-10 sm:bg-[url('/backgrounds/wavy-grid-landscape.jpg')]"
@@ -21,14 +23,9 @@ export default function AuthLayout({ title, subtitle, children, cardClassName = 
 
         {children}
 
-        <a
-          href="https://teknulugy.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 block text-center text-xs font-bold text-espresso-900 transition hover:text-carissma-500 hover:underline"
-        >
-          All Rights Reserved By Teknulugy Company @{new Date().getFullYear()}
-        </a>
+        <p className="mt-8 text-center text-xs font-bold text-espresso-900">
+          {t('auth.rightsReserved', { year: new Date().getFullYear() })}
+        </p>
       </div>
     </div>
   );

@@ -25,7 +25,6 @@
     "quickLinks": "Quick Links",
     "packages": "Packages",
     "downloadApp": "Download App",
-    "developedBy": "Developed By",
     "copyright": "Copyright {{year}} Make Down",
     "privacyPolicy": "Privacy Policy",
     "termsAndConditions": "Terms And Conditions",
@@ -149,7 +148,8 @@
       "yourEmail": "Your Email",
       "emailPlaceholder": "dina@gmail.com",
       "invalidEmail": "Enter a valid email address"
-    }
+    },
+    "rightsReserved": "All Rights Reserved By Make Down © {{year}}"
   },
   "packagePurchase": {
     "checkout": "Checkout",
