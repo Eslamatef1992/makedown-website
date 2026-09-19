@@ -35,9 +35,9 @@
   "home": {
     "hero": {
       "title": "Ready To Play?",
-      "subtitle": "Challenge Yourself, Your Team, And Others!",
-      "onlinePlay": "Online Play",
-      "onlinePlaySubtitle": "Play Solo Or Challenge Teams Online",
+      "subtitle": "Challenge Yourself And Others!",
+      "onlinePlay": "Start Play",
+      "onlinePlaySubtitle": "Jump Straight Into A Live Trivia Game.",
       "startNow": "Start Now"
     },
     "intro": {
@@ -168,41 +168,6 @@
     "pay": "Pay"
   },
   "play": {
-    "soloTeam": {
-      "solo": {
-        "title": "Solo",
-        "description": "A single-player game where the player answers a series of questions individually and earns points based on their correct answers. At the end of the game, the player can view their final score and results."
-      },
-      "team": {
-        "title": "Team",
-        "description": "A multiplayer game where players compete in teams by answering a series of questions. Each team earns points based on their correct answers, and the team with the highest score at the end of the game wins."
-      },
-      "startNow": "Start Now"
-    },
-    "createJoin": {
-      "create": {
-        "title": "Create Game",
-        "description": "Choose your game and invite a player with a link or get matched randomly."
-      },
-      "join": {
-        "title": "Join Game",
-        "description": "Join a game through an invitation link or get matched with a random player."
-      },
-      "startNow": "Start Now"
-    },
-    "joinByCode": {
-      "title": "Join Game",
-      "codeLabel": "Join Code",
-      "codePlaceholder": "e.g. 7F3KQ2",
-      "join": "Join",
-      "notFound": "No game found with that code."
-    },
-    "joinLink": {
-      "backToPlay": "Back to Play",
-      "joining": "Joining…",
-      "connecting": "Hang tight, connecting you to the game.",
-      "invalid": "This game link is no longer valid."
-    },
     "scanConfirm": {
       "scanned": "Scanned!",
       "scannedBody": "You can go back to the game — the question is starting now.",
@@ -216,30 +181,6 @@
       "winnerWins": "{{name}} wins!",
       "playAgain": "Play Again",
       "viewGameHistory": "View Game History"
-    },
-    "lobby": {
-      "waiting": "Waiting……",
-      "joinCode": "Join code",
-      "host": "Host",
-      "startGame": "Start Game",
-      "waitingForHost": "Waiting for the host to start the game…",
-      "startError": "Could not start the game yet.",
-      "gameLobby": "Game Lobby"
-    },
-    "invite": {
-      "startPlayWith": "Start Play With",
-      "matching": "Matching…",
-      "randomUser": "Random User",
-      "sendInvitation": "Send Invitation",
-      "gameLink": "Game Link",
-      "shareGameLink": "Share Game Link",
-      "copyLink": "Copy link",
-      "copied": "Copied!",
-      "or": "OR",
-      "userName": "User Name",
-      "userNamePlaceholder": "Enter user name",
-      "invited": "Invited",
-      "add": "Add"
     },
     "freeGameOver": {
       "title": "🎮 Your Free Game Is Over!",
@@ -425,17 +366,11 @@
   },
   "profile": {
     "avatarAlt": "Profile photo",
-    "stats": {
-      "following": "Following",
-      "followers": "Followers"
-    },
     "chats": "Chats",
     "shareProfile": "Share Profile",
     "linkCopied": "Link Copied!",
     "tabs": {
       "packages": "Packages",
-      "following": "My Following",
-      "followers": "My Followers",
       "orders": "My Orders",
       "history": "Game History"
     },
@@ -468,21 +403,6 @@
         "expired": "Expired",
         "used": "Used"
       }
-    },
-    "follow": {
-      "titleFollowing": "My Following",
-      "titleFollowers": "My Followers",
-      "loading": "Loading…",
-      "loadError": "Couldn't load this list right now.",
-      "emptyFollowing": "You're not following anyone yet.",
-      "emptyFollowers": "No followers yet.",
-      "unfollow": "Unfollow",
-      "remove": "Remove",
-      "follow": "Follow",
-      "message": "Message",
-      "discoverPlayers": "Discover Players",
-      "searchPlaceholder": "Search",
-      "noSearchResults": "No matches for your search."
     },
     "orders": {
       "loading": "Loading orders…",
@@ -592,9 +512,7 @@
     },
     "userProfile": {
       "notFound": "Profile Not Found",
-      "backHome": "Back Home",
-      "followingCount": "{{count}} Following",
-      "followersCount": "{{count}} Followers"
+      "backHome": "Back Home"
     },
     "paymentResult": {
       "success": "Payment Successful!",
@@ -608,7 +526,7 @@
     },
     "chat": {
       "loadError": "Couldn't load your chats.",
-      "empty": "No conversations yet — start one from a follower's profile.",
+      "empty": "No conversations yet — start one from a player's profile.",
       "selectConversation": "Select a conversation",
       "conversationFallback": "Conversation",
       "unknownUser": "Unknown",
@@ -616,13 +534,7 @@
       "loadingMessages": "Loading messages…",
       "typeMessage": "Type a message…"
     },
-    "discover": {
-      "title": "Discover Players",
-      "subtitle": "Search for players and follow them.",
-      "searchPlaceholder": "Search by name",
-      "loadError": "Couldn't load players right now.",
-      "empty": "No players found."
-    }
+    "message": "Message"
   },
   "comingSoon": {
     "notFoundTitle": "Page not found",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
@@ -8,10 +8,14 @@ import TextField from '../../components/ui/TextField';
 import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
 import { useAuth } from '../../context/AuthContext';
 import { pickLang } from '../../utils/bilingual';
-import { listPlayableQuizzes, createGame } from '../../api/play.api';
+import { listPlayableQuizzes, createGame, startGame } from '../../api/play.api';
+
+// Direct-play entry point: there is no solo/team choice and no invite code
+// any more — picking categories here and hitting Continue creates the game
+// and drops the player straight into it.
+const MODE = 'solo';
 
 export default function CategorySelectPage() {
-  const { mode } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
@@ -29,11 +33,11 @@ export default function CategorySelectPage() {
   const [openInfo, setOpenInfo] = useState(null);
 
   useEffect(() => {
-    listPlayableQuizzes(undefined, mode)
+    listPlayableQuizzes(undefined, MODE)
       .then(setQuizzes)
       .catch(() => setQuizzes([]))
       .finally(() => setLoading(false));
-  }, [mode]);
+  }, []);
 
   // Grouped by category_id (not the English name) so an Arabic-only or
   // renamed category still merges correctly into a single section.
@@ -70,8 +74,9 @@ export default function CategorySelectPage() {
     setError('');
     setSubmitting(true);
     try {
-      const session = await createGame({ mode, quizIds: selected, title: gameName || undefined });
-      navigate(`/play/sessions/${session.id}/invite`);
+      const session = await createGame({ mode: MODE, quizIds: selected, title: gameName || undefined });
+      await startGame(session.id);
+      navigate(`/play/sessions/${session.id}/live`);
     } catch (err) {
       if (err.response?.status === 402) {
         setNoFreeGame(true);

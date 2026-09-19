@@ -9,7 +9,6 @@ import { ChatBubbleIcon, PencilIcon, ShareIcon } from '../../components/ui/icons
 import { pickLang } from '../../utils/bilingual';
 
 import PackagesTab from './tabs/PackagesTab';
-import FollowListTab from './tabs/FollowListTab';
 import MyOrdersTab from './tabs/MyOrdersTab';
 import GameHistoryTab from './tabs/GameHistoryTab';
 
@@ -22,8 +21,6 @@ const STICKER_SHADOW = {
 
 const TABS = [
   { key: 'packages', labelKey: 'profile.tabs.packages' },
-  { key: 'following', labelKey: 'profile.tabs.following' },
-  { key: 'followers', labelKey: 'profile.tabs.followers' },
   { key: 'orders', labelKey: 'profile.tabs.orders' },
   { key: 'history', labelKey: 'profile.tabs.history' },
 ];
@@ -79,21 +76,6 @@ function Avatar({ user, size = 'h-24 w-24', editable = false, onUploaded }) {
         <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-xs font-bold text-white">…</div>
       )}
     </div>
-  );
-}
-
-function StatBox({ label, value, active, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex min-w-[6.5rem] flex-col items-center gap-1 rounded-2xl px-5 py-2.5 text-center shadow-sm transition ${
-        active ? 'bg-white' : 'bg-white/70 hover:bg-white'
-      }`}
-    >
-      <span className="text-sm font-bold text-espresso-900">{label}</span>
-      <span className="text-2xl font-extrabold text-carissma-600">{value ?? 0}</span>
-    </button>
   );
 }
 
@@ -162,11 +144,6 @@ export default function ProfilePage() {
               <p className="truncate text-lg font-extrabold text-espresso-900">{user.fullName || user.firstName}</p>
               {profile?.bio && <p className="mt-0.5 max-w-xs truncate text-sm font-medium text-espresso-500">{profile.bio}</p>}
             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <StatBox label={t('profile.stats.following')} value={profile?.followingCount} active={activeTab === 'following'} onClick={() => setTab('following')} />
-            <StatBox label={t('profile.stats.followers')} value={profile?.followersCount} active={activeTab === 'followers'} onClick={() => setTab('followers')} />
           </div>
 
           <div className="flex flex-col gap-2 sm:w-72">
@@ -264,8 +241,6 @@ export default function ProfilePage() {
         <div className="mt-6">
           {loading && <p className="text-center text-sm font-semibold text-espresso-500">{t('common.loading')}</p>}
           {!loading && activeTab === 'packages' && <PackagesTab myPackages={packages} />}
-          {!loading && activeTab === 'following' && <FollowListTab userId={user.id} type="following" onChanged={loadSummary} />}
-          {!loading && activeTab === 'followers' && <FollowListTab userId={user.id} type="followers" onChanged={loadSummary} />}
           {!loading && activeTab === 'orders' && <MyOrdersTab />}
           {!loading && activeTab === 'history' && <GameHistoryTab />}
         </div>

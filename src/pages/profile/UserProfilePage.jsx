@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { useAuth } from '../../context/AuthContext';
-import { followUser, getUserProfile, startChatThread, unfollowUser } from '../../api/me.api';
+import { getUserProfile, startChatThread } from '../../api/me.api';
 import { ChatBubbleIcon } from '../../components/ui/icons';
-import FollowListTab from './tabs/FollowListTab';
 
 export default function UserProfilePage() {
   const { t } = useTranslation();
@@ -15,8 +14,6 @@ export default function UserProfilePage() {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState(null);
   const [state, setState] = useState('loading');
-  const [followBusy, setFollowBusy] = useState(false);
-  const [subTab, setSubTab] = useState('followers');
 
   const load = () => {
     setState('loading');
@@ -29,24 +26,6 @@ export default function UserProfilePage() {
   };
 
   useEffect(load, [id]);
-
-  const toggleFollow = async () => {
-    if (!isAuthenticated) return navigate('/login');
-    setFollowBusy(true);
-    try {
-      if (profile.isFollowedByMe) {
-        await unfollowUser(id);
-        setProfile((p) => ({ ...p, isFollowedByMe: false, followersCount: Math.max(0, p.followersCount - 1) }));
-      } else {
-        await followUser(id);
-        setProfile((p) => ({ ...p, isFollowedByMe: true, followersCount: p.followersCount + 1 }));
-      }
-    } catch {
-      // leave state as-is — the button just won't have visibly changed
-    } finally {
-      setFollowBusy(false);
-    }
-  };
 
   const handleMessage = async () => {
     try {
@@ -105,38 +84,13 @@ export default function UserProfilePage() {
           </StickerHeading>
           {profile.bio && <p className="mt-1 max-w-md text-sm font-medium text-espresso-600">{profile.bio}</p>}
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            <button
-              onClick={() => setSubTab('following')}
-              className={`rounded-full px-4 py-2 text-xs font-bold ${subTab === 'following' ? 'bg-carissma-400 text-white' : 'bg-white/80 text-espresso-700 hover:bg-carissma-50'}`}
-            >
-              {t('profile.userProfile.followingCount', { count: profile.followingCount })}
-            </button>
-            <button
-              onClick={() => setSubTab('followers')}
-              className={`rounded-full px-4 py-2 text-xs font-bold ${subTab === 'followers' ? 'bg-carissma-400 text-white' : 'bg-white/80 text-espresso-700 hover:bg-carissma-50'}`}
-            >
-              {t('profile.userProfile.followersCount', { count: profile.followersCount })}
-            </button>
-            <button
-              onClick={toggleFollow}
-              disabled={followBusy}
-              className={`rounded-full px-5 py-2 text-xs font-bold transition disabled:opacity-60 ${
-                profile.isFollowedByMe ? 'border-2 border-carissma-300 text-carissma-500 hover:bg-carissma-50' : 'bg-carissma-400 text-white hover:bg-carissma-500'
-              }`}
-            >
-              {profile.isFollowedByMe ? t('profile.follow.unfollow') : t('profile.follow.follow')}
-            </button>
-            {isAuthenticated && (
+          {isAuthenticated && (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
               <button onClick={handleMessage} className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-espresso-700 hover:bg-carissma-50">
-                <ChatBubbleIcon className="h-4 w-4" /> {t('profile.follow.message')}
+                <ChatBubbleIcon className="h-4 w-4" /> {t('profile.message')}
               </button>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <FollowListTab userId={id} type={subTab} onChanged={load} />
+            </div>
+          )}
         </div>
       </div>
     </SiteLayout>

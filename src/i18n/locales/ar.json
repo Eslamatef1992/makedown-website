@@ -35,9 +35,9 @@
   "home": {
     "hero": {
       "title": "جاهز للعب؟",
-      "subtitle": "تحدَّ نفسك، فريقك، أو الآخرين!",
-      "onlinePlay": "لعب أونلاين",
-      "onlinePlaySubtitle": "العب فردي أو تحدَّ فرقًا أونلاين",
+      "subtitle": "تحدَّ نفسك والآخرين!",
+      "onlinePlay": "ابدأ اللعب",
+      "onlinePlaySubtitle": "ادخل مباشرة في لعبة تريفيا حية.",
       "startNow": "ابدأ الآن"
     },
     "intro": {
@@ -172,41 +172,6 @@
     "pay": "ادفع"
   },
   "play": {
-    "soloTeam": {
-      "solo": {
-        "title": "فردي",
-        "description": "لعبة فردية يجيب فيها اللاعب على سلسلة من الأسئلة بشكل منفرد ويحصل على نقاط بناءً على إجاباته الصحيحة. في نهاية اللعبة يمنك للاعب مشاهدة نتيجته النهائية والنتائج."
-      },
-      "team": {
-        "title": "فريق",
-        "description": "لعبة جماعية يتنافس فيها اللاعبون ضمن فرق عبر الإجابة على سلسلة من الأسئلة. يحصل كل فريق على نقاط بناءً على إجاباته الصحيحة, ويفوز الفريق صاحب أعلى نتيجة في نهاية اللعبة."
-      },
-      "startNow": "ابدأ الآن"
-    },
-    "createJoin": {
-      "create": {
-        "title": "إنشاء لعبة",
-        "description": "اختر لعبتك وادعُ لاعبًا برابط أو احصل على خصم عشوائي."
-      },
-      "join": {
-        "title": "الانضمام إلى لعبة",
-        "description": "انضم إلى لعبة عبر رابط دعوة أو احصل على مباراة مع لاعب عشوائي."
-      },
-      "startNow": "ابدأ الآن"
-    },
-    "joinByCode": {
-      "title": "الانضمام إلى لعبة",
-      "codeLabel": "رمز الانضمام",
-      "codePlaceholder": "مثال: 7F3KQ2",
-      "join": "انضمام",
-      "notFound": "لم يتم العثور على لعبة بهذا الرمز."
-    },
-    "joinLink": {
-      "backToPlay": "العودة إلى اللعب",
-      "joining": "جارٍ الانضمام…",
-      "connecting": "يُرجى الانتظار، جارٍ توصيلك باللعبة.",
-      "invalid": "رابط اللعبة لم يعد صالحًا."
-    },
     "scanConfirm": {
       "scanned": "تم المسح!",
       "scannedBody": "يمكنك العودة إلى اللعبة — السؤال يبدأ الآن.",
@@ -220,30 +185,6 @@
       "winnerWins": "{{name}} يفوز!",
       "playAgain": "العب مرة أخرى",
       "viewGameHistory": "عرض سجل الألعاب"
-    },
-    "lobby": {
-      "waiting": "جارٍ الانتظار……",
-      "joinCode": "رمز الانضمام",
-      "host": "المضيف",
-      "startGame": "ابدأ اللعبة",
-      "waitingForHost": "بانتظار أن يبدأ المضيف اللعبة…",
-      "startError": "تعذّر بدء اللعبة الآن.",
-      "gameLobby": "غرفة الانتظار"
-    },
-    "invite": {
-      "startPlayWith": "ابدأ اللعب مع",
-      "matching": "جارٍ المطابقة…",
-      "randomUser": "لاعب عشوائي",
-      "sendInvitation": "إرسال دعوة",
-      "gameLink": "رابط اللعبة",
-      "shareGameLink": "شارك رابط اللعبة",
-      "copyLink": "نسخ الرابط",
-      "copied": "تم النسخ!",
-      "or": "أو",
-      "userName": "اسم المستخدم",
-      "userNamePlaceholder": "أدخل اسم المستخدم",
-      "invited": "تمت الدعوة",
-      "add": "إضافة"
     },
     "freeGameOver": {
       "title": "🎮 انتهت لعبتك المجانية!",
@@ -433,17 +374,11 @@
   },
   "profile": {
     "avatarAlt": "صورة الملف الشخصي",
-    "stats": {
-      "following": "متابَعون",
-      "followers": "متابِعون"
-    },
     "chats": "المحادثات",
     "shareProfile": "مشاركة الملف الشخصي",
     "linkCopied": "تم نسخ الرابط!",
     "tabs": {
       "packages": "الباقات",
-      "following": "متابعتي",
-      "followers": "متابعيّ",
       "orders": "طلباتي",
       "history": "سجل الألعاب"
     },
@@ -480,21 +415,6 @@
         "expired": "منتهية",
         "used": "مستخدَمة"
       }
-    },
-    "follow": {
-      "titleFollowing": "متابعتي",
-      "titleFollowers": "متابعيّ",
-      "loading": "جارٍ التحميل…",
-      "loadError": "تعذّر تحميل هذه القائمة الآن.",
-      "emptyFollowing": "أنت لا تتابع أحدًا بعد.",
-      "emptyFollowers": "لا يوجد متابعون بعد.",
-      "unfollow": "إلغاء المتابعة",
-      "remove": "إزالة",
-      "follow": "متابعة",
-      "message": "مراسلة",
-      "discoverPlayers": "اكتشف اللاعبين",
-      "searchPlaceholder": "بحث",
-      "noSearchResults": "لا توجد نتائج مطابقة لبحثك."
     },
     "orders": {
       "loading": "جارٍ تحميل الطلبات…",
@@ -604,9 +524,7 @@
     },
     "userProfile": {
       "notFound": "الملف الشخصي غير موجود",
-      "backHome": "العودة إلى الرئيسية",
-      "followingCount": "{{count}} متابَع",
-      "followersCount": "{{count}} متابِع"
+      "backHome": "العودة إلى الرئيسية"
     },
     "paymentResult": {
       "success": "تم الدفع بنجاح!",
@@ -620,7 +538,7 @@
     },
     "chat": {
       "loadError": "تعذّر تحميل محادثاتك.",
-      "empty": "لا توجد محادثات بعد — ابدأ واحدة من صفحة أحد متابعيك.",
+      "empty": "لا توجد محادثات بعد — ابدأ واحدة من صفحة أحد اللاعبين.",
       "selectConversation": "اختر محادثة",
       "conversationFallback": "محادثة",
       "unknownUser": "غير معروف",
@@ -628,13 +546,7 @@
       "loadingMessages": "جارٍ تحميل الرسائل…",
       "typeMessage": "اكتب رسالة…"
     },
-    "discover": {
-      "title": "اكتشف اللاعبين",
-      "subtitle": "ابحث عن اللاعبين وتابعهم.",
-      "searchPlaceholder": "ابحث بالاسم",
-      "loadError": "تعذّر تحميل اللاعبين الآن.",
-      "empty": "لم يتم العثور على لاعبين."
-    }
+    "message": "رسالة"
   },
   "comingSoon": {
     "notFoundTitle": "الصفحة غير موجودة",
