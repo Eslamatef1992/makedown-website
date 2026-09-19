@@ -101,8 +101,8 @@
         "passwordMismatch": "Passwords do not match",
         "acceptTerms": "Please accept the Terms And Conditions"
       },
-      "firstNamePlaceholder": "enter first name",
-      "lastNamePlaceholder": "enter last name",
+      "firstNamePlaceholder": "Enter first name",
+      "lastNamePlaceholder": "Enter last name",
       "phonePlaceholder": "enter phone number",
       "confirmPasswordPlaceholder": "confirm password"
     },
