@@ -234,8 +234,9 @@
       "youFallback": "you",
       "clear": "Clear",
       "continue": "Continue",
-      "pickCategoryError": "Pick at least one category to build your board.",
-      "createGameError": "Could not create the game."
+      "pickCategoryError": "Select exactly {{count}} games to build your board.",
+      "createGameError": "Could not create the game.",
+      "selectedCount": "{{count}} / {{total}} Selected"
     }
   },
   "shop": {

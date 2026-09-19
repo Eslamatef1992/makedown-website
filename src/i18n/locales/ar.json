@@ -238,8 +238,9 @@
       "youFallback": "أنت",
       "clear": "مسح",
       "continue": "متابعة",
-      "pickCategoryError": "اختر فئة واحدة على الأقل لبناء لوحتك.",
-      "createGameError": "تعذّر إنشاء اللعبة."
+      "pickCategoryError": "اختر {{count}} ألعاب بالضبط لتكوين لوحتك.",
+      "createGameError": "تعذّر إنشاء اللعبة.",
+      "selectedCount": "{{count}} / {{total}} مُختارة"
     }
   },
   "shop": {

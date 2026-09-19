@@ -15,6 +15,10 @@ import { listPlayableQuizzes, createGame, startGame } from '../../api/play.api';
 // and drops the player straight into it.
 const MODE = 'solo';
 
+// A game board is always 6 categories — Continue stays disabled and tiles
+// beyond the 6th can't be picked until one is deselected.
+const REQUIRED_QUIZ_COUNT = 6;
+
 export default function CategorySelectPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -58,7 +62,11 @@ export default function CategorySelectPage() {
   }, [quizzes]);
 
   const toggle = (id) => {
-    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+    setSelected((s) => {
+      if (s.includes(id)) return s.filter((x) => x !== id);
+      if (s.length >= REQUIRED_QUIZ_COUNT) return s;
+      return [...s, id];
+    });
   };
 
   const clear = () => {
@@ -67,8 +75,8 @@ export default function CategorySelectPage() {
   };
 
   const onContinue = async () => {
-    if (!selected.length) {
-      setError(t('play.categorySelect.pickCategoryError'));
+    if (selected.length !== REQUIRED_QUIZ_COUNT) {
+      setError(t('play.categorySelect.pickCategoryError', { count: REQUIRED_QUIZ_COUNT }));
       return;
     }
     setError('');
@@ -116,6 +124,7 @@ export default function CategorySelectPage() {
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {group.items.map((quiz) => {
                     const isSelected = selected.includes(quiz.id);
+                    const atCap = !isSelected && selected.length >= REQUIRED_QUIZ_COUNT;
                     const title = pickLang(quiz, 'title', lang);
                     const howToPlay = pickLang(quiz, 'description', lang);
                     const infoOpen = openInfo === quiz.id;
@@ -123,16 +132,22 @@ export default function CategorySelectPage() {
                       <div
                         key={quiz.id}
                         role="button"
-                        tabIndex={0}
-                        onClick={() => toggle(quiz.id)}
+                        tabIndex={atCap ? -1 : 0}
+                        aria-disabled={atCap}
+                        onClick={() => !atCap && toggle(quiz.id)}
                         onKeyDown={(e) => {
+                          if (atCap) return;
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             toggle(quiz.id);
                           }
                         }}
-                        className={`group relative flex aspect-square w-full cursor-pointer flex-col rounded-3xl border-2 bg-white p-1.5 text-center transition ${
-                          isSelected ? 'border-carissma-500' : 'border-carissma-100 hover:border-carissma-300'
+                        className={`group relative flex aspect-square w-full flex-col rounded-3xl border-2 bg-white p-1.5 text-center transition ${
+                          isSelected
+                            ? 'cursor-pointer border-carissma-500'
+                            : atCap
+                            ? 'cursor-not-allowed border-carissma-100 opacity-40'
+                            : 'cursor-pointer border-carissma-100 hover:border-carissma-300'
                         }`}
                       >
                         {howToPlay && (
@@ -177,7 +192,16 @@ export default function CategorySelectPage() {
         )}
 
         <div className="relative z-0 mt-8 rounded-[2rem] border-4 border-carissma-300 bg-white p-6 shadow-sm sm:p-8">
-          <h2 className="text-lg font-extrabold text-espresso-900">{t('play.categorySelect.completeGameInfo')}</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-extrabold text-espresso-900">{t('play.categorySelect.completeGameInfo')}</h2>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-bold ${
+                selected.length === REQUIRED_QUIZ_COUNT ? 'bg-carissma-500 text-white' : 'bg-carissma-100 text-carissma-600'
+              }`}
+            >
+              {t('play.categorySelect.selectedCount', { count: selected.length, total: REQUIRED_QUIZ_COUNT })}
+            </span>
+          </div>
           <div className="mt-4 space-y-4">
             <TextField
               label={t('play.categorySelect.gameNameLabel')}
@@ -204,7 +228,7 @@ export default function CategorySelectPage() {
               {t('play.categorySelect.clear')}
             </button>
             <div className="flex-[2]">
-              <Button onClick={onContinue} loading={submitting}>
+              <Button onClick={onContinue} loading={submitting} disabled={selected.length !== REQUIRED_QUIZ_COUNT}>
                 {t('play.categorySelect.continue')}
               </Button>
             </div>
