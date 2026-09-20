@@ -244,7 +244,11 @@ function GamesBoard({ board, onPick, canPick }) {
               <div className="flex items-center justify-center">
                 <div className="z-0 -me-3 flex flex-col gap-2">{left.map(pointButton)}</div>
                 <div className="relative z-10 aspect-[204/218] w-32 flex-none overflow-hidden rounded-[1.25rem] bg-[#CBE0F3] shadow-sm sm:w-36">
-                  <img src={gameTileDefault} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={column.cover_image_url || gameTileDefault}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="z-0 -ms-3 flex flex-col gap-2">{right.map(pointButton)}</div>
               </div>
