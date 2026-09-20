@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   RefreshIcon, PauseIcon, LiveCallIcon, LiveTapIcon, LiveShuffleIcon,
-  UserIcon, PlusIcon, MinusIcon, SpeakerIcon,
+  UserIcon, PlusIcon, MinusIcon, SpeakerIcon, StarIcon, SparkleIcon,
 } from '../../components/ui/icons';
 import {
   getGame, pickTile, submitAnswer, leaveGame,
@@ -260,6 +260,63 @@ function GamesBoard({ board, onPick, canPick }) {
   );
 }
 
+// Team mode: shown once a tile is fully settled — either one team answered
+// it correctly first (a winner, +points) or neither team did ("Everyone
+// Lost", +0). Stays up until the host taps Continue, same as the reference
+// design's win/lose cards.
+function RoundResultModal({ result, onContinue, t }) {
+  if (!result) return null;
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const letter = letters[result.correctOptionIndex] ?? '-';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="relative w-full max-w-sm overflow-hidden rounded-[2rem] border-[5px] border-carissma-300 bg-white px-6 py-8 text-center shadow-xl">
+        <SparkleIcon className="absolute start-6 top-16 h-6 w-6 text-saffron-300" />
+        <SparkleIcon className="absolute end-6 top-40 h-5 w-5 text-saffron-300" />
+
+        {result.isWinner ? (
+          <>
+            <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
+              <StarIcon className="absolute -top-3 h-7 w-7 text-saffron-400" />
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-b from-[#8FD8E8] to-[#2E86AB] text-3xl">
+                🏆
+              </span>
+            </div>
+            <h2 className="mt-4 text-2xl font-extrabold text-carissma-300">
+              {t('play.live.isWinner', { name: result.winnerName })}
+            </h2>
+          </>
+        ) : (
+          <h2 className="mt-6 text-2xl font-extrabold text-carissma-300">{t('play.live.everyoneLost')}</h2>
+        )}
+
+        <p className="mt-3 text-base font-bold text-green-600">
+          {t('play.live.correctAnswerLabel')} {letter}
+        </p>
+
+        {result.isWinner && (
+          <span className="mt-4 inline-block rounded-full bg-gradient-to-r from-saffron-300 to-carnation-400 px-6 py-1.5 text-sm font-extrabold text-white shadow">
+            {t('play.live.winBadge')}
+          </span>
+        )}
+
+        <p className="mt-4 text-sm font-bold text-carissma-300">{t('play.live.pointsLabel')}</p>
+        <p className={`mt-1 text-3xl font-extrabold ${result.isWinner ? 'text-carissma-500' : 'text-carissma-300'}`}>
+          {result.isWinner ? `+ ${result.points}` : 0}
+        </p>
+
+        <button
+          onClick={onContinue}
+          className="mt-6 w-full rounded-2xl bg-carissma-300 py-3 text-sm font-extrabold text-white hover:bg-carissma-400"
+        >
+          {t('play.live.continueGame')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function LiveGamePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -274,6 +331,9 @@ export default function LiveGamePage() {
   const [hiddenOptions, setHiddenOptions] = useState([]);
   const [usedLifelines, setUsedLifelines] = useState([]);
   const [flash, setFlash] = useState(null); // { isCorrect }
+  // Team mode only: set once a tile is fully settled (both teams have had
+  // their answer) — { isWinner, winnerName, correctOptionIndex, points }.
+  const [roundResult, setRoundResult] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
   const [friendRequest, setFriendRequest] = useState(null);
   const [friendHint, setFriendHint] = useState(null);
@@ -311,7 +371,9 @@ export default function LiveGamePage() {
       if (payload.sessionId !== Number(id)) return;
       setSelected(null);
       setHiddenOptions([]);
+      setUsedLifelines([]);
       setFlash(null);
+      setRoundResult(null);
       setLockedQuestion(null);
       setAwaitingScan(payload.awaitingScan);
       setScanQrDataUrl(payload.scanQrDataUrl || null);
@@ -323,14 +385,47 @@ export default function LiveGamePage() {
       setAwaitingScan(false);
       refresh();
     });
+    // Team mode: the same question just got handed to the other team
+    // instead of the tile ending — reset the answer UI (including per-turn
+    // lifeline availability, since it's a different participant's own
+    // budget) without touching the board/flash flow.
+    const offNextTeam = onGameEvent('game:next_team_turn', (payload) => {
+      if (payload.sessionId !== Number(id)) return;
+      setSelected(null);
+      setHiddenOptions([]);
+      setUsedLifelines([]);
+      setFlash(null);
+      setLockedQuestion(null);
+      setAwaitingScan(payload.awaitingScan);
+      setScanQrDataUrl(payload.scanQrDataUrl || null);
+      setScanUrl(payload.scanUrl || null);
+      refresh();
+    });
     const offResult = onGameEvent('game:answer_result', (payload) => {
       if (payload.sessionId !== Number(id)) return;
+      const isTeam = sessionRef.current?.mode === 'team';
+      // Team mode's first-team answer isn't the tile's outcome yet — the
+      // same question is on its way to the other team (game:next_team_turn
+      // handles that transition), so there's nothing to reveal here.
+      if (isTeam && payload.roundComplete === false) return;
+
       // Freeze the question that was just resolved on screen — this event
       // fires right before game:state clears session.currentQuestion, so
       // sessionRef still holds the outgoing question at this instant. This
       // covers both a real submit and a server-side timeout (counter
       // hitting zero), so the board never yanks into view mid-reveal.
       setLockedQuestion(sessionRef.current?.currentQuestion || null);
+
+      if (isTeam) {
+        setRoundResult({
+          isWinner: Boolean(payload.winnerParticipantId),
+          winnerName: payload.winnerName,
+          correctOptionIndex: payload.correctOptionIndex,
+          points: payload.points,
+        });
+        return;
+      }
+
       setFlash({ isCorrect: payload.isCorrect });
       setTimeout(() => {
         setFlash(null);
@@ -349,7 +444,7 @@ export default function LiveGamePage() {
 
     return () => {
       leaveRoom();
-      offState(); offTile(); offRevealed(); offResult(); offEnded(); offLifelineReq(); offLifelineRes();
+      offState(); offTile(); offRevealed(); offNextTeam(); offResult(); offEnded(); offLifelineReq(); offLifelineRes();
       clearInterval(tickRef.current);
     };
   }, [id, navigate, refresh]);
@@ -720,6 +815,8 @@ export default function LiveGamePage() {
           </div>
         )}
       </div>
+
+      <RoundResultModal result={roundResult} onContinue={() => setRoundResult(null)} t={t} />
 
       {/* Phone-a-friend: pick who to call */}
       {phonePickerFor && (

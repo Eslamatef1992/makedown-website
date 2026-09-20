@@ -227,7 +227,13 @@
       "lifelineFiftyFifty": "٥٠ / ٥٠",
       "lifelineSkip": "تخطي",
       "you": "أنت",
-      "scanToReveal": "امسح للكشف"
+      "scanToReveal": "امسح للكشف",
+      "isWinner": "{{name}} هو الفائز",
+      "everyoneLost": "خسر الجميع",
+      "correctAnswerLabel": "الإجابة الصحيحة:",
+      "winBadge": "فوز!",
+      "pointsLabel": "النقاط",
+      "continueGame": "متابعة اللعبة"
     },
     "categorySelect": {
       "title": "اختر الفئات",

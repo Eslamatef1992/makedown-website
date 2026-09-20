@@ -223,7 +223,13 @@
       "lifelineFiftyFifty": "50 / 50",
       "lifelineSkip": "Skip",
       "you": "you",
-      "scanToReveal": "Scan to reveal"
+      "scanToReveal": "Scan to reveal",
+      "isWinner": "{{name}} Is Winner",
+      "everyoneLost": "Everyone Lost",
+      "correctAnswerLabel": "Correct Answer:",
+      "winBadge": "WIN!",
+      "pointsLabel": "Points",
+      "continueGame": "Continue Game"
     },
     "categorySelect": {
       "title": "Select Categories",
