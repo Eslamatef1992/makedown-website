@@ -448,10 +448,17 @@ export default function LiveGamePage() {
     const offLifelineRes = onGameEvent('game:lifeline_response', (payload) => {
       if (payload.sessionId === Number(id)) setFriendHint(payload.suggestedOptionIndex);
     });
+    // Keeps a +/- score adjustment in sync even if it happened from another
+    // tab/device on the same session — the host's own tap already triggers
+    // its own refresh() in onAdjustScore, but nothing was listening for this
+    // event at all before, so a second connected client would never see it.
+    const offScoreAdjusted = onGameEvent('game:score_adjusted', (payload) => {
+      if (payload.sessionId === Number(id)) refresh();
+    });
 
     return () => {
       leaveRoom();
-      offState(); offTile(); offRevealed(); offNextTeam(); offResult(); offEnded(); offLifelineReq(); offLifelineRes();
+      offState(); offTile(); offRevealed(); offNextTeam(); offResult(); offEnded(); offLifelineReq(); offLifelineRes(); offScoreAdjusted();
       clearInterval(tickRef.current);
     };
   }, [id, navigate, refresh]);
@@ -554,9 +561,18 @@ export default function LiveGamePage() {
   };
 
   const onAdjustScore = async (participantId, delta) => {
+    setActionError('');
     try {
       await adjustScore(id, participantId, delta);
-    } catch {
+      // The score genuinely does change on the server here — but unlike
+      // every other action on this page, nothing ever re-fetched the
+      // session after a successful call (no local update, and no
+      // game:score_adjusted socket listener either), so the +/- buttons
+      // looked completely dead even though they were working. This is what
+      // was actually missing.
+      refresh();
+    } catch (err) {
+      setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
       refresh();
     }
   };
