@@ -331,6 +331,11 @@ export default function LiveGamePage() {
   const [hiddenOptions, setHiddenOptions] = useState([]);
   const [usedLifelines, setUsedLifelines] = useState([]);
   const [flash, setFlash] = useState(null); // { isCorrect }
+  // Surfaces why a tap on "Next" (or a lifeline) was rejected by the server
+  // instead of silently doing nothing — a rejected submit used to just
+  // reset the selection with no visible feedback, which looked exactly
+  // like the option picker was broken.
+  const [actionError, setActionError] = useState('');
   // Team mode only: set once a tile is fully settled (both teams have had
   // their answer) — { isWinner, winnerName, correctOptionIndex, points }.
   const [roundResult, setRoundResult] = useState(null);
@@ -373,6 +378,7 @@ export default function LiveGamePage() {
       setHiddenOptions([]);
       setUsedLifelines([]);
       setFlash(null);
+      setActionError('');
       setRoundResult(null);
       setLockedQuestion(null);
       setAwaitingScan(payload.awaitingScan);
@@ -395,6 +401,7 @@ export default function LiveGamePage() {
       setHiddenOptions([]);
       setUsedLifelines([]);
       setFlash(null);
+      setActionError('');
       setLockedQuestion(null);
       setAwaitingScan(payload.awaitingScan);
       setScanQrDataUrl(payload.scanQrDataUrl || null);
@@ -498,8 +505,12 @@ export default function LiveGamePage() {
 
   const onSubmit = async () => {
     if (selected === null || !session?.currentQuestion) return;
+    setActionError('');
     try {
       await submitAnswer(id, session.currentQuestion.id, selected);
+    } catch (err) {
+      setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
+      refresh();
     } finally {
       setSelected(null);
     }
@@ -508,6 +519,7 @@ export default function LiveGamePage() {
   const onLifeline = async (key) => {
     if (!session?.currentQuestion) return;
     const questionId = session.currentQuestion.id;
+    setActionError('');
     try {
       if (key === 'fifty_fifty') {
         const res = await applyFiftyFifty(id, questionId);
@@ -519,7 +531,8 @@ export default function LiveGamePage() {
         return;
       }
       setUsedLifelines((l) => [...l, key]);
-    } catch {
+    } catch (err) {
+      setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
       refresh();
     }
   };
@@ -640,6 +653,12 @@ export default function LiveGamePage() {
         {flash && (
           <div className={`mt-3 rounded-2xl px-4 py-2 text-center text-sm font-extrabold ${flash.isCorrect ? 'bg-green-100 text-green-700' : 'bg-carnation-100 text-carnation-700'}`}>
             {flash.isCorrect ? t('play.live.correct') : t('play.live.notQuite')}
+          </div>
+        )}
+        {actionError && (
+          <div className="mt-3 rounded-2xl bg-carnation-100 px-4 py-2 text-center text-sm font-extrabold text-carnation-700">
+            {actionError}
+            <button onClick={() => setActionError('')} className="ms-3 underline">{t('play.live.dismiss')}</button>
           </div>
         )}
         {friendHint !== null && (
