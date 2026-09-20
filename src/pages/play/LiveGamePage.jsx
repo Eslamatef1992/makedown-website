@@ -509,6 +509,14 @@ export default function LiveGamePage() {
     ? rightTeamMembers.some((p) => p.id === session.currentTurnParticipantId)
     : session.participants?.[1]?.id === session.currentTurnParticipantId;
 
+  // The turn banner announces whichever TEAM currently holds the turn, not
+  // the individual teammate acting it out — "It's Lina's turn" reads like
+  // a specific person is expected to respond, when really it's whoever's
+  // sitting at the shared screen for that team's turn.
+  const turnDisplayName = isTeamMode
+    ? (leftTurnActive && leftTeam.name) || (rightTurnActive && rightTeam.name) || currentTurnParticipant?.full_name
+    : currentTurnParticipant?.full_name;
+
   return (
     <div className="min-h-screen bg-carissma-50/50 px-4 py-6">
       <div className="mx-auto max-w-[1400px] rounded-[1.5rem] border-[6px] border-carissma-400 bg-carissma-50 p-4 shadow-lg sm:p-6">
@@ -526,8 +534,8 @@ export default function LiveGamePage() {
         {/* Turn indicator + logo mark */}
         <div className="mt-4 flex items-center justify-between rounded-3xl bg-carissma-100 px-5 py-4">
           <span className="inline-flex min-w-0 max-w-[60%] items-center truncate rounded-s-full rounded-se-[1.75rem] bg-carissma-400 px-6 py-2.5 text-sm font-bold text-white sm:max-w-[70%]">
-            {currentTurnParticipant ? (
-              <>{t('play.live.turnPrefix')}&nbsp;<span className="font-extrabold">{currentTurnParticipant.full_name}</span>{t('play.live.turnSuffix')}</>
+            {turnDisplayName ? (
+              <>{t('play.live.turnPrefix')}&nbsp;<span className="font-extrabold">{turnDisplayName}</span>{t('play.live.turnSuffix')}</>
             ) : t('play.live.waitingForNextTurn')}
           </span>
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
