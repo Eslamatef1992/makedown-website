@@ -492,7 +492,7 @@ export default function LiveGamePage() {
   // take a turn: picking a tile, answering, or using a lifeline would be
   // silently rejected the moment it became a teammate's or the other
   // team's turn, since their id never matches the logged-in host's.
-  const canAct = Boolean(isMyTurn || isHost) && session.status === 'active';
+  const canAct = Boolean(isMyTurn || isHost) && session?.status === 'active';
   const currentTurnParticipant = session?.participants?.find((p) => p.id === session.currentTurnParticipantId);
 
   const onPick = async (questionId) => {
