@@ -1,9 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listMyGameHistory } from '../../../api/me.api';
-import { PhoneIcon, StarIcon } from '../../../components/ui/icons';
+import { StarIcon, LiveCallIcon, LiveTapIcon, LiveShuffleIcon } from '../../../components/ui/icons';
 
 const MODE_LABEL_KEYS = { solo: 'profile.gameHistory.mode.solo', team: 'profile.gameHistory.mode.team', random: 'profile.gameHistory.mode.random' };
+
+// Same three lifelines as the live game screen (see LiveGamePage's LIFELINES)
+// — each one only shows up here at all if session.lifelinesUsed actually
+// includes it, so a game where nobody used any help option shows no icons
+// (and no "Help Options" label) instead of a single always-present,
+// sometimes-dimmed phone icon regardless of what was really used.
+const LIFELINE_ICONS = {
+  phone_a_friend: { icon: LiveCallIcon, labelKey: 'play.live.lifelinePhoneAFriend' },
+  fifty_fifty: { icon: LiveTapIcon, labelKey: 'play.live.lifelineFiftyFifty' },
+  skip: { icon: LiveShuffleIcon, labelKey: 'play.live.lifelineSkip' },
+};
 
 function PlayerCard({ name, score, isWinner, isTie }) {
   const { t } = useTranslation();
@@ -41,7 +52,7 @@ function SessionCard({ session }) {
       ? session.teams.map((t) => ({ id: t.id, name: t.name, score: t.score, isWinner: t.isWinner }))
       : session.participants.map((p) => ({ id: p.id, name: p.name, score: p.score, isWinner: p.isWinner }));
   const isTie = cards.filter((c) => c.isWinner).length > 1;
-  const helpUsed = session.lifelinesUsed.includes('phone_a_friend');
+  const usedLifelines = session.lifelinesUsed.filter((key) => LIFELINE_ICONS[key]);
 
   return (
     <div className="rounded-[2rem] border-4 border-carissma-300 bg-carissma-50/60 p-5 sm:p-6">
@@ -70,10 +81,26 @@ function SessionCard({ session }) {
         </>
       )}
 
-      <p className="mt-5 text-sm font-extrabold text-carissma-500">{t('profile.gameHistory.helpOptions')}</p>
-      <div className={`mt-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-carissma-400 ${helpUsed ? 'bg-carissma-400 text-white' : 'bg-white text-carissma-400 opacity-60'}`}>
-        <PhoneIcon className="h-5 w-5" />
-      </div>
+      {usedLifelines.length > 0 && (
+        <>
+          <p className="mt-5 text-sm font-extrabold text-carissma-500">{t('profile.gameHistory.helpOptions')}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {usedLifelines.map((key) => {
+              const { icon: Icon, labelKey } = LIFELINE_ICONS[key];
+              return (
+                <div
+                  key={key}
+                  title={t(labelKey)}
+                  aria-label={t(labelKey)}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-carissma-400 bg-carissma-400 text-white"
+                >
+                  <Icon className="h-5 w-5" />
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
