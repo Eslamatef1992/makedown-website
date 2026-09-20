@@ -56,7 +56,10 @@ function GameCodeModal({ game, onClose }) {
     setError('');
     try {
       const session = await joinGameByCode(code.trim());
-      navigate(`/play/sessions/${session.id}/lobby`);
+      // There's no separate lobby step in this app any more (see App.jsx's
+      // routing comment) — every other entry point goes straight to the
+      // live game, so a school-code join does too.
+      navigate(`/play/sessions/${session.id}/live`);
     } catch (err) {
       setError(err.response?.data?.message || t('education.schoolDetail.modal.genericError'));
     } finally {
