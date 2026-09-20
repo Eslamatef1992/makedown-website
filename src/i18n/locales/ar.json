@@ -375,7 +375,6 @@
   },
   "profile": {
     "avatarAlt": "صورة الملف الشخصي",
-    "chats": "المحادثات",
     "shareProfile": "مشاركة الملف الشخصي",
     "linkCopied": "تم نسخ الرابط!",
     "tabs": {
@@ -536,18 +535,7 @@
       "goToProfile": "الذهاب إلى ملفي الشخصي",
       "backToProfile": "العودة إلى الملف الشخصي",
       "changePaymentMethod": "تغيير طريقة الدفع"
-    },
-    "chat": {
-      "loadError": "تعذّر تحميل محادثاتك.",
-      "empty": "لا توجد محادثات بعد — ابدأ واحدة من صفحة أحد اللاعبين.",
-      "selectConversation": "اختر محادثة",
-      "conversationFallback": "محادثة",
-      "unknownUser": "غير معروف",
-      "sayHello": "قل مرحبًا!",
-      "loadingMessages": "جارٍ تحميل الرسائل…",
-      "typeMessage": "اكتب رسالة…"
-    },
-    "message": "رسالة"
+    }
   },
   "comingSoon": {
     "notFoundTitle": "الصفحة غير موجودة",

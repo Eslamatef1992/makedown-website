@@ -3,15 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
-import { useAuth } from '../../context/AuthContext';
-import { getUserProfile, startChatThread } from '../../api/me.api';
-import { ChatBubbleIcon } from '../../components/ui/icons';
+import { getUserProfile } from '../../api/me.api';
 
 export default function UserProfilePage() {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState(null);
   const [state, setState] = useState('loading');
 
@@ -26,15 +23,6 @@ export default function UserProfilePage() {
   };
 
   useEffect(load, [id]);
-
-  const handleMessage = async () => {
-    try {
-      const { threadId } = await startChatThread(id);
-      navigate(`/profile/chat?thread=${threadId}`);
-    } catch {
-      // no-op — chat may be briefly unavailable
-    }
-  };
 
   if (state === 'loading') {
     return (
@@ -83,14 +71,6 @@ export default function UserProfilePage() {
             {profile.fullName}
           </StickerHeading>
           {profile.bio && <p className="mt-1 max-w-md text-sm font-medium text-espresso-600">{profile.bio}</p>}
-
-          {isAuthenticated && (
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-              <button onClick={handleMessage} className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-espresso-700 hover:bg-carissma-50">
-                <ChatBubbleIcon className="h-4 w-4" /> {t('profile.message')}
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </SiteLayout>

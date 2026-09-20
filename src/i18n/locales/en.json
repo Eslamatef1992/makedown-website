@@ -367,7 +367,6 @@
   },
   "profile": {
     "avatarAlt": "Profile photo",
-    "chats": "Chats",
     "shareProfile": "Share Profile",
     "linkCopied": "Link Copied!",
     "tabs": {
@@ -524,18 +523,7 @@
       "goToProfile": "Go To My Profile",
       "backToProfile": "Back To Profile",
       "changePaymentMethod": "Change Payment Method"
-    },
-    "chat": {
-      "loadError": "Couldn't load your chats.",
-      "empty": "No conversations yet — start one from a player's profile.",
-      "selectConversation": "Select a conversation",
-      "conversationFallback": "Conversation",
-      "unknownUser": "Unknown",
-      "sayHello": "Say hello!",
-      "loadingMessages": "Loading messages…",
-      "typeMessage": "Type a message…"
-    },
-    "message": "Message"
+    }
   },
   "comingSoon": {
     "notFoundTitle": "Page not found",

@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { getUserProfile, listMyPackages, uploadMyAvatar } from '../../api/me.api';
 import { listPackages } from '../../api/content.api';
-import { ChatBubbleIcon, PencilIcon, ShareIcon } from '../../components/ui/icons';
+import { PencilIcon, ShareIcon } from '../../components/ui/icons';
 import { pickLang } from '../../utils/bilingual';
 
 import PackagesTab from './tabs/PackagesTab';
@@ -147,13 +147,6 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex flex-col gap-2 sm:w-72">
-            <button
-              type="button"
-              onClick={() => navigate('/profile/chat')}
-              className="flex items-center justify-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-espresso-700 shadow-sm hover:bg-carissma-50"
-            >
-              <ChatBubbleIcon className="h-4 w-4 text-carissma-500" /> {t('profile.chats')}
-            </button>
             <div className="flex gap-2">
               <button
                 type="button"

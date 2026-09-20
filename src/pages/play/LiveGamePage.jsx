@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   RefreshIcon, PauseIcon, LiveCallIcon, LiveTapIcon, LiveShuffleIcon,
-  UserIcon, PlusIcon, MinusIcon, SpeakerIcon, LiveChatIcon,
+  UserIcon, PlusIcon, MinusIcon, SpeakerIcon,
 } from '../../components/ui/icons';
 import {
   getGame, pickTile, submitAnswer, leaveGame,
@@ -211,9 +211,16 @@ function GamesBoard({ board, onPick, canPick }) {
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3">
       {board.map((column) => {
         const sorted = [...column.questions].sort((a, b) => a.points - b.points);
-        const mid = Math.ceil(sorted.length / 2);
-        const left = sorted.slice(0, mid);
-        const right = sorted.slice(mid);
+        // Each game shows exactly 6 tiles — 2 at 200, 2 at 400, 2 at 600 —
+        // and each point pair is split one-left/one-right, so both columns
+        // read 200 → 400 → 600 top to bottom and mirror each other (rather
+        // than an arbitrary first-half/second-half split).
+        const left = [];
+        const right = [];
+        for (let i = 0; i < sorted.length; i += 2) {
+          left.push(sorted[i]);
+          if (sorted[i + 1]) right.push(sorted[i + 1]);
+        }
         const pointButton = (q) => (
           <button
             key={q.id}
@@ -665,10 +672,6 @@ export default function LiveGamePage() {
           </div>
         </div>
       )}
-
-      <button className="fixed bottom-6 end-6 flex h-14 w-14 items-center justify-center rounded-full bg-white text-carissma-400 shadow-lg hover:bg-carissma-50">
-        <LiveChatIcon className="h-7 w-7" />
-      </button>
     </div>
   );
 }

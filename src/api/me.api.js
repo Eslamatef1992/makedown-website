@@ -35,10 +35,3 @@ export const listUserFollowing = (id, params) => client.get(`/users/${id}/follow
 export const removeFollower = (followerId) => client.delete(`/users/me/followers/${followerId}`).then((r) => r.data.data);
 // "Discover Players" — search/browse every user (not just mine), for the follow-suggestions page.
 export const searchUsers = (params) => client.get('/users', { params }).then((r) => r.data.data);
-
-// ---- my chat ----
-export const listMyChatThreads = () => client.get('/me/chat/threads').then((r) => r.data.data);
-export const startChatThread = (userId) => client.post('/me/chat/threads', { userId }).then((r) => r.data.data);
-export const listThreadMessages = (threadId) => client.get(`/me/chat/threads/${threadId}/messages`).then((r) => r.data.data);
-export const sendThreadMessage = (threadId, message) =>
-  client.post(`/me/chat/threads/${threadId}/messages`, { message }).then((r) => r.data.data);
