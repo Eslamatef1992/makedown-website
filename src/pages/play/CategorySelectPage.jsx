@@ -6,22 +6,27 @@ import StickerHeading from '../../components/ui/StickerHeading';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
-import { useAuth } from '../../context/AuthContext';
 import { pickLang } from '../../utils/bilingual';
 import { listPlayableQuizzes, createGame, startGame } from '../../api/play.api';
 
-// Direct-play entry point: there is no solo/team choice and no invite code
-// any more — picking categories here and hitting Continue creates the game
-// and drops the player straight into it.
-const MODE = 'solo';
+// Direct-play entry point: there is no invite code or lobby any more —
+// picking categories and completing the team form creates the game and
+// drops every player straight into it. Every website game is a two-team
+// game (fixed at two teams; each team can be just the host or the host
+// plus optional named teammates) — there's no separate solo mode any more.
+const MODE = 'team';
 
-// A game board is always 6 categories — Continue stays disabled and tiles
-// beyond the 6th can't be picked until one is deselected.
+// A game board is always 6 categories — Start Game stays disabled and
+// tiles beyond the 6th can't be picked until one is deselected.
 const REQUIRED_QUIZ_COUNT = 6;
+
+// Up to this many teammates can be pre-named (as guests — no account
+// needed) per team when the game is created.
+const MAX_NAMED_PLAYERS = 3;
+const EMPTY_PLAYER_NAMES = Array(MAX_NAMED_PLAYERS).fill('');
 
 export default function CategorySelectPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
@@ -29,6 +34,12 @@ export default function CategorySelectPage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
   const [gameName, setGameName] = useState('');
+  const [team1Name, setTeam1Name] = useState('');
+  const [team2Name, setTeam2Name] = useState('');
+  const [team1Count, setTeam1Count] = useState('');
+  const [team2Count, setTeam2Count] = useState('');
+  const [team1Players, setTeam1Players] = useState(EMPTY_PLAYER_NAMES);
+  const [team2Players, setTeam2Players] = useState(EMPTY_PLAYER_NAMES);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [noFreeGame, setNoFreeGame] = useState(false);
@@ -72,17 +83,45 @@ export default function CategorySelectPage() {
   const clear = () => {
     setSelected([]);
     setGameName('');
+    setTeam1Name('');
+    setTeam2Name('');
+    setTeam1Count('');
+    setTeam2Count('');
+    setTeam1Players(EMPTY_PLAYER_NAMES);
+    setTeam2Players(EMPTY_PLAYER_NAMES);
   };
+
+  const setPlayerName = (team, index, value) => {
+    const setter = team === 1 ? setTeam1Players : setTeam2Players;
+    setter((names) => names.map((n, i) => (i === index ? value : n)));
+  };
+
+  const canStart =
+    selected.length === REQUIRED_QUIZ_COUNT && gameName.trim() && team1Name.trim() && team2Name.trim();
 
   const onContinue = async () => {
     if (selected.length !== REQUIRED_QUIZ_COUNT) {
       setError(t('play.categorySelect.pickCategoryError', { count: REQUIRED_QUIZ_COUNT }));
       return;
     }
+    if (!gameName.trim() || !team1Name.trim() || !team2Name.trim()) {
+      setError(t('play.categorySelect.fillRequiredError'));
+      return;
+    }
     setError('');
     setSubmitting(true);
     try {
-      const session = await createGame({ mode: MODE, quizIds: selected, title: gameName || undefined });
+      const session = await createGame({
+        mode: MODE,
+        quizIds: selected,
+        title: gameName.trim(),
+        team1Name: team1Name.trim(),
+        team2Name: team2Name.trim(),
+        team1Capacity: team1Count ? Number(team1Count) : undefined,
+        team2Capacity: team2Count ? Number(team2Count) : undefined,
+        team1Players: team1Players.map((n) => n.trim()).filter(Boolean),
+        team2Players: team2Players.map((n) => n.trim()).filter(Boolean),
+      });
       await startGame(session.id);
       navigate(`/play/sessions/${session.id}/live`);
     } catch (err) {
@@ -191,9 +230,11 @@ export default function CategorySelectPage() {
           </div>
         )}
 
-        <div className="relative z-0 mt-8 rounded-[2rem] border-4 border-carissma-300 bg-white p-6 shadow-sm sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-extrabold text-espresso-900">{t('play.categorySelect.completeGameInfo')}</h2>
+        <div className="relative z-0 mt-8">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <StickerHeading as="h2" className="text-xl sm:text-2xl">
+              {t('play.categorySelect.completeGameInfo')}
+            </StickerHeading>
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold ${
                 selected.length === REQUIRED_QUIZ_COUNT ? 'bg-carissma-500 text-white' : 'bg-carissma-100 text-carissma-600'
@@ -202,35 +243,83 @@ export default function CategorySelectPage() {
               {t('play.categorySelect.selectedCount', { count: selected.length, total: REQUIRED_QUIZ_COUNT })}
             </span>
           </div>
-          <div className="mt-4 space-y-4">
+
+          <div className="mt-3 rounded-[2rem] border-4 border-carissma-300 bg-carissma-50/70 p-6 shadow-sm sm:p-8">
             <TextField
               label={t('play.categorySelect.gameNameLabel')}
+              required
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
               placeholder={t('play.categorySelect.gameNamePlaceholder')}
             />
-            <p className="text-sm text-espresso-600">
-              {t('play.categorySelect.playingAs')}{' '}
-              <span className="font-bold text-espresso-900">
-                {user?.full_name || user?.first_name || t('play.categorySelect.youFallback')}
-              </span>
-            </p>
-          </div>
 
-          {error && <p className="mt-4 text-sm font-medium text-carnation-600">{error}</p>}
+            <div className="mt-5 border-t border-carissma-200 pt-5">
+              <div className="grid gap-6 sm:grid-cols-2">
+                {[1, 2].map((team) => {
+                  const teamName = team === 1 ? team1Name : team2Name;
+                  const setTeamName = team === 1 ? setTeam1Name : setTeam2Name;
+                  const teamCount = team === 1 ? team1Count : team2Count;
+                  const setTeamCount = team === 1 ? setTeam1Count : setTeam2Count;
+                  const teamPlayers = team === 1 ? team1Players : team2Players;
+                  return (
+                    <div key={team} className="space-y-4">
+                      <TextField
+                        label={t('play.categorySelect.teamNameLabel', { number: team })}
+                        required
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
+                        placeholder={t('play.categorySelect.teamNamePlaceholder', { number: team })}
+                      />
+                      <TextField
+                        label={
+                          <>
+                            {t('play.categorySelect.numberOfPlayers')}{' '}
+                            <span className="font-medium text-carissma-300">({t('common.optional')})</span>
+                          </>
+                        }
+                        type="number"
+                        min="1"
+                        value={teamCount}
+                        onChange={(e) => setTeamCount(e.target.value)}
+                        placeholder="3"
+                      />
+                      {teamPlayers.map((name, i) => (
+                        <TextField
+                          key={i}
+                          label={
+                            i === 0 ? (
+                              <>
+                                {t('play.categorySelect.playerName')}{' '}
+                                <span className="font-medium text-carissma-300">({t('common.optional')})</span>
+                              </>
+                            ) : undefined
+                          }
+                          value={name}
+                          onChange={(e) => setPlayerName(team, i, e.target.value)}
+                          placeholder={t('play.categorySelect.playerNamePlaceholder')}
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-          <div className="mt-6 flex gap-3">
-            <button
-              type="button"
-              onClick={clear}
-              className="flex-1 rounded-full bg-carissma-100 py-3 text-sm font-bold text-carissma-600 hover:bg-carissma-200"
-            >
-              {t('play.categorySelect.clear')}
-            </button>
-            <div className="flex-[2]">
-              <Button onClick={onContinue} loading={submitting} disabled={selected.length !== REQUIRED_QUIZ_COUNT}>
-                {t('play.categorySelect.continue')}
-              </Button>
+            {error && <p className="mt-4 text-sm font-medium text-carnation-600">{error}</p>}
+
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={clear}
+                className="flex-1 rounded-full bg-carissma-100 py-3 text-sm font-bold text-carissma-600 hover:bg-carissma-200"
+              >
+                {t('play.categorySelect.clear')}
+              </button>
+              <div className="flex-[2]">
+                <Button onClick={onContinue} loading={submitting} disabled={!canStart}>
+                  {t('play.categorySelect.startGame')}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -8,7 +8,8 @@
     "close": "إغلاق",
     "menu": "القائمة",
     "language": "اللغة",
-    "noImage": "لا توجد صورة"
+    "noImage": "لا توجد صورة",
+    "optional": "اختياري"
   },
   "header": {
     "home": "الرئيسية",
@@ -184,7 +185,9 @@
       "youWon": "لقد فزت!",
       "winnerWins": "{{name}} يفوز!",
       "playAgain": "العب مرة أخرى",
-      "viewGameHistory": "عرض سجل الألعاب"
+      "viewGameHistory": "عرض سجل الألعاب",
+      "teamWins": "يفوز {{name}}!",
+      "everyoneLost": "تعادل — لم يسجل أحد أي نقاط. خسر الجميع هذه الجولة!"
     },
     "freeGameOver": {
       "title": "🎮 انتهت لعبتك المجانية!",
@@ -232,12 +235,16 @@
       "empty": "لا توجد فئات متاحة للعب حاليًا — تحقق مرة أخرى قريبًا.",
       "howToPlay": "طريقة اللعب",
       "completeGameInfo": "أكمل معلومات اللعبة",
-      "gameNameLabel": "اسم اللعبة (اختياري)",
+      "gameNameLabel": "اسم اللعبة",
       "gameNamePlaceholder": "أدخل اسم اللعبة",
-      "playingAs": "تلعب باسم",
-      "youFallback": "أنت",
+      "teamNameLabel": "اسم الفريق {{number}}",
+      "teamNamePlaceholder": "فريق {{number}}",
+      "numberOfPlayers": "عدد اللاعبين",
+      "playerName": "اسم اللاعب",
+      "playerNamePlaceholder": "أدخل اسم اللاعب",
+      "startGame": "ابدأ اللعبة",
+      "fillRequiredError": "يرجى إدخال اسم اللعبة واسمي الفريقين.",
       "clear": "مسح",
-      "continue": "متابعة",
       "pickCategoryError": "اختر {{count}} ألعاب بالضبط لتكوين لوحتك.",
       "createGameError": "تعذّر إنشاء اللعبة.",
       "selectedCount": "{{count}} / {{total}} مُختارة"

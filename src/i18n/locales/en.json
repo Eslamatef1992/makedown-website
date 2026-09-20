@@ -8,7 +8,8 @@
     "close": "Close",
     "menu": "Menu",
     "language": "Language",
-    "noImage": "No image"
+    "noImage": "No image",
+    "optional": "Optional"
   },
   "header": {
     "home": "Home",
@@ -180,7 +181,9 @@
       "youWon": "You won!",
       "winnerWins": "{{name}} wins!",
       "playAgain": "Play Again",
-      "viewGameHistory": "View Game History"
+      "viewGameHistory": "View Game History",
+      "teamWins": "{{name}} wins!",
+      "everyoneLost": "It's a tie — nobody scored. Everyone lost this one!"
     },
     "freeGameOver": {
       "title": "🎮 Your Free Game Is Over!",
@@ -228,12 +231,16 @@
       "empty": "No categories are available to play yet — check back soon.",
       "howToPlay": "How to play",
       "completeGameInfo": "Complete Game Information",
-      "gameNameLabel": "Game Name (optional)",
+      "gameNameLabel": "Game Name",
       "gameNamePlaceholder": "Enter game name",
-      "playingAs": "Playing as",
-      "youFallback": "you",
+      "teamNameLabel": "Team{{number}}'s Name",
+      "teamNamePlaceholder": "team{{number}}",
+      "numberOfPlayers": "Number Of Players",
+      "playerName": "Player's Name",
+      "playerNamePlaceholder": "Enter player name",
+      "startGame": "Start Game",
+      "fillRequiredError": "Please fill in the game name and both team names.",
       "clear": "Clear",
-      "continue": "Continue",
       "pickCategoryError": "Select exactly {{count}} games to build your board.",
       "createGameError": "Could not create the game.",
       "selectedCount": "{{count}} / {{total}} Selected"
