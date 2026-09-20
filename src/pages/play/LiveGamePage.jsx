@@ -206,56 +206,79 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
   );
 }
 
+// Matches the reference card exactly: a rounded card whose top edge has a
+// notch cut into it (the category title sits directly in that notch, no
+// separate label box) and two columns of bordered, overlapping point pills
+// flanking a center image square. Traced from the supplied Figma export
+// (viewBox 379x302) rather than approximated, so the notch curve and pill
+// proportions match pixel-for-pixel; colors are the exact values sampled
+// from that file, which turned out to already be this app's own carissma
+// palette (50/100/200/400) end to end.
+const CATEGORY_CARD_PATH =
+  'M111.138 3H266.554C277.962 3.00007 288.311 9.68938 292.996 20.0918L303.773 44.0225C305.55 47.9682 309.475 50.5058 313.803 50.5059H347C363.016 50.5059 376 63.4896 376 79.5059V270C376 286.016 363.016 299 347 299H32C15.9837 299 3 286.016 3 270V79.5059C3 63.4896 15.9837 50.5059 32 50.5059H66.2139C70.9026 50.5059 75.0762 47.5336 76.6094 43.1025L83.7314 22.5176C87.7734 10.8357 98.7763 3 111.138 3Z';
+
+const TITLE_TEXT_SHADOW =
+  '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff';
+
+function CategoryCard({ column, onPick, canPick }) {
+  const sorted = [...column.questions].sort((a, b) => a.points - b.points);
+  // Each game shows exactly 6 tiles — 2 at 200, 2 at 400, 2 at 600 — and each
+  // point pair is split one-left/one-right, so both columns read
+  // 200 → 400 → 600 top to bottom and mirror each other (rather than an
+  // arbitrary first-half/second-half split).
+  const left = [];
+  const right = [];
+  for (let i = 0; i < sorted.length; i += 2) {
+    left.push(sorted[i]);
+    if (sorted[i + 1]) right.push(sorted[i + 1]);
+  }
+  const pointPill = (q) => (
+    <button
+      key={q.id}
+      disabled={q.used || !canPick}
+      onClick={() => onPick(q.id)}
+      style={{ textShadow: TITLE_TEXT_SHADOW }}
+      className={`flex h-12 w-16 flex-none items-center justify-center rounded-full border-[3px] border-carissma-50 text-sm font-extrabold shadow-sm transition sm:h-14 sm:w-[4.5rem] sm:text-base ${
+        q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-200 text-carissma-400 hover:bg-carissma-300 disabled:opacity-50'
+      }`}
+    >
+      {q.points}
+    </button>
+  );
+
+  return (
+    <div className="relative w-full" style={{ aspectRatio: '379 / 302' }}>
+      <svg viewBox="0 0 379 302" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden="true">
+        <path d={CATEGORY_CARD_PATH} fill="#F794B5" fillOpacity="0.08" stroke="#FDEBF0" strokeWidth="6" />
+      </svg>
+
+      <div className="absolute inset-x-0 top-0 flex justify-center pt-[3%]">
+        <span
+          dir="rtl"
+          className="max-w-[58%] truncate text-center text-sm font-extrabold text-carissma-400 sm:text-base"
+          style={{ textShadow: TITLE_TEXT_SHADOW }}
+        >
+          {column.title_ar || column.title_en}
+        </span>
+      </div>
+
+      <div className="absolute inset-x-0 bottom-[4%] top-[19%] flex items-center justify-center gap-0">
+        <div className="z-0 -me-4 flex flex-col justify-center gap-1">{left.map(pointPill)}</div>
+        <div className="relative z-10 aspect-square w-[34%] flex-none overflow-hidden rounded-2xl border-[3px] border-carissma-50 bg-[#CBE0F3] shadow-sm">
+          <img src={column.cover_image_url || gameTileDefault} alt="" className="h-full w-full object-cover" />
+        </div>
+        <div className="z-0 -ms-4 flex flex-col justify-center gap-1">{right.map(pointPill)}</div>
+      </div>
+    </div>
+  );
+}
+
 function GamesBoard({ board, onPick, canPick }) {
   return (
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3">
-      {board.map((column) => {
-        const sorted = [...column.questions].sort((a, b) => a.points - b.points);
-        // Each game shows exactly 6 tiles — 2 at 200, 2 at 400, 2 at 600 —
-        // and each point pair is split one-left/one-right, so both columns
-        // read 200 → 400 → 600 top to bottom and mirror each other (rather
-        // than an arbitrary first-half/second-half split).
-        const left = [];
-        const right = [];
-        for (let i = 0; i < sorted.length; i += 2) {
-          left.push(sorted[i]);
-          if (sorted[i + 1]) right.push(sorted[i + 1]);
-        }
-        const pointButton = (q) => (
-          <button
-            key={q.id}
-            disabled={q.used || !canPick}
-            onClick={() => onPick(q.id)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition ${
-              q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-200 text-carissma-400 hover:bg-carissma-300 disabled:opacity-50'
-            }`}
-          >
-            {q.points}
-          </button>
-        );
-        return (
-          <div key={column.id} className="relative pt-8">
-            <div className="absolute start-1/2 top-0 z-20 flex h-8 -translate-x-1/2 items-center rounded-t-2xl bg-white px-5">
-              <span dir="rtl" className="whitespace-nowrap text-xs font-extrabold text-carissma-400">
-                {column.title_ar || column.title_en}
-              </span>
-            </div>
-            <div className="rounded-[1.75rem] bg-carissma-100 pb-4 pt-6">
-              <div className="flex items-center justify-center">
-                <div className="z-0 -me-3 flex flex-col gap-2">{left.map(pointButton)}</div>
-                <div className="relative z-10 aspect-[204/218] w-32 flex-none overflow-hidden rounded-xl border-[3px] border-carissma-50 bg-[#CBE0F3] shadow-sm sm:w-36">
-                  <img
-                    src={column.cover_image_url || gameTileDefault}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="z-0 -ms-3 flex flex-col gap-2">{right.map(pointButton)}</div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      {board.map((column) => (
+        <CategoryCard key={column.id} column={column} onPick={onPick} canPick={canPick} />
+      ))}
     </div>
   );
 }
