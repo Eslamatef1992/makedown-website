@@ -278,9 +278,19 @@ export default function LiveGamePage() {
   const [friendRequest, setFriendRequest] = useState(null);
   const [friendHint, setFriendHint] = useState(null);
   const [phonePickerFor, setPhonePickerFor] = useState(false);
+  // The question the turn just resolved on (timeout or a real answer) —
+  // kept on screen for the same ~2.5s the result flash shows, instead of
+  // instantly snapping to the board the moment the counter hits zero /
+  // the server clears currentQuestion. See offResult below.
+  const [lockedQuestion, setLockedQuestion] = useState(null);
   const tickRef = useRef(null);
+  const sessionRef = useRef(null);
 
   const refresh = useCallback(() => getGame(id).then(setSession).catch(() => {}), [id]);
+
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
 
   useEffect(() => {
     refresh();
@@ -302,6 +312,7 @@ export default function LiveGamePage() {
       setSelected(null);
       setHiddenOptions([]);
       setFlash(null);
+      setLockedQuestion(null);
       setAwaitingScan(payload.awaitingScan);
       setScanQrDataUrl(payload.scanQrDataUrl || null);
       setScanUrl(payload.scanUrl || null);
@@ -314,8 +325,17 @@ export default function LiveGamePage() {
     });
     const offResult = onGameEvent('game:answer_result', (payload) => {
       if (payload.sessionId !== Number(id)) return;
+      // Freeze the question that was just resolved on screen — this event
+      // fires right before game:state clears session.currentQuestion, so
+      // sessionRef still holds the outgoing question at this instant. This
+      // covers both a real submit and a server-side timeout (counter
+      // hitting zero), so the board never yanks into view mid-reveal.
+      setLockedQuestion(sessionRef.current?.currentQuestion || null);
       setFlash({ isCorrect: payload.isCorrect });
-      setTimeout(() => setFlash(null), 2500);
+      setTimeout(() => {
+        setFlash(null);
+        setLockedQuestion(null);
+      }, 2500);
     });
     const offEnded = onGameEvent('game:ended', (payload) => {
       if (payload.sessionId === Number(id)) navigate(`/play/sessions/${id}/results`, { replace: true });
@@ -354,12 +374,23 @@ export default function LiveGamePage() {
     () => session?.participants?.find((p) => p.user_id === user?.id),
     [session, user]
   );
+  // Falls back to the just-resolved (locked) question so the category label
+  // stays put during the brief reveal window instead of blanking out.
+  const displayedQuestion = session?.currentQuestion || lockedQuestion;
   const currentCategory = useMemo(() => {
-    if (!session?.currentQuestion || !session?.board) return null;
-    return session.board.find((c) => (c.questions || []).some((q) => q.id === session.currentQuestion.id)) || null;
-  }, [session]);
+    if (!displayedQuestion || !session?.board) return null;
+    return session.board.find((c) => (c.questions || []).some((q) => q.id === displayedQuestion.id)) || null;
+  }, [session, displayedQuestion]);
   const isHost = session && user && session.host_user_id === user.id;
   const isMyTurn = session && myParticipant && session.currentTurnParticipantId === myParticipant.id;
+  // Every website game is played pass-the-device style: only the host logs
+  // in, and runs this one shared screen on behalf of every named teammate
+  // (who has no account of their own) — mirrors the backend's
+  // resolveActingParticipant. Without this, nobody but the host could ever
+  // take a turn: picking a tile, answering, or using a lifeline would be
+  // silently rejected the moment it became a teammate's or the other
+  // team's turn, since their id never matches the logged-in host's.
+  const canAct = Boolean(isMyTurn || isHost) && session.status === 'active';
   const currentTurnParticipant = session?.participants?.find((p) => p.id === session.currentTurnParticipantId);
 
   const onPick = async (questionId) => {
@@ -457,12 +488,26 @@ export default function LiveGamePage() {
     ? { id: rightTeamMembers[0]?.id ?? null, full_name: rightTeam.name, score: rightTeam.score }
     : session.participants?.[1] || null;
 
+  // leftIsMe/rightIsMe: which side the logged-in host's own account sits on
+  // (always the left/team1 side) — used only for the cosmetic "(you)" label.
   const leftIsMe = isTeamMode
     ? myParticipant?.team_id === leftTeam.id
     : myParticipant?.id === session.participants?.[0]?.id;
   const rightIsMe = isTeamMode
     ? myParticipant?.team_id === rightTeam.id
     : myParticipant?.id === session.participants?.[1]?.id;
+
+  // leftTurnActive/rightTurnActive: which side's turn it actually is right
+  // now — this, not host identity, is what should light up a side's Help
+  // Options. Team 2 never has the host's own identity, so gating lifeline
+  // buttons on leftIsMe/rightIsMe would leave team 2's buttons permanently
+  // disabled even on their own turn.
+  const leftTurnActive = isTeamMode
+    ? leftTeamMembers.some((p) => p.id === session.currentTurnParticipantId)
+    : session.participants?.[0]?.id === session.currentTurnParticipantId;
+  const rightTurnActive = isTeamMode
+    ? rightTeamMembers.some((p) => p.id === session.currentTurnParticipantId)
+    : session.participants?.[1]?.id === session.currentTurnParticipantId;
 
   return (
     <div className="min-h-screen bg-carissma-50/50 px-4 py-6">
@@ -505,15 +550,15 @@ export default function LiveGamePage() {
             sidebars flanking the question card; the board-select screen uses
             a single-column board with a full-width Help Options bar below. */}
         <div className="mt-6">
-          {session.currentQuestion ? (
+          {displayedQuestion ? (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[176px_1fr_176px] lg:items-start">
               <div className="flex justify-center lg:justify-start">
                 {leftEntity && (
                   <QuestionSidebar
                     participant={leftEntity}
-                    isMe={leftIsMe}
-                    usedLifelines={leftIsMe ? usedLifelines : []}
-                    canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                    isMe={leftTurnActive}
+                    usedLifelines={leftTurnActive ? usedLifelines : []}
+                    canAct={canAct && Boolean(session.currentQuestion) && !awaitingScan}
                     onLifeline={onLifeline}
                     t={t}
                   />
@@ -538,16 +583,16 @@ export default function LiveGamePage() {
                     )}
                   </div>
                   <p className="relative z-10 mt-3 flex items-center gap-1 text-sm font-bold text-espresso-900">
-                    <span aria-hidden="true">⭐</span> {session.currentQuestion.points} {t('play.live.pointsSuffix')}
+                    <span aria-hidden="true">⭐</span> {displayedQuestion.points} {t('play.live.pointsSuffix')}
                   </p>
                 </div>
                 <QuestionCard
-                  question={session.currentQuestion}
+                  question={displayedQuestion}
                   awaitingScan={awaitingScan}
                   scanQrDataUrl={scanQrDataUrl}
                   scanUrl={scanUrl}
                   selected={selected}
-                  onSelect={isMyTurn ? setSelected : () => {}}
+                  onSelect={session.currentQuestion && canAct ? setSelected : () => {}}
                   hiddenOptions={hiddenOptions}
                   t={t}
                   i18n={i18n}
@@ -558,9 +603,9 @@ export default function LiveGamePage() {
                 {rightEntity && (
                   <QuestionSidebar
                     participant={rightEntity}
-                    isMe={rightIsMe}
-                    usedLifelines={rightIsMe ? usedLifelines : []}
-                    canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                    isMe={rightTurnActive}
+                    usedLifelines={rightTurnActive ? usedLifelines : []}
+                    canAct={canAct && Boolean(session.currentQuestion) && !awaitingScan}
                     onLifeline={onLifeline}
                     t={t}
                   />
@@ -578,12 +623,12 @@ export default function LiveGamePage() {
               >
                 {t('play.live.games')}
               </p>
-              <GamesBoard board={session.board || []} onPick={onPick} canPick={isMyTurn && session.status === 'active'} />
+              <GamesBoard board={session.board || []} onPick={onPick} canPick={canAct} />
             </>
           )}
         </div>
 
-        {session.currentQuestion && isMyTurn && !awaitingScan && (
+        {session.currentQuestion && canAct && !awaitingScan && (
           <button
             onClick={onSubmit}
             disabled={selected === null}
@@ -599,7 +644,7 @@ export default function LiveGamePage() {
             not from whether anyone has joined it yet — so the second team
             is never silently missing. Score adjustment is only offered when
             there's an actual player on that team to attribute it to. */}
-        {!session.currentQuestion && (isTeamMode || (session.participants?.length >= 1)) && (
+        {!displayedQuestion && (isTeamMode || (session.participants?.length >= 1)) && (
           <div className="mt-6 flex flex-col items-center gap-6 rounded-3xl bg-carissma-100 px-3 py-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:px-6">
             {leftEntity && (
               <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
@@ -613,7 +658,7 @@ export default function LiveGamePage() {
                 <HelpOptionsBlock
                   isMe={leftIsMe}
                   usedLifelines={leftIsMe ? usedLifelines : []}
-                  canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                  canAct={canAct && Boolean(session.currentQuestion) && !awaitingScan}
                   onLifeline={onLifeline}
                   t={t}
                 />
@@ -625,7 +670,7 @@ export default function LiveGamePage() {
                 <HelpOptionsBlock
                   isMe={rightIsMe}
                   usedLifelines={rightIsMe ? usedLifelines : []}
-                  canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                  canAct={canAct && Boolean(session.currentQuestion) && !awaitingScan}
                   onLifeline={onLifeline}
                   t={t}
                 />
@@ -644,7 +689,7 @@ export default function LiveGamePage() {
         {/* Extra (3rd+) individual panels only apply outside team mode —
             in team mode every participant is already represented inside
             their team's single panel above. */}
-        {!isTeamMode && !session.currentQuestion && session.participants?.length > 2 && (
+        {!isTeamMode && !displayedQuestion && session.participants?.length > 2 && (
           <div className="mt-4 flex flex-wrap justify-center gap-4">
             {session.participants.slice(2).map((p) => (
               <div key={p.id} className="flex flex-wrap items-center justify-center gap-4 rounded-3xl bg-carissma-100 px-4 py-5 sm:flex-nowrap sm:gap-8 sm:px-6">
@@ -658,7 +703,7 @@ export default function LiveGamePage() {
                 <HelpOptionsBlock
                   isMe={myParticipant?.id === p.id}
                   usedLifelines={myParticipant?.id === p.id ? usedLifelines : []}
-                  canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                  canAct={canAct && Boolean(session.currentQuestion) && !awaitingScan}
                   onLifeline={onLifeline}
                   t={t}
                 />
