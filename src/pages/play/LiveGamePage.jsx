@@ -220,6 +220,21 @@ const CATEGORY_CARD_PATH =
 const TITLE_TEXT_SHADOW =
   '1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1.5px 1.5px 0 #fff, -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff';
 
+// Exact pill geometry traced from the same Figma export, as percentages of
+// the 379x302 card. Each pill is a "D" shape — rounded only on the outer
+// edge, flat on the inner edge where it tucks behind the image box — not a
+// full stadium/pill, and each row is slightly wider than the one above it
+// (bleeding further outward) with a small vertical overlap between rows.
+// Left/right are mirror images of each other, both anchored so their inner
+// (flat) edge sits flush against the image box.
+const POINT_PILL_ROWS = [
+  { top: 24.5, height: 23.18, width: 17.15 }, // 200
+  { top: 44.37, height: 23.18, width: 18.47 }, // 400
+  { top: 64.24, height: 23.18, width: 20.58 }, // 600
+];
+const PILL_INNER_EDGE = 24.01; // % from card left (right column mirrors from card right)
+const IMAGE_BOX = { left: 24.01, top: 24.5, width: 51.19, height: 62.91 };
+
 function CategoryCard({ column, onPick, canPick }) {
   const sorted = [...column.questions].sort((a, b) => a.points - b.points);
   // Each game shows exactly 6 tiles — 2 at 200, 2 at 400, 2 at 600 — and each
@@ -232,19 +247,26 @@ function CategoryCard({ column, onPick, canPick }) {
     left.push(sorted[i]);
     if (sorted[i + 1]) right.push(sorted[i + 1]);
   }
-  const pointPill = (q) => (
-    <button
-      key={q.id}
-      disabled={q.used || !canPick}
-      onClick={() => onPick(q.id)}
-      style={{ textShadow: TITLE_TEXT_SHADOW }}
-      className={`flex h-12 w-16 flex-none items-center justify-center rounded-full border-[3px] border-carissma-50 text-sm font-extrabold shadow-sm transition sm:h-14 sm:w-[4.5rem] sm:text-base ${
-        q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-200 text-carissma-400 hover:bg-carissma-300 disabled:opacity-50'
-      }`}
-    >
-      {q.points}
-    </button>
-  );
+  const pointPill = (q, i, side) => {
+    const row = POINT_PILL_ROWS[i];
+    const style =
+      side === 'left'
+        ? { left: `${PILL_INNER_EDGE - row.width}%`, top: `${row.top}%`, width: `${row.width}%`, height: `${row.height}%`, borderRadius: '9999px 0 0 9999px', textShadow: TITLE_TEXT_SHADOW }
+        : { right: `${PILL_INNER_EDGE - row.width}%`, top: `${row.top}%`, width: `${row.width}%`, height: `${row.height}%`, borderRadius: '0 9999px 9999px 0', textShadow: TITLE_TEXT_SHADOW };
+    return (
+      <button
+        key={q.id}
+        disabled={q.used || !canPick}
+        onClick={() => onPick(q.id)}
+        style={style}
+        className={`absolute z-0 flex items-center justify-center border-[3px] border-carissma-50 text-sm font-extrabold shadow-sm transition sm:text-base ${
+          side === 'left' ? 'justify-start pl-3 sm:pl-4' : 'justify-end pr-3 sm:pr-4'
+        } ${q.used ? 'bg-carissma-100 text-carissma-200' : 'bg-carissma-200 text-carissma-400 hover:bg-carissma-300 disabled:opacity-50'}`}
+      >
+        {q.points}
+      </button>
+    );
+  };
 
   return (
     <div className="relative w-full" style={{ aspectRatio: '379 / 302' }}>
@@ -262,12 +284,14 @@ function CategoryCard({ column, onPick, canPick }) {
         </span>
       </div>
 
-      <div className="absolute inset-x-0 bottom-[4%] top-[19%] flex items-center justify-center gap-0">
-        <div className="z-0 -me-4 flex flex-col justify-center gap-1">{left.map(pointPill)}</div>
-        <div className="relative z-10 aspect-square w-[34%] flex-none overflow-hidden rounded-2xl border-[3px] border-carissma-50 bg-[#CBE0F3] shadow-sm">
-          <img src={column.cover_image_url || gameTileDefault} alt="" className="h-full w-full object-cover" />
-        </div>
-        <div className="z-0 -ms-4 flex flex-col justify-center gap-1">{right.map(pointPill)}</div>
+      {left.map((q, i) => pointPill(q, i, 'left'))}
+      {right.map((q, i) => pointPill(q, i, 'right'))}
+
+      <div
+        className="absolute z-10 overflow-hidden rounded-2xl border-[3px] border-carissma-50 bg-[#CBE0F3] shadow-sm"
+        style={{ left: `${IMAGE_BOX.left}%`, top: `${IMAGE_BOX.top}%`, width: `${IMAGE_BOX.width}%`, height: `${IMAGE_BOX.height}%` }}
+      >
+        <img src={column.cover_image_url || gameTileDefault} alt="" className="h-full w-full object-cover" />
       </div>
     </div>
   );
