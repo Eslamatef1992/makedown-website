@@ -20,10 +20,11 @@ const MODE = 'team';
 // tiles beyond the 6th can't be picked until one is deselected.
 const REQUIRED_QUIZ_COUNT = 6;
 
-// Up to this many teammates can be pre-named (as guests — no account
-// needed) per team when the game is created.
-const MAX_NAMED_PLAYERS = 3;
-const EMPTY_PLAYER_NAMES = Array(MAX_NAMED_PLAYERS).fill('');
+// Safety cap on how many teammates can be pre-named (as guests — no
+// account needed) per team, in case someone types an unreasonable
+// number into "Number Of Players". The actual number of name fields
+// shown always follows whatever count was entered for that team.
+const MAX_NAMED_PLAYERS = 10;
 
 export default function CategorySelectPage() {
   const navigate = useNavigate();
@@ -38,8 +39,10 @@ export default function CategorySelectPage() {
   const [team2Name, setTeam2Name] = useState('');
   const [team1Count, setTeam1Count] = useState('');
   const [team2Count, setTeam2Count] = useState('');
-  const [team1Players, setTeam1Players] = useState(EMPTY_PLAYER_NAMES);
-  const [team2Players, setTeam2Players] = useState(EMPTY_PLAYER_NAMES);
+  // Number of name fields shown per team always tracks that team's
+  // "Number Of Players" value, so these start empty (no count yet).
+  const [team1Players, setTeam1Players] = useState([]);
+  const [team2Players, setTeam2Players] = useState([]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [noFreeGame, setNoFreeGame] = useState(false);
@@ -87,13 +90,29 @@ export default function CategorySelectPage() {
     setTeam2Name('');
     setTeam1Count('');
     setTeam2Count('');
-    setTeam1Players(EMPTY_PLAYER_NAMES);
-    setTeam2Players(EMPTY_PLAYER_NAMES);
+    setTeam1Players([]);
+    setTeam2Players([]);
   };
 
   const setPlayerName = (team, index, value) => {
     const setter = team === 1 ? setTeam1Players : setTeam2Players;
     setter((names) => names.map((n, i) => (i === index ? value : n)));
+  };
+
+  // Keeps the "Number Of Players" field and the list of name inputs for
+  // that team in sync: typing "2" shows exactly two name rows, existing
+  // names already typed are kept, and the count is clamped to a sane
+  // range so a stray huge number can't blow up the form.
+  const setTeamCount = (team, value) => {
+    const setCount = team === 1 ? setTeam1Count : setTeam2Count;
+    const setPlayers = team === 1 ? setTeam1Players : setTeam2Players;
+    setCount(value);
+    const n = Math.max(0, Math.min(MAX_NAMED_PLAYERS, Number(value) || 0));
+    setPlayers((names) => {
+      const next = names.slice(0, n);
+      while (next.length < n) next.push('');
+      return next;
+    });
   };
 
   const canStart =
@@ -259,7 +278,6 @@ export default function CategorySelectPage() {
                   const teamName = team === 1 ? team1Name : team2Name;
                   const setTeamName = team === 1 ? setTeam1Name : setTeam2Name;
                   const teamCount = team === 1 ? team1Count : team2Count;
-                  const setTeamCount = team === 1 ? setTeam1Count : setTeam2Count;
                   const teamPlayers = team === 1 ? team1Players : team2Players;
                   return (
                     <div key={team} className="space-y-4">
@@ -278,9 +296,9 @@ export default function CategorySelectPage() {
                           </>
                         }
                         type="number"
-                        min="1"
+                        min="0"
                         value={teamCount}
-                        onChange={(e) => setTeamCount(e.target.value)}
+                        onChange={(e) => setTeamCount(team, e.target.value)}
                         placeholder="3"
                       />
                       {teamPlayers.map((name, i) => (
