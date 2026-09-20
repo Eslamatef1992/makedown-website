@@ -430,6 +430,36 @@ export default function LiveGamePage() {
     return <div className="flex min-h-screen items-center justify-center text-espresso-500">{t('play.live.loading')}</div>;
   }
 
+  // Every website game is two teams (see CategorySelectPage) and game_teams
+  // always has exactly two rows for a team session from the moment it's
+  // created — regardless of whether any guest has actually joined a team
+  // yet. The left/right panels below must always reflect those two teams
+  // (their real name and running score), not just the first two people who
+  // happen to be in game_participants, or a team with no players yet
+  // silently disappears from the screen instead of showing 0 points.
+  const isTeamMode = session.mode === 'team' && (session.teams?.length || 0) >= 2;
+  const leftTeam = isTeamMode ? session.teams[0] : null;
+  const rightTeam = isTeamMode ? session.teams[1] : null;
+  const leftTeamMembers = isTeamMode ? session.participants.filter((p) => p.team_id === leftTeam.id) : [];
+  const rightTeamMembers = isTeamMode ? session.participants.filter((p) => p.team_id === rightTeam.id) : [];
+
+  // A representative member is only needed to attribute a host score
+  // adjustment (adjustScore acts on a participant row) — the name/score
+  // shown always comes from the team itself, not from that member.
+  const leftEntity = isTeamMode
+    ? { id: leftTeamMembers[0]?.id ?? null, full_name: leftTeam.name, score: leftTeam.score }
+    : session.participants?.[0] || null;
+  const rightEntity = isTeamMode
+    ? { id: rightTeamMembers[0]?.id ?? null, full_name: rightTeam.name, score: rightTeam.score }
+    : session.participants?.[1] || null;
+
+  const leftIsMe = isTeamMode
+    ? myParticipant?.team_id === leftTeam.id
+    : myParticipant?.id === session.participants?.[0]?.id;
+  const rightIsMe = isTeamMode
+    ? myParticipant?.team_id === rightTeam.id
+    : myParticipant?.id === session.participants?.[1]?.id;
+
   return (
     <div className="min-h-screen bg-carissma-50/50 px-4 py-6">
       <div className="mx-auto max-w-[1400px] rounded-[1.5rem] border-[6px] border-carissma-400 bg-carissma-50 p-4 shadow-lg sm:p-6">
@@ -474,11 +504,11 @@ export default function LiveGamePage() {
           {session.currentQuestion ? (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[176px_1fr_176px] lg:items-start">
               <div className="flex justify-center lg:justify-start">
-                {session.participants?.[0] && (
+                {leftEntity && (
                   <QuestionSidebar
-                    participant={session.participants[0]}
-                    isMe={myParticipant?.id === session.participants[0].id}
-                    usedLifelines={myParticipant?.id === session.participants[0].id ? usedLifelines : []}
+                    participant={leftEntity}
+                    isMe={leftIsMe}
+                    usedLifelines={leftIsMe ? usedLifelines : []}
                     canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                     onLifeline={onLifeline}
                     t={t}
@@ -521,11 +551,11 @@ export default function LiveGamePage() {
               </div>
 
               <div className="flex justify-center lg:justify-end">
-                {session.participants?.[1] && (
+                {rightEntity && (
                   <QuestionSidebar
-                    participant={session.participants[1]}
-                    isMe={myParticipant?.id === session.participants[1].id}
-                    usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
+                    participant={rightEntity}
+                    isMe={rightIsMe}
+                    usedLifelines={rightIsMe ? usedLifelines : []}
                     canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                     onLifeline={onLifeline}
                     t={t}
@@ -560,41 +590,45 @@ export default function LiveGamePage() {
         )}
 
         {/* Help Options bar: board-select screen only (the question screen uses
-            the left/right sidebars above instead). Renders with just one
-            participant too — the second cluster only appears once
-            participants[1] exists. */}
-        {!session.currentQuestion && session.participants?.length >= 1 && (
+            the left/right sidebars above instead). In team mode both sides
+            always render — a team's name and score come from game_teams,
+            not from whether anyone has joined it yet — so the second team
+            is never silently missing. Score adjustment is only offered when
+            there's an actual player on that team to attribute it to. */}
+        {!session.currentQuestion && (isTeamMode || (session.participants?.length >= 1)) && (
           <div className="mt-6 flex flex-col items-center gap-6 rounded-3xl bg-carissma-100 px-3 py-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:px-6">
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
-              <ScoreBlock
-                participant={session.participants[0]}
-                isMe={myParticipant?.id === session.participants[0].id}
-                canAdjust={isHost}
-                onAdjustScore={onAdjustScore}
-                t={t}
-              />
-              <HelpOptionsBlock
-                isMe={myParticipant?.id === session.participants[0].id}
-                usedLifelines={myParticipant?.id === session.participants[0].id ? usedLifelines : []}
-                canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
-                onLifeline={onLifeline}
-                t={t}
-              />
-            </div>
+            {leftEntity && (
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
+                <ScoreBlock
+                  participant={leftEntity}
+                  isMe={leftIsMe}
+                  canAdjust={isHost && Boolean(leftEntity.id)}
+                  onAdjustScore={onAdjustScore}
+                  t={t}
+                />
+                <HelpOptionsBlock
+                  isMe={leftIsMe}
+                  usedLifelines={leftIsMe ? usedLifelines : []}
+                  canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
+                  onLifeline={onLifeline}
+                  t={t}
+                />
+              </div>
+            )}
 
-            {session.participants[1] && (
+            {rightEntity && (
               <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap sm:gap-8">
                 <HelpOptionsBlock
-                  isMe={myParticipant?.id === session.participants[1].id}
-                  usedLifelines={myParticipant?.id === session.participants[1].id ? usedLifelines : []}
+                  isMe={rightIsMe}
+                  usedLifelines={rightIsMe ? usedLifelines : []}
                   canAct={isMyTurn && Boolean(session.currentQuestion) && !awaitingScan}
                   onLifeline={onLifeline}
                   t={t}
                 />
                 <ScoreBlock
-                  participant={session.participants[1]}
-                  isMe={myParticipant?.id === session.participants[1].id}
-                  canAdjust={isHost}
+                  participant={rightEntity}
+                  isMe={rightIsMe}
+                  canAdjust={isHost && Boolean(rightEntity.id)}
                   onAdjustScore={onAdjustScore}
                   t={t}
                 />
@@ -603,7 +637,10 @@ export default function LiveGamePage() {
           </div>
         )}
 
-        {!session.currentQuestion && session.participants?.length > 2 && (
+        {/* Extra (3rd+) individual panels only apply outside team mode —
+            in team mode every participant is already represented inside
+            their team's single panel above. */}
+        {!isTeamMode && !session.currentQuestion && session.participants?.length > 2 && (
           <div className="mt-4 flex flex-wrap justify-center gap-4">
             {session.participants.slice(2).map((p) => (
               <div key={p.id} className="flex flex-wrap items-center justify-center gap-4 rounded-3xl bg-carissma-100 px-4 py-5 sm:flex-nowrap sm:gap-8 sm:px-6">
