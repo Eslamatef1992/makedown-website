@@ -835,7 +835,21 @@ export default function LiveGamePage() {
         )}
       </div>
 
-      <RoundResultModal result={roundResult} onContinue={() => setRoundResult(null)} t={t} />
+      <RoundResultModal
+        result={roundResult}
+        onContinue={() => {
+          setRoundResult(null);
+          // The resolved tile's question was kept on screen behind the modal
+          // (see offResult's setLockedQuestion) so the reveal didn't yank
+          // straight to the board mid-popup — but nothing ever cleared it
+          // for team mode once the modal closed, since a real submit's
+          // flash/lockedQuestion reset only runs for solo/random. Without
+          // this, "Continue Game" just hid the popup and left the same old
+          // question card on screen instead of returning to tile selection.
+          setLockedQuestion(null);
+        }}
+        t={t}
+      />
 
       {/* Phone-a-friend: pick who to call */}
       {phonePickerFor && (
