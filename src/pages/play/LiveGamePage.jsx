@@ -236,6 +236,14 @@ const PILL_INNER_EDGE = 24.01; // % from card left (right column mirrors from ca
 const IMAGE_BOX = { left: 24.01, top: 24.5, width: 51.19, height: 62.91 };
 
 function CategoryCard({ column, onPick, canPick }) {
+  const { i18n } = useTranslation();
+  // Category/quiz titles are bilingual per-row (title_en/title_ar) — show
+  // the site's current language, falling back to English if a category has
+  // no Arabic title yet. Previously this always preferred Arabic when both
+  // were present, so an English-language session still showed Arabic
+  // titles for every bilingual category.
+  const isAr = i18n.language?.startsWith('ar');
+  const title = (isAr && column.title_ar) || column.title_en;
   const sorted = [...column.questions].sort((a, b) => a.points - b.points);
   // Each game shows exactly 6 tiles — 2 at 200, 2 at 400, 2 at 600 — and each
   // point pair is split one-left/one-right, so both columns read
@@ -276,11 +284,11 @@ function CategoryCard({ column, onPick, canPick }) {
 
       <div className="absolute inset-x-0 top-0 flex justify-center pt-[3%]">
         <span
-          dir="rtl"
+          dir={isAr ? 'rtl' : 'ltr'}
           className="max-w-[58%] truncate text-center text-sm font-extrabold text-carissma-400 sm:text-base"
           style={{ textShadow: TITLE_TEXT_SHADOW }}
         >
-          {column.title_ar || column.title_en}
+          {title}
         </span>
       </div>
 
@@ -754,8 +762,11 @@ export default function LiveGamePage() {
                 <div>
                   <div className="text-center">
                     {currentCategory && (
-                      <p dir="rtl" className="text-sm font-bold text-carissma-500">
-                        {currentCategory.title_ar || currentCategory.title_en}
+                      <p
+                        dir={i18n.language?.startsWith('ar') ? 'rtl' : 'ltr'}
+                        className="text-sm font-bold text-carissma-500"
+                      >
+                        {(i18n.language?.startsWith('ar') && currentCategory.title_ar) || currentCategory.title_en}
                       </p>
                     )}
                     {timeLeft !== null && (
