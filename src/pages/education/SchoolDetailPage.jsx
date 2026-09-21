@@ -69,7 +69,7 @@ function GameCodeModal({ game, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-espresso-900/40 px-4">
-      <div className="relative w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-xl">
+      <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl sm:p-8">
         <button
           onClick={onClose}
           className="absolute end-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-espresso-400 hover:bg-linen-100"
@@ -134,7 +134,7 @@ function GameCard({ game, onJoin }) {
   const timeLabel = formatTime(game.scheduledTime, t('education.schoolDetail.am'), t('education.schoolDetail.pm'));
 
   return (
-    <div className="rounded-2xl border border-carissma-100 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-carissma-100 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="text-lg font-extrabold text-espresso-900">{game.title || t('education.schoolDetail.gameFallback')}</h3>
         {audienceLabel && (
@@ -238,11 +238,11 @@ export default function SchoolDetailPage() {
     <SiteLayout>
       {joinGame && <GameCodeModal game={joinGame} onClose={() => setJoinGame(null)} />}
 
-      <div className="mx-auto max-w-4xl px-6 py-10 sm:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <Link to="/education" className="text-sm font-bold text-carissma-500 hover:underline">{isAr ? '→' : '←'} {t('education.schoolDetail.backToSchools')}</Link>
 
         <div className="mt-6 flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:text-start">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-linen-100">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-linen-100 sm:h-20 sm:w-20">
             {school.logoUrl ? (
               <img src={school.logoUrl} alt={schoolName(school, i18n.language)} className="h-full w-full object-cover" />
             ) : (
@@ -250,21 +250,21 @@ export default function SchoolDetailPage() {
             )}
           </div>
           <div>
-            <StickerHeading as="h1" className="text-2xl">
+            <StickerHeading as="h1" className="text-xl sm:text-2xl">
               {t('education.schoolDetail.gamesHeading', { school: schoolName(school, i18n.language) })}
             </StickerHeading>
           </div>
         </div>
 
         {games.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-carissma-100 bg-white/70 p-8 text-center">
+          <div className="mt-10 rounded-2xl border border-carissma-100 bg-white/70 p-6 text-center sm:p-8">
             <p className="font-bold text-espresso-900">{t('education.schoolDetail.noGames')}</p>
             <p className="mx-auto mt-2 max-w-md text-sm text-espresso-600">
               {t('education.schoolDetail.noGamesBody', { school: schoolName(school, i18n.language) })}
             </p>
           </div>
         ) : (
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-5">
             {games.map((game) => (
               <GameCard key={game.id} game={game} onJoin={setJoinGame} />
             ))}

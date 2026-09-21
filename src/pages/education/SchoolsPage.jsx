@@ -45,8 +45,8 @@ export default function SchoolsPage() {
         </nav>
 
         <div className="relative mt-5 inline-block">
-          <SparkleIcon className="absolute -start-3 -top-3 h-6 w-6 sm:-start-4 sm:-top-4 sm:h-7 sm:w-7" />
-          <span className="inline-block rounded-full border-2 border-carissma-200 bg-white px-7 py-2.5 text-2xl font-extrabold text-carissma-600 shadow-sm sm:text-3xl">
+          <SparkleIcon className="absolute -start-2.5 -top-2.5 h-5 w-5 sm:-start-3 sm:-top-3 sm:h-6 sm:w-6 md:-start-4 md:-top-4 md:h-7 md:w-7" />
+          <span className="inline-block rounded-full border-2 border-carissma-200 bg-white px-5 py-2 text-xl font-extrabold text-carissma-600 shadow-sm sm:px-7 sm:py-2.5 sm:text-2xl md:text-3xl">
             {t('education.schools.title')}
           </span>
         </div>
@@ -58,21 +58,21 @@ export default function SchoolsPage() {
         )}
 
         {!loading && !error && schools.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
             {schools.map((s) => (
               <Link
                 key={s.id}
                 to={`/education/${s.id}`}
                 className="overflow-hidden rounded-2xl border border-carissma-100 bg-white shadow-sm transition hover:border-carissma-300 hover:shadow-md"
               >
-                <div className="flex aspect-square items-center justify-center bg-carissma-100 p-8">
+                <div className="flex aspect-square items-center justify-center bg-carissma-100 p-4 sm:p-6 lg:p-8">
                   <img
                     src={s.logoUrl || '/logo-mark.png'}
                     alt={schoolName(s, i18n.language)}
                     className="h-full w-full object-contain"
                   />
                 </div>
-                <p className="px-3 py-3.5 text-center text-sm font-extrabold text-espresso-900 sm:text-base">
+                <p className="px-2 py-2.5 text-center text-xs font-extrabold leading-snug text-espresso-900 sm:px-3 sm:py-3.5 sm:text-sm lg:text-base">
                   {schoolName(s, i18n.language)}
                 </p>
               </Link>
