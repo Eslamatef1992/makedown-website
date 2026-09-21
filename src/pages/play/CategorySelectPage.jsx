@@ -8,6 +8,7 @@ import TextField from '../../components/ui/TextField';
 import FreeGameOverScreen from '../../components/play/FreeGameOverScreen';
 import { pickLang } from '../../utils/bilingual';
 import { listPlayableQuizzes, createGame, startGame } from '../../api/play.api';
+import { listGameCategories } from '../../api/content.api';
 
 // Direct-play entry point: there is no invite code or lobby any more —
 // picking categories and completing the team form creates the game and
@@ -31,6 +32,7 @@ export default function CategorySelectPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
+  const [categories, setCategories] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
@@ -51,29 +53,57 @@ export default function CategorySelectPage() {
   const [openInfo, setOpenInfo] = useState(null);
 
   useEffect(() => {
-    listPlayableQuizzes(undefined, MODE)
-      .then(setQuizzes)
-      .catch(() => setQuizzes([]))
+    Promise.all([
+      listGameCategories().catch(() => []),
+      listPlayableQuizzes(undefined, MODE).catch(() => []),
+    ])
+      .then(([cats, qs]) => {
+        setCategories(cats || []);
+        setQuizzes(qs || []);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  // Grouped by category_id (not the English name) so an Arabic-only or
+  // Every active category gets its own panel, even ones with no games yet
+  // (rendered as a "No Game Added" placeholder below) — not just the
+  // categories that happen to already have a playable quiz, so schools/
+  // admins see the category exists and knows it still needs games added.
+  // Grouped by category id (not the English name) so an Arabic-only or
   // renamed category still merges correctly into a single section.
   const grouped = useMemo(() => {
-    const groups = new Map();
+    const activeIds = new Set(categories.map((c) => c.id));
+    const itemsByCategoryId = new Map();
+    const orphanGroups = new Map();
+
     for (const quiz of quizzes) {
-      const key = quiz.category_id ?? 'other';
-      if (!groups.has(key)) {
-        groups.set(key, {
-          nameEn: quiz.category_name_en || 'Other',
-          nameAr: quiz.category_name_ar || quiz.category_name_en || 'أخرى',
-          items: [],
-        });
+      if (activeIds.has(quiz.category_id)) {
+        if (!itemsByCategoryId.has(quiz.category_id)) itemsByCategoryId.set(quiz.category_id, []);
+        itemsByCategoryId.get(quiz.category_id).push(quiz);
+      } else {
+        // A quiz tagged to a category that's since been deactivated/deleted,
+        // or with no category at all — still needs somewhere to show up.
+        const key = quiz.category_id ?? 'other';
+        if (!orphanGroups.has(key)) {
+          orphanGroups.set(key, {
+            key: `orphan-${key}`,
+            nameEn: quiz.category_name_en || 'Other',
+            nameAr: quiz.category_name_ar || quiz.category_name_en || 'أخرى',
+            items: [],
+          });
+        }
+        orphanGroups.get(key).items.push(quiz);
       }
-      groups.get(key).items.push(quiz);
     }
-    return [...groups.values()];
-  }, [quizzes]);
+
+    const activeGroups = categories.map((cat) => ({
+      key: `cat-${cat.id}`,
+      nameEn: cat.name_en,
+      nameAr: cat.name_ar,
+      items: itemsByCategoryId.get(cat.id) || [],
+    }));
+
+    return [...activeGroups, ...orphanGroups.values()];
+  }, [categories, quizzes]);
 
   const toggle = (id) => {
     setSelected((s) => {
@@ -172,12 +202,19 @@ export default function CategorySelectPage() {
         ) : (
           <div className="relative z-10 mt-8 space-y-10">
             {grouped.map((group) => (
-              <div key={group.nameEn} className="relative mt-6 first:mt-0">
+              <div key={group.key} className="relative mt-6 first:mt-0">
                 <div className="absolute start-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-carissma-50 px-6 py-1.5 sm:px-8 sm:py-2">
                   <StickerHeading as="h2" className="whitespace-nowrap text-lg sm:text-xl">
                     {lang === 'ar' ? group.nameAr : group.nameEn}
                   </StickerHeading>
                 </div>
+                {group.items.length === 0 ? (
+                  <div className="rounded-[2rem] bg-carissma-50/60 py-7 pt-9 text-center sm:py-8 sm:pt-10">
+                    <p className="text-sm font-bold text-carissma-300 sm:text-base">
+                      {t('play.categorySelect.noGamesInCategory')}
+                    </p>
+                  </div>
+                ) : (
                 <div className="rounded-[2rem] bg-carissma-50 p-4 pt-8 sm:p-6 sm:pt-9">
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {group.items.map((quiz) => {
@@ -244,6 +281,7 @@ export default function CategorySelectPage() {
                   })}
                   </div>
                 </div>
+                )}
               </div>
             ))}
           </div>

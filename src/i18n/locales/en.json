@@ -235,6 +235,7 @@
       "title": "Select Categories",
       "loading": "Loading categories…",
       "empty": "No categories are available to play yet — check back soon.",
+      "noGamesInCategory": "No Game Added",
       "howToPlay": "How to play",
       "completeGameInfo": "Complete Game Information",
       "gameNameLabel": "Game Name",
