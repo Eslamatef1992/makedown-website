@@ -167,7 +167,9 @@ function GameCard({ game, onJoin }) {
 
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="text-lg font-extrabold text-carissma-500">{game.title || t('education.schoolDetail.gameFallback')}</h3>
+          <h3 className="text-lg font-extrabold text-carissma-500">
+            {(isAr && game.titleAr) || game.title || t('education.schoolDetail.gameFallback')}
+          </h3>
           {audienceLabel && (
             <span className="rounded-full bg-carissma-50 px-3 py-1 text-xs font-bold text-carissma-500">{audienceLabel}</span>
           )}
