@@ -142,15 +142,26 @@ function GameCard({ game, onJoin }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-white shadow-sm">
       {tiles.length > 0 && (
-        <div className="grid grid-cols-2 gap-1 bg-linen-100 p-1 sm:grid-cols-3">
+        // Always 2 columns (up to 3 rows for 6 tiles), matching the
+        // reference design at every width rather than reflowing to 3-wide
+        // on larger screens — that's what was making the tiles shrink down
+        // to thin strips before.
+        <div className="grid grid-cols-2 gap-2 p-2 sm:gap-2.5 sm:p-2.5">
           {tiles.map((c, i) => (
-            <div key={i} className="relative overflow-hidden rounded-lg">
+            <div key={i} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-linen-100">
               <img
                 src={c.coverImageUrl || gameTileDefault}
-                alt={(isAr && c.titleAr) || c.titleEn || ''}
-                className="h-16 w-full object-cover sm:h-20"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
               />
-              <span className="absolute bottom-1 end-1 rounded-full bg-carissma-500 px-2 py-0.5 text-[10px] font-extrabold text-white shadow">
+              {/* Scrim so the title/PLAY pill stay readable over any photo,
+                  since the uploaded Game Image is a plain photo, not a
+                  pre-designed tile with the title baked in. */}
+              <div className="absolute inset-0 bg-gradient-to-t from-espresso-900/75 via-espresso-900/10 to-transparent" />
+              <span className="absolute inset-x-2 top-2 line-clamp-2 text-xs font-extrabold leading-tight text-white drop-shadow sm:text-sm">
+                {(isAr && c.titleAr) || c.titleEn}
+              </span>
+              <span className="absolute bottom-2 start-2 rounded-full bg-carissma-500 px-3 py-1 text-xs font-extrabold text-white shadow">
                 {t('education.schoolDetail.playLabel')} {isAr ? '←' : '→'}
               </span>
             </div>
