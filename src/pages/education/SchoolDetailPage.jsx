@@ -5,7 +5,8 @@ import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
 import { listSchools, listSchoolGames } from '../../api/content.api';
 import { joinGameByCode } from '../../api/play.api';
-import { CloseIcon, CalendarIcon, UserIcon } from '../../components/ui/icons';
+import { CloseIcon } from '../../components/ui/icons';
+import gameTileDefault from '../../assets/game-tile-default.jpg';
 
 const AUDIENCE_LABEL_KEYS = {
   girls: 'education.schoolDetail.audience.girls',
@@ -132,57 +133,97 @@ function GameCard({ game, onJoin }) {
   const audienceLabel = AUDIENCE_LABEL_KEYS[game.audience] ? t(AUDIENCE_LABEL_KEYS[game.audience]) : null;
   const dateLabel = formatDate(game.scheduledDate);
   const timeLabel = formatTime(game.scheduledTime, t('education.schoolDetail.am'), t('education.schoolDetail.pm'));
+  // Up to 6 tiles, one per category/quiz bundled onto this session — each
+  // tile's picture is that quiz's own "Game Image" (quizzes.cover_image_url,
+  // set from the school admin panel's Edit game modal), falling back to the
+  // shared placeholder when a quiz has none.
+  const tiles = (game.categories || []).slice(0, 6);
 
   return (
-    <div className="rounded-2xl border border-carissma-100 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h3 className="text-lg font-extrabold text-espresso-900">{game.title || t('education.schoolDetail.gameFallback')}</h3>
-        {audienceLabel && (
-          <span className="rounded-full bg-carissma-50 px-3 py-1 text-xs font-bold text-carissma-500">{audienceLabel}</span>
-        )}
-      </div>
+    <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-white shadow-sm">
+      {tiles.length > 0 && (
+        <div className="grid grid-cols-2 gap-1 bg-linen-100 p-1 sm:grid-cols-3">
+          {tiles.map((c, i) => (
+            <div key={i} className="relative overflow-hidden rounded-lg">
+              <img
+                src={c.coverImageUrl || gameTileDefault}
+                alt={(isAr && c.titleAr) || c.titleEn || ''}
+                className="h-16 w-full object-cover sm:h-20"
+              />
+              <span className="absolute bottom-1 end-1 rounded-full bg-carissma-500 px-2 py-0.5 text-[10px] font-extrabold text-white shadow">
+                {t('education.schoolDetail.playLabel')} {isAr ? '←' : '→'}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {(dateLabel || timeLabel) && (
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium text-espresso-600">
-          <CalendarIcon className="h-4 w-4 text-carissma-400" />
-          <span>
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <h3 className="text-lg font-extrabold text-carissma-500">{game.title || t('education.schoolDetail.gameFallback')}</h3>
+          {audienceLabel && (
+            <span className="rounded-full bg-carissma-50 px-3 py-1 text-xs font-bold text-carissma-500">{audienceLabel}</span>
+          )}
+        </div>
+
+        {dateLabel && (
+          <p className="mt-3 text-sm font-medium text-espresso-600">
+            <span className="font-extrabold text-espresso-800">{t('education.schoolDetail.gameDateLabel')} </span>
             {dateLabel}
-            {dateLabel && timeLabel ? ' · ' : ''}
+          </p>
+        )}
+        {timeLabel && (
+          <p className="mt-1 text-sm font-medium text-espresso-600">
+            <span className="font-extrabold text-espresso-800">{t('education.schoolDetail.gameTimeLabel')} </span>
             {timeLabel}
-          </span>
-        </div>
-      )}
-      {timeLabel && <p className="mt-1 text-xs font-medium text-espresso-400">{t('education.schoolDetail.joinOpensNote')}</p>}
+          </p>
+        )}
+        {timeLabel && (
+          <p className="mt-3 rounded-xl bg-linen-100 px-3 py-2 text-xs font-medium text-espresso-600">
+            {t('education.schoolDetail.joinOpensNote')}
+          </p>
+        )}
 
-      {game.teams?.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-bold text-espresso-800">
-          <UserIcon className="h-4 w-4 text-carissma-400" />
-          {game.teams.map((team, i) => (
-            <span key={team.name || i}>
-              {team.name || t('education.schoolDetail.teamFallback', { index: i + 1 })}
-              {team.capacity ? t('education.schoolDetail.playersSuffix', { count: team.capacity }) : ''}
-              {i < game.teams.length - 1 ? t('education.schoolDetail.vsSuffix') : ''}
-            </span>
-          ))}
-        </div>
-      )}
+        {game.teams?.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {game.teams.map((team, i) => (
+              <div key={team.name || i} className="flex items-center gap-2">
+                <div className="-skew-x-12 rounded-md bg-carissma-400 px-4 py-1.5 shadow-sm">
+                  <span className="block skew-x-12 whitespace-nowrap text-xs font-extrabold text-white">
+                    {team.name || t('education.schoolDetail.teamFallback', { index: i + 1 })}
+                    {team.capacity ? ` / ${t('education.schoolDetail.playersCount', { count: team.capacity })}` : ''}
+                  </span>
+                </div>
+                {i < game.teams.length - 1 && (
+                  <span className="text-sm font-extrabold text-carissma-500">{t('education.schoolDetail.vsLabel')}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
-      {game.categories?.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {game.categories.map((c, i) => (
-            <span key={i} className="rounded-full bg-linen-100 px-3 py-1 text-xs font-bold text-espresso-600">
-              {(isAr && c.titleAr) || c.titleEn}
-            </span>
-          ))}
-        </div>
-      )}
+        {game.categories?.length > 0 && (
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-espresso-400">
+              {t('education.schoolDetail.gamesLabel')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {game.categories.map((c, i) => (
+                <span key={i} className="rounded-full border border-carissma-200 bg-linen-50 px-3 py-1 text-xs font-bold text-espresso-600">
+                  {(isAr && c.titleAr) || c.titleEn}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-      <button
-        onClick={() => onJoin(game)}
-        className="mt-5 w-full rounded-full bg-carissma-400 py-3 font-bold text-white transition hover:bg-carissma-500"
-      >
-        {t('education.schoolDetail.joinGame')}
-      </button>
+        <button
+          onClick={() => onJoin(game)}
+          className="mt-5 w-full rounded-full bg-carissma-400 py-3 font-bold text-white transition hover:bg-carissma-500"
+        >
+          {t('education.schoolDetail.joinGame')}
+        </button>
+      </div>
     </div>
   );
 }
