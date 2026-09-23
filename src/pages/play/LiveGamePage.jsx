@@ -231,12 +231,12 @@ function QuestionCard({
           <img src={question.media_url} alt="" className="mx-auto mt-4 max-h-56 w-full rounded-2xl object-cover" />
         )}
 
-        {question.question_type === 'audio' && question.media_url && (
-          <div className="mx-auto mt-4 flex max-w-md items-center gap-3 rounded-full bg-white px-4 py-3">
-            <SpeakerIcon className="h-5 w-5 flex-none text-espresso-700" />
-            <audio controls src={question.media_url} className="h-9 w-full" />
-          </div>
-        )}
+        {/* Audio has no player here — this branch only renders for an audio
+            question once it's already been revealed, and the clip was
+            already played in full during the pre-reveal listening step
+            above. Showing it again here would look like a second, unplayed
+            clip alongside the question/answers, which isn't the flow: the
+            player listens once, then answers from memory. */}
 
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {options.map((opt, i) => {
