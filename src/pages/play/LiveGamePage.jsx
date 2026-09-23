@@ -149,8 +149,19 @@ function QuestionCard({
               <p className="mt-6 text-sm text-espresso-500">{t('play.live.generatingCode')}</p>
             )}
             <p className="mt-4 text-xs text-espresso-500">{t('play.live.scanHint')}</p>
+            {/* No second device handy (or just testing)? This confirms the
+                same scan token the QR code itself carries — it can be
+                clicked as many times as needed for this same question
+                (scanQuestion has no single-use guard), it just opens in a
+                new tab so the host's own screen stays put and picks up the
+                reveal live over the socket, same as a real scan would. */}
             {scanUrl && (
-              <a href={scanUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-carissma-600 underline">
+              <a
+                href={scanUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-block w-full max-w-xs rounded-xl bg-carissma-400 py-3 text-base font-bold text-espresso-50 hover:bg-carissma-500"
+              >
                 {t('play.live.openScanLink')}
               </a>
             )}
