@@ -121,7 +121,7 @@ function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline,
 
 function QuestionCard({
   question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions,
-  audioEnded, onAudioEnded, onReveal, t, i18n,
+  audioEnded, onAudioEnded, onReveal, submitting, t, i18n,
 }) {
   // Question bank content is bilingual per-row (question_text_en/_ar,
   // options_json_en/_ar) — show the row's Arabic content when the site is
@@ -203,7 +203,8 @@ function QuestionCard({
         {audioEnded && (
           <button
             onClick={onReveal}
-            className="mx-auto mt-6 block w-full max-w-xs rounded-xl bg-carissma-400 py-3 text-base font-bold text-espresso-50 hover:bg-carissma-500"
+            disabled={submitting}
+            className="mx-auto mt-6 block w-full max-w-xs rounded-xl bg-carissma-400 py-3 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
           >
             {t('play.live.next')}
           </button>
@@ -267,7 +268,7 @@ function QuestionCard({
 // the host picks whichever participant actually answered correctly in
 // person, or "No one", and that single judgment settles the tile. `value`
 // is a participant id, the string 'none', or undefined (nothing chosen yet).
-function WhoAnsweredPanel({ participants, value, onChange, onConfirm, t }) {
+function WhoAnsweredPanel({ participants, value, onChange, onConfirm, submitting, t }) {
   const active = (participants || []).filter((p) => !p.left_at);
   return (
     <div className="mt-4 rounded-3xl bg-carissma-50 p-6 text-center">
@@ -286,7 +287,7 @@ function WhoAnsweredPanel({ participants, value, onChange, onConfirm, t }) {
       </div>
       <button
         onClick={onConfirm}
-        disabled={value === undefined}
+        disabled={value === undefined || submitting}
         className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
       >
         {t('play.live.confirm')}
@@ -508,6 +509,14 @@ export default function LiveGamePage() {
   // instantly snapping to the board the moment the counter hits zero /
   // the server clears currentQuestion. See offResult below.
   const [lockedQuestion, setLockedQuestion] = useState(null);
+  // Guards every turn-ending action (submit answer, audio reveal, QR grade)
+  // against a rapid double-tap firing the request twice before the first
+  // one's response comes back — on a shared touchscreen device a fast
+  // second tap was reaching the server while the first was still in
+  // flight, and in team mode the second copy of the same answer looked to
+  // the backend like the *other* team's turn, settling the tile on the
+  // spot instead of handing it off (see resolveTurn's priorAnswer check).
+  const [submitting, setSubmitting] = useState(false);
   const tickRef = useRef(null);
   const sessionRef = useRef(null);
 
@@ -532,6 +541,7 @@ export default function LiveGamePage() {
           setQrGrading(false);
           setQrWinner(undefined);
           setAudioEnded(false);
+          setSubmitting(false);
         }
       }
     });
@@ -550,6 +560,7 @@ export default function LiveGamePage() {
       setQrGrading(false);
       setQrWinner(undefined);
       setAudioEnded(false);
+      setSubmitting(false);
       refresh();
     });
     const offRevealed = onGameEvent('game:question_revealed', (payload) => {
@@ -575,6 +586,7 @@ export default function LiveGamePage() {
       setQrGrading(false);
       setQrWinner(undefined);
       setAudioEnded(false);
+      setSubmitting(false);
       refresh();
     });
     const offResult = onGameEvent('game:answer_result', (payload) => {
@@ -680,8 +692,9 @@ export default function LiveGamePage() {
   };
 
   const onSubmit = async () => {
-    if (selected === null || !session?.currentQuestion) return;
+    if (selected === null || !session?.currentQuestion || submitting) return;
     setActionError('');
+    setSubmitting(true);
     try {
       await submitAnswer(id, session.currentQuestion.id, selected);
     } catch (err) {
@@ -689,6 +702,7 @@ export default function LiveGamePage() {
       refresh();
     } finally {
       setSelected(null);
+      setSubmitting(false);
     }
   };
 
@@ -696,8 +710,9 @@ export default function LiveGamePage() {
   // "No one") in the WhoAnsweredPanel — award it directly instead of
   // comparing a selected option to a correct-answer index (there isn't one).
   const onQrSubmit = async () => {
-    if (qrWinner === undefined || !session?.currentQuestion) return;
+    if (qrWinner === undefined || !session?.currentQuestion || submitting) return;
     setActionError('');
+    setSubmitting(true);
     try {
       await submitQrAnswer(id, session.currentQuestion.id, qrWinner === 'none' ? null : qrWinner);
     } catch (err) {
@@ -706,6 +721,7 @@ export default function LiveGamePage() {
     } finally {
       setQrGrading(false);
       setQrWinner(undefined);
+      setSubmitting(false);
     }
   };
 
@@ -714,13 +730,16 @@ export default function LiveGamePage() {
   // handler (offRevealed, shared with the QR scan flow) is what actually
   // flips awaitingScan off once the server confirms it.
   const onAudioReveal = async () => {
-    if (!session?.currentQuestion) return;
+    if (!session?.currentQuestion || submitting) return;
     setActionError('');
+    setSubmitting(true);
     try {
       await revealQuestionApi(id);
     } catch (err) {
       setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
       refresh();
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -939,6 +958,7 @@ export default function LiveGamePage() {
                   audioEnded={audioEnded}
                   onAudioEnded={() => setAudioEnded(true)}
                   onReveal={canAct ? onAudioReveal : () => {}}
+                  submitting={submitting}
                   t={t}
                   i18n={i18n}
                 />
@@ -981,6 +1001,7 @@ export default function LiveGamePage() {
                 value={qrWinner}
                 onChange={setQrWinner}
                 onConfirm={onQrSubmit}
+                submitting={submitting}
                 t={t}
               />
             ) : (
@@ -994,7 +1015,7 @@ export default function LiveGamePage() {
           ) : (
             <button
               onClick={onSubmit}
-              disabled={selected === null}
+              disabled={selected === null || submitting}
               className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
             >
               {t('play.live.next')}
