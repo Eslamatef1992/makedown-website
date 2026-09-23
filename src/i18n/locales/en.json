@@ -218,6 +218,7 @@
       "generatingCode": "Generating code…",
       "scanHint": "Scan with another device to start the timer.",
       "openScanLink": "Open scan link",
+      "scanQrCodeLabel": "Scan QR Code",
       "qrScannedHint": "Scanned! Answer out loud, then tap Next.",
       "listenPrompt": "Listen carefully…",
       "lifelinePhoneAFriend": "Phone a friend",

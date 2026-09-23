@@ -137,9 +137,12 @@ function QuestionCard({
   if (question.question_type === 'qr') {
     return (
       <div className="rounded-3xl bg-carissma-50 p-8 text-center">
-        <p className="text-lg font-extrabold text-espresso-900">{questionText}</p>
         {awaitingScan ? (
           <>
+            {/* The actual question text stays hidden on this screen until the
+                code is scanned — before that, this is just a "scan to
+                reveal" prompt, not the question itself. */}
+            <p className="text-lg font-extrabold text-espresso-900">{t('play.live.scanQrCodeLabel')}</p>
             {scanQrDataUrl ? (
               <img src={scanQrDataUrl} alt={t('play.live.scanToReveal')} className="mx-auto mt-6 h-48 w-48 rounded-2xl border-4 border-white" />
             ) : (
@@ -153,12 +156,13 @@ function QuestionCard({
             )}
           </>
         ) : (
-          // No multiple-choice options for this type — just the one answer
-          // title the admin entered, shown here once scanned. The host
-          // judges the player's real answer against it in person and picks
-          // the winner via the "Who Is Answer?" step that appears below
-          // after tapping Next.
+          // No multiple-choice options for this type — just the question
+          // text and the one answer title the admin entered, both revealed
+          // together once scanned. The host judges the player's real answer
+          // against it in person and picks the winner via the "Who Is
+          // Answer?" step that appears below after tapping Next.
           <>
+            <p className="text-lg font-extrabold text-espresso-900">{questionText}</p>
             {options[0] && (
               <div className="mx-auto mt-6 max-w-sm rounded-2xl bg-white px-6 py-4">
                 <p className="text-base font-extrabold text-carissma-600">{options[0]}</p>

@@ -12,14 +12,21 @@ import { scanQuestion } from '../../api/play.api';
 // question reveal live over Socket.io.
 export default function ScanConfirmPage() {
   const { sessionId, token } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [state, setState] = useState('scanning'); // 'scanning' | 'done' | 'error'
+  const [question, setQuestion] = useState(null);
 
   useEffect(() => {
     scanQuestion(sessionId, token)
-      .then(() => setState('done'))
+      .then((result) => {
+        setQuestion(result.question || null);
+        setState('done');
+      })
       .catch(() => setState('error'));
   }, [sessionId, token]);
+
+  const isAr = i18n.language?.startsWith('ar');
+  const questionText = question && ((isAr && question.question_text_ar) || question.question_text_en);
 
   return (
     <PlayModalLayout>
@@ -32,6 +39,14 @@ export default function ScanConfirmPage() {
             <StickerHeading as="h2" className="mt-4 text-2xl">
               {t('play.scanConfirm.scanned')}
             </StickerHeading>
+            {/* The scan itself only confirms the code — showing the actual
+                question here is what lets the scanning device (usually the
+                player's own phone) double-check which question just opened,
+                since the shared host screen only shows a generic "scan"
+                prompt until this moment. */}
+            {questionText && (
+              <p className="mt-3 rounded-2xl bg-carissma-50 px-4 py-3 text-base font-extrabold text-espresso-900">{questionText}</p>
+            )}
             <p className="mt-2 text-sm font-medium text-espresso-700">{t('play.scanConfirm.scannedBody')}</p>
           </>
         ) : state === 'error' ? (

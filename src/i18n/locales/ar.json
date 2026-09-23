@@ -222,6 +222,7 @@
       "generatingCode": "جارٍ إنشاء الرمز…",
       "scanHint": "امسح الرمز بجهاز آخر لبدء المؤقت.",
       "openScanLink": "فتح رابط المسح",
+      "scanQrCodeLabel": "امسح رمز QR",
       "qrScannedHint": "تم المسح! أجب بصوت مرتفع ثم اضغط التالي.",
       "listenPrompt": "استمع جيدًا…",
       "lifelinePhoneAFriend": "الاتصال بصديق",
