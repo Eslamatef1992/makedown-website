@@ -218,7 +218,8 @@
       "generatingCode": "Generating code…",
       "scanHint": "Scan with another device to start the timer.",
       "openScanLink": "Open scan link",
-      "scannedAnswerBelow": "Scanned — answer below!",
+      "qrScannedHint": "Scanned! Answer out loud, then tap Next.",
+      "listenPrompt": "Listen carefully…",
       "lifelinePhoneAFriend": "Phone a friend",
       "lifelineFiftyFifty": "50 / 50",
       "lifelineSkip": "Skip",
@@ -229,7 +230,11 @@
       "correctAnswerLabel": "Correct Answer:",
       "winBadge": "WIN!",
       "pointsLabel": "Points",
-      "continueGame": "Continue Game"
+      "continueGame": "Continue Game",
+      "whoAnswered": "Who Is Answer?",
+      "noOneAnswered": "No One Answer",
+      "player": "Player",
+      "confirm": "Confirm"
     },
     "categorySelect": {
       "title": "Select Categories",

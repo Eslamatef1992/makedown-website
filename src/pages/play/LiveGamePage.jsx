@@ -5,7 +5,7 @@ import {
   UserIcon, PlusIcon, MinusIcon, SpeakerIcon, StarIcon, SparkleIcon,
 } from '../../components/ui/icons';
 import {
-  getGame, pickTile, submitAnswer, leaveGame,
+  getGame, pickTile, submitAnswer, submitQrAnswer, revealQuestion as revealQuestionApi, leaveGame,
   applyFiftyFifty, applySkip, callPhoneAFriend as phoneAFriendApi, respondPhoneAFriend, adjustScore,
 } from '../../api/play.api';
 import { useTranslation } from 'react-i18next';
@@ -119,7 +119,10 @@ function QuestionSidebar({ participant, isMe, usedLifelines, canAct, onLifeline,
   );
 }
 
-function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions, t, i18n }) {
+function QuestionCard({
+  question, awaitingScan, scanQrDataUrl, scanUrl, selected, onSelect, hiddenOptions,
+  audioEnded, onAudioEnded, onReveal, t, i18n,
+}) {
   // Question bank content is bilingual per-row (question_text_en/_ar,
   // options_json_en/_ar) — show the row's Arabic content when the site is
   // in Arabic, falling back to English if a question has no Arabic text yet.
@@ -150,7 +153,36 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
             )}
           </>
         ) : (
-          <p className="mt-4 font-bold text-carissma-600">{t('play.live.scannedAnswerBelow')}</p>
+          // No options to show for this type — the question is answered out
+          // loud/in person; the host judges it and picks the winner via the
+          // "Who Is Answer?" step that appears below after tapping Next.
+          <p className="mt-4 font-bold text-carissma-600">{t('play.live.qrScannedHint')}</p>
+        )}
+      </div>
+    );
+  }
+
+  // Audio questions are gated the same way QR ones are (see the backend's
+  // GATED_QUESTION_TYPES) — but there's no code to scan, so while
+  // awaitingScan is true this shows just the clip, not the question text or
+  // any options. Next only appears once the clip has actually finished
+  // playing, and tapping it (onReveal) is what reveals the question/options
+  // and starts the timer.
+  if (question.question_type === 'audio' && awaitingScan) {
+    return (
+      <div className="rounded-3xl bg-carissma-50 p-8 text-center">
+        <p className="text-lg font-extrabold text-espresso-900">{t('play.live.listenPrompt')}</p>
+        <div className="mx-auto mt-6 flex max-w-md items-center gap-3 rounded-full bg-white px-4 py-3">
+          <SpeakerIcon className="h-5 w-5 flex-none text-espresso-700" />
+          <audio controls src={question.media_url} className="h-9 w-full" onEnded={onAudioEnded} />
+        </div>
+        {audioEnded && (
+          <button
+            onClick={onReveal}
+            className="mx-auto mt-6 block w-full max-w-xs rounded-xl bg-carissma-400 py-3 text-base font-bold text-espresso-50 hover:bg-carissma-500"
+          >
+            {t('play.live.next')}
+          </button>
         )}
       </div>
     );
@@ -202,6 +234,39 @@ function QuestionCard({ question, awaitingScan, scanQrDataUrl, scanUrl, selected
         </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// QR-gated questions have no options at all — once the QR code is scanned
+// and the host taps Next, this replaces the (nonexistent) answer choices:
+// the host picks whichever participant actually answered correctly in
+// person, or "No one", and that single judgment settles the tile. `value`
+// is a participant id, the string 'none', or undefined (nothing chosen yet).
+function WhoAnsweredPanel({ participants, value, onChange, onConfirm, t }) {
+  const active = (participants || []).filter((p) => !p.left_at);
+  return (
+    <div className="mt-4 rounded-3xl bg-carissma-50 p-6 text-center">
+      <p className="mb-3 text-base font-extrabold text-espresso-900">{t('play.live.whoAnswered')}</p>
+      <div className="mx-auto flex max-w-xs flex-col gap-2">
+        {active.map((p) => (
+          <label key={p.id} className="flex cursor-pointer items-center gap-2.5 rounded-full bg-white px-4 py-2.5 text-start">
+            <input type="radio" name="qrWinner" checked={value === p.id} onChange={() => onChange(p.id)} className="h-4 w-4 accent-carissma-500" />
+            <span className="text-sm font-bold text-espresso-800">{p.full_name || p.guest_name || t('play.live.player')}</span>
+          </label>
+        ))}
+        <label className="flex cursor-pointer items-center gap-2.5 rounded-full bg-white px-4 py-2.5 text-start">
+          <input type="radio" name="qrWinner" checked={value === 'none'} onChange={() => onChange('none')} className="h-4 w-4 accent-carissma-500" />
+          <span className="text-sm font-bold text-espresso-800">{t('play.live.noOneAnswered')}</span>
+        </label>
+      </div>
+      <button
+        onClick={onConfirm}
+        disabled={value === undefined}
+        className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
+      >
+        {t('play.live.confirm')}
+      </button>
     </div>
   );
 }
@@ -322,7 +387,11 @@ function GamesBoard({ board, onPick, canPick }) {
 function RoundResultModal({ result, onContinue, t }) {
   if (!result) return null;
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-  const letter = letters[result.correctOptionIndex] ?? '-';
+  // A QR-gated question has no stored options at all (see resolveQrAnswer),
+  // so the server sends correctOptionIndex: null for it — there's no letter
+  // to reveal, so skip that line entirely instead of showing a stray "-".
+  const hasCorrectOption = result.correctOptionIndex !== null && result.correctOptionIndex !== undefined;
+  const letter = letters[result.correctOptionIndex];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -346,9 +415,11 @@ function RoundResultModal({ result, onContinue, t }) {
           <h2 className="mt-6 text-2xl font-extrabold text-carissma-300">{t('play.live.everyoneLost')}</h2>
         )}
 
-        <p className="mt-3 text-base font-bold text-green-600">
-          {t('play.live.correctAnswerLabel')} {letter}
-        </p>
+        {hasCorrectOption && (
+          <p className="mt-3 text-base font-bold text-green-600">
+            {t('play.live.correctAnswerLabel')} {letter}
+          </p>
+        )}
 
         {result.isWinner && (
           <span className="mt-4 inline-block rounded-full bg-gradient-to-r from-saffron-300 to-carnation-400 px-6 py-1.5 text-sm font-extrabold text-white shadow">
@@ -384,6 +455,16 @@ export default function LiveGamePage() {
   const [scanUrl, setScanUrl] = useState(null);
   const [selected, setSelected] = useState(null);
   const [hiddenOptions, setHiddenOptions] = useState([]);
+  // QR-gated questions only: whether the "Who Is Answer?" panel is showing
+  // (after Next, in place of the nonexistent multiple-choice options), and
+  // who's currently picked in it — a participant id, 'none', or undefined
+  // (nothing chosen yet).
+  const [qrGrading, setQrGrading] = useState(false);
+  const [qrWinner, setQrWinner] = useState(undefined);
+  // Audio questions only: whether the clip has finished playing yet — the
+  // Next button (which reveals the question/options and starts the timer)
+  // only appears once this is true.
+  const [audioEnded, setAudioEnded] = useState(false);
   const [usedLifelines, setUsedLifelines] = useState([]);
   const [flash, setFlash] = useState(null); // { isCorrect }
   // Surfaces why a tap on "Next" (or a lifeline) was rejected by the server
@@ -424,6 +505,9 @@ export default function LiveGamePage() {
           setSelected(null);
           setHiddenOptions([]);
           setAwaitingScan(false);
+          setQrGrading(false);
+          setQrWinner(undefined);
+          setAudioEnded(false);
         }
       }
     });
@@ -439,6 +523,9 @@ export default function LiveGamePage() {
       setAwaitingScan(payload.awaitingScan);
       setScanQrDataUrl(payload.scanQrDataUrl || null);
       setScanUrl(payload.scanUrl || null);
+      setQrGrading(false);
+      setQrWinner(undefined);
+      setAudioEnded(false);
       refresh();
     });
     const offRevealed = onGameEvent('game:question_revealed', (payload) => {
@@ -461,6 +548,9 @@ export default function LiveGamePage() {
       setAwaitingScan(payload.awaitingScan);
       setScanQrDataUrl(payload.scanQrDataUrl || null);
       setScanUrl(payload.scanUrl || null);
+      setQrGrading(false);
+      setQrWinner(undefined);
+      setAudioEnded(false);
       refresh();
     });
     const offResult = onGameEvent('game:answer_result', (payload) => {
@@ -575,6 +665,38 @@ export default function LiveGamePage() {
       refresh();
     } finally {
       setSelected(null);
+    }
+  };
+
+  // QR-gated questions: the host has picked who answered correctly (or
+  // "No one") in the WhoAnsweredPanel — award it directly instead of
+  // comparing a selected option to a correct-answer index (there isn't one).
+  const onQrSubmit = async () => {
+    if (qrWinner === undefined || !session?.currentQuestion) return;
+    setActionError('');
+    try {
+      await submitQrAnswer(id, session.currentQuestion.id, qrWinner === 'none' ? null : qrWinner);
+    } catch (err) {
+      setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
+      refresh();
+    } finally {
+      setQrGrading(false);
+      setQrWinner(undefined);
+    }
+  };
+
+  // Audio questions: the clip finished and the host tapped Next — reveal the
+  // question/options and start the timer. The socket's game:question_revealed
+  // handler (offRevealed, shared with the QR scan flow) is what actually
+  // flips awaitingScan off once the server confirms it.
+  const onAudioReveal = async () => {
+    if (!session?.currentQuestion) return;
+    setActionError('');
+    try {
+      await revealQuestionApi(id);
+    } catch (err) {
+      setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
+      refresh();
     }
   };
 
@@ -790,6 +912,9 @@ export default function LiveGamePage() {
                   selected={selected}
                   onSelect={session.currentQuestion && canAct ? setSelected : () => {}}
                   hiddenOptions={hiddenOptions}
+                  audioEnded={audioEnded}
+                  onAudioEnded={() => setAudioEnded(true)}
+                  onReveal={canAct ? onAudioReveal : () => {}}
                   t={t}
                   i18n={i18n}
                 />
@@ -825,13 +950,32 @@ export default function LiveGamePage() {
         </div>
 
         {session.currentQuestion && canAct && !awaitingScan && (
-          <button
-            onClick={onSubmit}
-            disabled={selected === null}
-            className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
-          >
-            {t('play.live.next')}
-          </button>
+          session.currentQuestion.question_type === 'qr' ? (
+            qrGrading ? (
+              <WhoAnsweredPanel
+                participants={session.participants}
+                value={qrWinner}
+                onChange={setQrWinner}
+                onConfirm={onQrSubmit}
+                t={t}
+              />
+            ) : (
+              <button
+                onClick={() => setQrGrading(true)}
+                className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500"
+              >
+                {t('play.live.next')}
+              </button>
+            )
+          ) : (
+            <button
+              onClick={onSubmit}
+              disabled={selected === null}
+              className="mt-4 w-full rounded-xl bg-carissma-400 py-3.5 text-base font-bold text-espresso-50 hover:bg-carissma-500 disabled:opacity-50"
+            >
+              {t('play.live.next')}
+            </button>
+          )
         )}
 
         {/* Help Options bar: board-select screen only (the question screen uses

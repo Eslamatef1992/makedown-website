@@ -20,8 +20,15 @@ export const matchRandomOpponent = (id) => client.post(`/play/sessions/${id}/mat
 // ---- Live play ----
 export const pickTile = (id, questionId) => client.post(`/play/sessions/${id}/pick-tile`, { questionId }).then((r) => r.data.data);
 export const scanQuestion = (id, token) => client.post(`/play/sessions/${id}/scan`, { token }).then((r) => r.data.data);
+// Audio questions: reveal the question/options and start the timer once the
+// clip has finished playing — no scan token needed, unlike a QR question.
+export const revealQuestion = (id) => client.post(`/play/sessions/${id}/reveal`).then((r) => r.data.data);
 export const submitAnswer = (id, questionId, selectedOptionIndex, timeTakenMs) =>
   client.post(`/play/sessions/${id}/answer`, { questionId, selectedOptionIndex, timeTakenMs }).then((r) => r.data.data);
+// QR-gated questions have no options — the host picks which team answered
+// correctly (or null for "No one") instead of submitting an option index.
+export const submitQrAnswer = (id, questionId, winnerParticipantId) =>
+  client.post(`/play/sessions/${id}/qr-answer`, { questionId, winnerParticipantId }).then((r) => r.data.data);
 
 // ---- Lifelines ----
 export const applyFiftyFifty = (id, questionId) =>

@@ -222,7 +222,8 @@
       "generatingCode": "جارٍ إنشاء الرمز…",
       "scanHint": "امسح الرمز بجهاز آخر لبدء المؤقت.",
       "openScanLink": "فتح رابط المسح",
-      "scannedAnswerBelow": "تم المسح — أجب أدناه!",
+      "qrScannedHint": "تم المسح! أجب بصوت مرتفع ثم اضغط التالي.",
+      "listenPrompt": "استمع جيدًا…",
       "lifelinePhoneAFriend": "الاتصال بصديق",
       "lifelineFiftyFifty": "٥٠ / ٥٠",
       "lifelineSkip": "تخطي",
@@ -233,7 +234,11 @@
       "correctAnswerLabel": "الإجابة الصحيحة:",
       "winBadge": "فوز!",
       "pointsLabel": "النقاط",
-      "continueGame": "متابعة اللعبة"
+      "continueGame": "متابعة اللعبة",
+      "whoAnswered": "من الذي أجاب؟",
+      "noOneAnswered": "لم يُجب أحد",
+      "player": "لاعب",
+      "confirm": "تأكيد"
     },
     "categorySelect": {
       "title": "اختر الفئات",
