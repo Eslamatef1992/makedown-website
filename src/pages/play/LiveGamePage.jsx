@@ -153,10 +153,19 @@ function QuestionCard({
             )}
           </>
         ) : (
-          // No options to show for this type — the question is answered out
-          // loud/in person; the host judges it and picks the winner via the
-          // "Who Is Answer?" step that appears below after tapping Next.
-          <p className="mt-4 font-bold text-carissma-600">{t('play.live.qrScannedHint')}</p>
+          // No multiple-choice options for this type — just the one answer
+          // title the admin entered, shown here once scanned. The host
+          // judges the player's real answer against it in person and picks
+          // the winner via the "Who Is Answer?" step that appears below
+          // after tapping Next.
+          <>
+            {options[0] && (
+              <div className="mx-auto mt-6 max-w-sm rounded-2xl bg-white px-6 py-4">
+                <p className="text-base font-extrabold text-carissma-600">{options[0]}</p>
+              </div>
+            )}
+            <p className="mt-4 text-xs text-espresso-500">{t('play.live.qrScannedHint')}</p>
+          </>
         )}
       </div>
     );
