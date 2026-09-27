@@ -69,7 +69,7 @@ export default function App() {
 
         {/* Game flow — direct play, no solo/team choice and no invite code */}
         <Route path="/play" element={<ProtectedRoute><CategorySelectPage /></ProtectedRoute>} />
-        <Route path="/play/scan/:sessionId/:token" element={<ProtectedRoute><ScanConfirmPage /></ProtectedRoute>} />
+        <Route path="/play/scan/:sessionId/:token" element={<ScanConfirmPage />} />
         <Route path="/play/sessions/:id/live" element={<ProtectedRoute><LiveGamePage /></ProtectedRoute>} />
         <Route path="/play/sessions/:id/results" element={<ProtectedRoute><ResultsPage /></ProtectedRoute>} />
         <Route path="/education" element={<SchoolsPage />} />

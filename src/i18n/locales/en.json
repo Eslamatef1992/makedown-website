@@ -170,8 +170,7 @@
   },
   "play": {
     "scanConfirm": {
-      "scanned": "Scanned!",
-      "scannedBody": "You can go back to the game — the question is starting now.",
+      "next": "Next",
       "errorTitle": "That didn't work",
       "errorBody": "This code may have already been used or the question has changed.",
       "scanning": "Scanning…"
