@@ -111,11 +111,21 @@ export default function ProfilePage() {
 
   const setTab = (key) => setSearchParams(key === 'packages' ? {} : { tab: key });
 
-  const currentPackage = packages.find((p) => p.status === 'active');
-  const topTierPackageId = catalog.length
-    ? catalog.reduce((top, pkg) => (Number(pkg.price) > Number(top.price) ? pkg : top), catalog[0]).id
-    : null;
-  const isTopTierPackage = Boolean(currentPackage) && topTierPackageId != null && currentPackage.package_id === topTierPackageId;
+  // Credits are actually spent oldest-purchase-first (see
+  // packages.repository.js's consumeActivePackageCredit) — `packages` here
+  // is ordered newest-first (listUserPackages), so show whichever active
+  // package that FIFO order would draw from next, not just the most
+  // recently purchased one. Otherwise "Games Left" can disagree with what a
+  // "Start Playing" tap is about to spend. Falls back to the newest active
+  // package (0 credits left) so a fully-drained account still has a package
+  // to show a "Renew" button for.
+  const activePackages = packages.filter((p) => p.status === 'active');
+  const currentPackage = [...activePackages].reverse().find((p) => p.credits_remaining > 0) || activePackages[0];
+  // `tier` (1=Standard, 2=Premium, 3=VIP by convention) now comes straight
+  // from the API — package_tier on the owned package, tier on the catalog
+  // — instead of guessing the top tier from price.
+  const topTierValue = catalog.length ? Math.max(...catalog.map((pkg) => Number(pkg.tier) || 1)) : null;
+  const isTopTierPackage = Boolean(currentPackage) && topTierValue != null && Number(currentPackage.package_tier) === topTierValue;
 
   const handleShare = async () => {
     const url = `${window.location.origin}/profile/users/${user?.id}`;
