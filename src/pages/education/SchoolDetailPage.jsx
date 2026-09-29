@@ -138,31 +138,47 @@ function GameCard({ game, onJoin }) {
   // set from the school admin panel's Edit game modal), falling back to the
   // shared placeholder when a quiz has none.
   const tiles = (game.categories || []).slice(0, 6);
+  // A single "Game Card Image" the admin can upload for the whole session
+  // (Create/Edit Game modal's "Game Card Image" field, game_sessions.
+  // card_image_url) — when set, it replaces the auto-composed grid below
+  // entirely, since it's meant to be a single, already-designed poster
+  // for the game rather than a mosaic of the per-category images.
+  const cardImage = game.cardImageUrl;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-carissma-100 bg-white shadow-sm">
-      {tiles.length > 0 && (
-        // The uploaded Game Image is shown as-is, at its own natural aspect
-        // ratio (object-contain, no cropping) — it already carries its own
-        // title text and PLAY button baked into the artwork, so nothing is
-        // overlaid on top of it here. 2 columns when there's more than one
-        // quiz image on this session, or a single full-width image when
-        // there's only one (avoids a half-empty row and a cropped/squeezed
-        // image).
-        <div className="grid grid-cols-2 gap-2 p-2 sm:gap-2.5 sm:p-2.5">
-          {tiles.map((c, i) => (
-            <div
-              key={i}
-              className={`overflow-hidden rounded-xl bg-linen-100 ${tiles.length === 1 ? 'col-span-2' : ''}`}
-            >
-              <img
-                src={c.coverImageUrl || gameTileDefault}
-                alt={(isAr && c.titleAr) || c.titleEn || ''}
-                className="block h-auto w-full object-contain"
-              />
-            </div>
-          ))}
+      {cardImage ? (
+        <div className="overflow-hidden bg-linen-100">
+          <img
+            src={cardImage}
+            alt={(isAr && game.titleAr) || game.title || ''}
+            className="block h-auto w-full object-contain"
+          />
         </div>
+      ) : (
+        tiles.length > 0 && (
+          // The uploaded Game Image is shown as-is, at its own natural aspect
+          // ratio (object-contain, no cropping) — it already carries its own
+          // title text and PLAY button baked into the artwork, so nothing is
+          // overlaid on top of it here. 2 columns when there's more than one
+          // quiz image on this session, or a single full-width image when
+          // there's only one (avoids a half-empty row and a cropped/squeezed
+          // image).
+          <div className="grid grid-cols-2 gap-2 p-2 sm:gap-2.5 sm:p-2.5">
+            {tiles.map((c, i) => (
+              <div
+                key={i}
+                className={`overflow-hidden rounded-xl bg-linen-100 ${tiles.length === 1 ? 'col-span-2' : ''}`}
+              >
+                <img
+                  src={c.coverImageUrl || gameTileDefault}
+                  alt={(isAr && c.titleAr) || c.titleEn || ''}
+                  className="block h-auto w-full object-contain"
+                />
+              </div>
+            ))}
+          </div>
+        )
       )}
 
       <div className="p-5 sm:p-6">
