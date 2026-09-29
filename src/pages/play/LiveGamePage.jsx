@@ -716,9 +716,18 @@ export default function LiveGamePage() {
   };
 
   const onPick = async (questionId) => {
+    // Every other action on this page clears actionError up front and
+    // surfaces its own failure message (see onSubmit/onLifeline/
+    // onAdjustScore below) — this one used to swallow the error entirely
+    // and never clear it either, so a stale banner from an unrelated
+    // earlier action (e.g. "not host" from a failed score adjustment)
+    // could sit on screen indefinitely, making a *later* tile click look
+    // like the cause of an error it had nothing to do with.
+    setActionError('');
     try {
       await pickTile(id, questionId);
-    } catch {
+    } catch (err) {
+      setActionError(err.response?.data?.message || t('common.somethingWentWrong'));
       refresh();
     }
   };
