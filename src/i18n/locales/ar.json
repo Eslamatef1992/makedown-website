@@ -238,7 +238,10 @@
       "whoAnswered": "من الذي أجاب؟",
       "noOneAnswered": "لم يُجب أحد",
       "player": "لاعب",
-      "confirm": "تأكيد"
+      "confirm": "تأكيد",
+      "waitingToStart": "بانتظار البدء — يفترض أن يكون الجميع قد انضم الآن.",
+      "startGame": "ابدأ اللعبة",
+      "starting": "جارٍ البدء…"
     },
     "categorySelect": {
       "title": "اختر الفئات",

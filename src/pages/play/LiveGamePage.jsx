@@ -7,6 +7,7 @@ import {
 import {
   getGame, pickTile, submitAnswer, submitQrAnswer, revealQuestion as revealQuestionApi, leaveGame,
   applyFiftyFifty, applySkip, callPhoneAFriend as phoneAFriendApi, respondPhoneAFriend, adjustScore,
+  startGame,
 } from '../../api/play.api';
 import { useTranslation } from 'react-i18next';
 import { joinGameRoom, onGameEvent } from '../../lib/gameSocket';
@@ -517,6 +518,10 @@ export default function LiveGamePage() {
   // the backend like the *other* team's turn, settling the tile on the
   // spot instead of handing it off (see resolveTurn's priorAnswer check).
   const [submitting, setSubmitting] = useState(false);
+  // A school-hosted game (no single host_user_id) sits in 'waiting' until
+  // someone who joined it taps Start — see the waitingToStart banner below
+  // and startSession's isSchoolGameParticipant check on the backend.
+  const [starting, setStarting] = useState(false);
   const tickRef = useRef(null);
   const sessionRef = useRef(null);
 
@@ -544,6 +549,9 @@ export default function LiveGamePage() {
           setSubmitting(false);
         }
       }
+    });
+    const offStarted = onGameEvent('game:started', (detail) => {
+      if (detail.id === Number(id)) setSession(detail);
     });
     const offTile = onGameEvent('game:tile_picked', (payload) => {
       if (payload.sessionId !== Number(id)) return;
@@ -639,7 +647,7 @@ export default function LiveGamePage() {
 
     return () => {
       leaveRoom();
-      offState(); offTile(); offRevealed(); offNextTeam(); offResult(); offEnded(); offLifelineReq(); offLifelineRes(); offScoreAdjusted();
+      offState(); offStarted(); offTile(); offRevealed(); offNextTeam(); offResult(); offEnded(); offLifelineReq(); offLifelineRes(); offScoreAdjusted();
       clearInterval(tickRef.current);
     };
   }, [id, navigate, refresh]);
@@ -682,6 +690,20 @@ export default function LiveGamePage() {
   // team's turn, since their id never matches the logged-in host's.
   const canAct = Boolean(isMyTurn || isHost) && session?.status === 'active';
   const currentTurnParticipant = session?.participants?.find((p) => p.id === session.currentTurnParticipantId);
+
+  const onStartGame = async () => {
+    if (starting) return;
+    setStarting(true);
+    setActionError('');
+    try {
+      const detail = await startGame(id);
+      setSession(detail);
+    } catch (err) {
+      setActionError(err?.response?.data?.message || t('play.live.startGame'));
+    } finally {
+      setStarting(false);
+    }
+  };
 
   const onPick = async (questionId) => {
     try {
@@ -885,6 +907,19 @@ export default function LiveGamePage() {
           <img src="/logo-mark.png" alt="Make Down" className="h-16 w-16 object-contain" />
           <span className="w-24" />
         </div>
+
+        {session.status === 'waiting' && (
+          <div className="mt-3 flex flex-col items-center gap-3 rounded-2xl bg-carissma-100 px-5 py-4 text-center sm:flex-row sm:justify-between">
+            <span className="text-sm font-bold text-carissma-600">{t('play.live.waitingToStart')}</span>
+            <button
+              onClick={onStartGame}
+              disabled={starting}
+              className="rounded-xl bg-carissma-400 px-6 py-2.5 text-sm font-extrabold text-white hover:bg-carissma-500 disabled:opacity-50"
+            >
+              {starting ? t('play.live.starting') : t('play.live.startGame')}
+            </button>
+          </div>
+        )}
 
         {flash && (
           <div className={`mt-3 rounded-2xl px-4 py-2 text-center text-sm font-extrabold ${flash.isCorrect ? 'bg-green-100 text-green-700' : 'bg-carnation-100 text-carnation-700'}`}>

@@ -234,7 +234,10 @@
       "whoAnswered": "Who Is Answer?",
       "noOneAnswered": "No One Answer",
       "player": "Player",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "waitingToStart": "Waiting to start — everyone who's joining should be in now.",
+      "startGame": "Start Game",
+      "starting": "Starting…"
     },
     "categorySelect": {
       "title": "Select Categories",
