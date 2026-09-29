@@ -685,13 +685,13 @@ export default function LiveGamePage() {
   // A school-hosted session has no host account at all (host_user_id is
   // always NULL — see the backend's startSession/joinSession), so isHost
   // can never be true here. Every player logs in with their own account
-  // instead, and a school "trivia night" is normally run from one shared
-  // screen per team — so mirror the backend's resolveActingParticipant
-  // team fallback: any other already-joined participant on the SAME team
-  // as the current turn-holder can also act on that team's behalf.
-  const isMySchoolTeammateTurn = Boolean(
-    session?.school_id && myParticipant?.team_id && currentTurnParticipant?.team_id === myParticipant.team_id
-  );
+  // instead, but in practice a school "trivia night" is still run from ONE
+  // shared screen for the whole room (a teacher/emcee taps the tile/Next
+  // themselves once a team answers out loud) — so any already-joined
+  // participant of a school session can act here, same flow as the
+  // pass-the-device host model, and regardless of turn or team; mirrors
+  // the backend's resolveActingParticipant.
+  const isSchoolParticipant = Boolean(session?.school_id && myParticipant);
   // Every website game is played pass-the-device style: only the host logs
   // in, and runs this one shared screen on behalf of every named teammate
   // (who has no account of their own) — mirrors the backend's
@@ -699,7 +699,7 @@ export default function LiveGamePage() {
   // take a turn: picking a tile, answering, or using a lifeline would be
   // silently rejected the moment it became a teammate's or the other
   // team's turn, since their id never matches the logged-in host's.
-  const canAct = Boolean(isMyTurn || isHost || isMySchoolTeammateTurn) && session?.status === 'active';
+  const canAct = Boolean(isMyTurn || isHost || isSchoolParticipant) && session?.status === 'active';
 
   const onStartGame = async () => {
     if (starting) return;
@@ -1090,7 +1090,7 @@ export default function LiveGamePage() {
                 <ScoreBlock
                   participant={leftEntity}
                   isMe={leftIsMe}
-                  canAdjust={(isHost || Boolean(session.school_id && myParticipant?.team_id === leftTeam?.id)) && Boolean(leftEntity.id)}
+                  canAdjust={(isHost || isSchoolParticipant) && Boolean(leftEntity.id)}
                   onAdjustScore={onAdjustScore}
                   t={t}
                 />
@@ -1116,7 +1116,7 @@ export default function LiveGamePage() {
                 <ScoreBlock
                   participant={rightEntity}
                   isMe={rightIsMe}
-                  canAdjust={(isHost || Boolean(session.school_id && myParticipant?.team_id === rightTeam?.id)) && Boolean(rightEntity.id)}
+                  canAdjust={(isHost || isSchoolParticipant) && Boolean(rightEntity.id)}
                   onAdjustScore={onAdjustScore}
                   t={t}
                 />
