@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '../../components/layout/SiteLayout';
 import StickerHeading from '../../components/ui/StickerHeading';
@@ -43,10 +43,11 @@ function formatTime(value, amLabel, pmLabel) {
 // of the games list (see schools.controller.js#publicGames) — a student
 // types in the code their teacher gave them, same as any other Play game;
 // the code alone determines which session they land in.
-function GameCodeModal({ game, onClose }) {
+function GameCodeModal({ game, initialCode = '', onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [code, setCode] = useState('');
+  const location = useLocation();
+  const [code, setCode] = useState(initialCode);
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(false);
 
@@ -62,6 +63,18 @@ function GameCodeModal({ game, onClose }) {
       // live game, so a school-code join does too.
       navigate(`/play/sessions/${session.id}/live`);
     } catch (err) {
+      // Joining a school game requires a real account (so each
+      // participant's own score can be tracked) — POST /play/sessions/join
+      // is behind requireAuth. A visitor who isn't logged in (or whose
+      // session quietly expired with no refresh token left, see
+      // api/client.js) gets a 401 here rather than a friendly message.
+      // Send them to log in and back to this same page with the code they
+      // already typed, instead of surfacing the raw
+      // "Missing or invalid Authorization header" API message.
+      if (err.response?.status === 401) {
+        navigate('/login', { state: { from: location.pathname, joinCode: code.trim() } });
+        return;
+      }
       setError(err.response?.data?.message || t('education.schoolDetail.modal.genericError'));
     } finally {
       setChecking(false);
@@ -257,10 +270,24 @@ export default function SchoolDetailPage() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith('ar');
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [school, setSchool] = useState(null);
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [joinGame, setJoinGame] = useState(null);
+  // Coming back from a forced login (see GameCodeModal's 401 handling
+  // above) — reopen the code modal with what they already typed instead of
+  // making them start over. Cleared from history state right away so it
+  // doesn't reappear on a later back-navigation/refresh.
+  const resumeJoinCode = location.state?.joinCode;
+
+  useEffect(() => {
+    if (!resumeJoinCode) return;
+    setJoinGame({});
+    navigate(location.pathname, { replace: true, state: {} });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeJoinCode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -302,7 +329,9 @@ export default function SchoolDetailPage() {
 
   return (
     <SiteLayout>
-      {joinGame && <GameCodeModal game={joinGame} onClose={() => setJoinGame(null)} />}
+      {joinGame && (
+        <GameCodeModal game={joinGame} initialCode={resumeJoinCode || ''} onClose={() => setJoinGame(null)} />
+      )}
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <Link to="/education" className="text-sm font-bold text-carissma-500 hover:underline">{isAr ? '→' : '←'} {t('education.schoolDetail.backToSchools')}</Link>

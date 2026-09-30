@@ -28,7 +28,11 @@ export default function Login() {
     setLoading(true);
     try {
       await login(form);
-      navigate(location.state?.from || '/');
+      // Forward any other state the page that sent us here attached (e.g.
+      // GameCodeModal's joinCode, see SchoolDetailPage.jsx) so it's there
+      // when that page re-reads location.state after this redirect.
+      const { from, ...restState } = location.state || {};
+      navigate(from || '/', { state: restState });
     } catch (err) {
       const status = err.response?.status;
       const message = err.response?.data?.message || t('common.somethingWentWrong');

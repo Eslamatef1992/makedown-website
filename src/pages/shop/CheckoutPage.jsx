@@ -126,8 +126,8 @@ function ContinueAsModal({ onClose, onGuest }) {
           {t('shop.checkout.continueModalTitle')}
         </StickerHeading>
         <div className="mt-6 space-y-3">
-          <Button onClick={() => navigate('/register', { state: { redirectTo: '/checkout' } })}>{t('shop.checkout.signup')}</Button>
-          <Button variant="outline" onClick={() => navigate('/login', { state: { redirectTo: '/checkout' } })}>
+          <Button onClick={() => navigate('/register', { state: { from: '/checkout' } })}>{t('shop.checkout.signup')}</Button>
+          <Button variant="outline" onClick={() => navigate('/login', { state: { from: '/checkout' } })}>
             {t('shop.checkout.login')}
           </Button>
           <button
